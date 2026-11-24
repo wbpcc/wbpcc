@@ -5,9 +5,10 @@ import { t } from "@/i18n/config";
 import { districts } from "@/data/placeholder";
 import { submissionQueue } from "@/data/console";
 import { PageTitle, Panel, Tabs, Status, Flash, useFlash, fmtDate } from "./ui";
+import Icon from "../Icon";
 
 // Admin: accept (publish) or reject contributors' work. Until accepted, nobody but Admins sees it.
-const KIND = { article: "📝 Article", blog: "📝 Blog", petition: "✍️ Petition", campaign: "✊ Campaign" };
+const KIND = { article: "Article", blog: "Blog", petition: "Petition", campaign: "Campaign" };
 const ST = { review: ["review", "Waiting"], approved: ["approved", "Published"], changes: ["changes", "Sent back"], rejected: ["rejected", "Rejected"] };
 
 function Card({ s, onDecide }) {
@@ -22,9 +23,9 @@ function Card({ s, onDecide }) {
       <h3>{s.title}</h3>
       <p>{s.summary}</p>
       <div className="cs-meta">
-        <span>✍️ by <code>{s.by}</code></span>
-        {s.district && <span>📍 {t(districts[s.district], "en")}</span>}
-        {s.authority && <span>🏛️ {s.authority} · {s.ptype === "formal" ? "for government" : "online"}</span>}
+        <span>by <code>{s.by}</code></span>
+        {s.district && <span><Icon name="pin" size={14} /> {t(districts[s.district], "en")}</span>}
+        {s.authority && <span><Icon name="landmark" size={14} /> {s.authority} · {s.ptype === "formal" ? "for government" : "online"}</span>}
       </div>
       {s.note && s.status !== "review" && <p className="sub-note"><b>Note sent:</b> {s.note}</p>}
       {s.status === "review" && (mode ? (
@@ -38,7 +39,7 @@ function Card({ s, onDecide }) {
       ) : (
         <div className="cs-row" style={{ marginTop: 10 }}>
           <button className="btn btn-saffron btn-sm" onClick={() => onDecide("approved")}>✓ Accept & publish</button>
-          <button className="btn btn-ghost btn-sm" onClick={() => setMode("changes")}>✎ Ask for changes</button>
+          <button className="btn btn-ghost btn-sm" onClick={() => setMode("changes")}>Ask for changes</button>
           <button className="btn btn-ghost btn-sm" onClick={() => setMode("rejected")}>✕ Reject</button>
         </div>
       ))}

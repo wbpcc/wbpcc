@@ -2,6 +2,7 @@ import { getDictionary, t, intlLocale } from "@/i18n/config";
 import { districts, findGroup } from "@/data/placeholder";
 import { demoMember } from "@/data/portal";
 import { PasswordForm } from "@/components/PortalForms";
+import Icon from "@/components/Icon";
 
 export async function generateMetadata({ params }) {
   const { lang } = await params;
@@ -15,11 +16,11 @@ export default async function ProfilePage({ params }) {
   const g = findGroup(demoMember.group);
   const since = new Intl.DateTimeFormat(intlLocale[lang], { day: "numeric", month: "long", year: "numeric" }).format(new Date(demoMember.since));
   const rows = [
-    ["🪪", s.memberId, <code key="id">{demoMember.id}</code>],
-    ["📍", s.district, t(districts[demoMember.district], lang)],
+    ["id", s.memberId, <code key="id">{demoMember.id}</code>],
+    ["pin", s.district, t(districts[demoMember.district], lang)],
     [g.icon, s.group, t(g.name, lang)],
-    ["⭐", s.tier, s.tierNew],
-    ["🗓️", s.since, since],
+    ["star", s.tier, s.tierNew],
+    ["calendar", s.since, since],
   ];
   return (
     <div className="portal-stack" style={{ maxWidth: 720 }}>
@@ -29,10 +30,10 @@ export default async function ProfilePage({ params }) {
       </div>
       <div className="card" style={{ display: "grid", gap: 14 }}>
         {rows.map(([icon, label, value]) => (
-          <div key={label} className="fact"><i>{icon}</i><div><b>{label}</b><span>{value}</span></div></div>
+          <div key={label} className="fact"><i><Icon name={icon} /></i><div><b>{label}</b><span>{value}</span></div></div>
         ))}
       </div>
-      <p className="privacy-note"><span aria-hidden="true">🔒</span><span><b>{s.visibility}.</b> {s.visibilityText}</span></p>
+      <p className="privacy-note"><span aria-hidden="true"><Icon name="lock" /></span><span><b>{s.visibility}.</b> {s.visibilityText}</span></p>
       <PasswordForm s={s} />
     </div>
   );

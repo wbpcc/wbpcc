@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { t, fill, formatNumber } from "@/i18n/config";
 import { districts, groups } from "@/data/placeholder";
+import Icon from "./Icon";
 
 // ---------------------------------------------------------------------
 // DEMO FORMS — nothing is sent or saved yet. In Phase 2:
@@ -52,7 +53,7 @@ export function PetitionSignBox({ petition, lang, a, p, c }) {
       ) : (
         <form className="form" onSubmit={(e) => { e.preventDefault(); setCount((x) => x + 1); setDone(true); }}>
           <h2 style={{ fontSize: 22 }}>{p.formTitle}</h2>
-          {formal && <p className="form-note">🏛️ {p.formalNote}</p>}
+          {formal && <p className="form-note">{p.formalNote}</p>}
           <div className="field"><label htmlFor="name">{p.name}</label><input id="name" required autoComplete="name" /></div>
           <div className="field"><label htmlFor="contact">{p.contact}</label><input id="contact" required /></div>
           <DistrictSelect lang={lang} label={p.district} />
@@ -61,7 +62,7 @@ export function PetitionSignBox({ petition, lang, a, p, c }) {
           )}
           {!formal && <label className="check"><input type="checkbox" /> {p.showName}</label>}
           <label className="check"><input type="checkbox" required /> {formal ? p.consentFormal : p.consentOnline}</label>
-          <button className="btn btn-saffron" type="submit">✍️ {p.submit}</button>
+          <button className="btn btn-saffron" type="submit">{p.submit}</button>
           <p className="form-note">{c.demoNote}</p>
         </form>
       )}
@@ -85,13 +86,13 @@ export function JoinForm({ lang, j, c }) {
         <legend>{j.interests}</legend>
         <div className="checks" style={{ marginTop: 6 }}>
           {groups.map((g) => (
-            <label key={g.id}><input type="checkbox" name="groups" value={g.id} /> {g.icon} {t(g.name, lang)}</label>
+            <label key={g.id}><input type="checkbox" name="groups" value={g.id} /> {t(g.name, lang)}</label>
           ))}
         </div>
       </fieldset>
       <label className="check"><input type="checkbox" required /> {j.consent}</label>
-      <button className="btn btn-saffron" type="submit">✋ {j.submit}</button>
-      <p className="form-note">🔒 {j.privacy}</p>
+      <button className="btn btn-saffron" type="submit">{j.submit}</button>
+      <p className="form-note"><Icon name="lock" size={15} /> {j.privacy}</p>
     </form>
   );
 }

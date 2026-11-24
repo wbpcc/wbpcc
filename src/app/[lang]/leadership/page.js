@@ -4,6 +4,7 @@ import { leaders, districtPresidents } from "@/data/placeholder";
 import PageHead from "@/components/PageHead";
 import { LeaderCard } from "@/components/Leadership";
 import DistrictPresidents from "@/components/DistrictPresidents";
+import Icon from "@/components/Icon";
 
 export async function generateMetadata({ params }) {
   const { lang } = await params;
@@ -31,9 +32,9 @@ export default async function LeadershipPage({ params }) {
               <h2>{t(president.name, lang)}</h2>
               <p>{c.bioPh}</p>
               <div className="president-contact">
-                <a href={`tel:${president.phone.replace(/\s/g, "")}`} className="btn btn-outline btn-sm">📞 {president.phone}</a>
-                <a href={`mailto:${president.email}`} className="btn btn-outline btn-sm">✉️ {president.email}</a>
-                <Link href={`/${lang}/appointment`} className="btn btn-saffron btn-sm">🗓️ {c.appointment}</Link>
+                <a href={`tel:${president.phone.replace(/\s/g, "")}`} className="btn btn-outline btn-sm"><Icon name="phone" size={16} /> {president.phone}</a>
+                <a href={`mailto:${president.email}`} className="btn btn-outline btn-sm"><Icon name="mail" size={16} /> {president.email}</a>
+                <Link href={`/${lang}/appointment`} className="btn btn-saffron btn-sm">{c.appointment}</Link>
               </div>
             </div>
           </article>

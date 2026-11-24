@@ -23,8 +23,8 @@ const COLOURS = [["var(--saffron)", "Saffron"], ["var(--green)", "Green"], ["var
 const tri = (x) => x || { en: "", bn: "", hi: "" };
 
 function Photo() {
-  if (LIVE) return <div className="field"><label>Photo</label><p className="form-note">🖼️ Photo uploads come in a later step. Until then the card shows initials.</p></div>;
-  return <div className="field"><label>Photo</label><label className="dropzone"><span>🖼️ Upload photo</span><small>Square, at least 600 × 600 px</small><input type="file" accept="image/*" className="sr-only" /></label></div>;
+  if (LIVE) return <div className="field"><label>Photo</label><p className="form-note">Photo uploads come in a later step. Until then the card shows initials.</p></div>;
+  return <div className="field"><label>Photo</label><label className="dropzone"><span>Upload photo</span><small>Square, at least 600 × 600 px</small><input type="file" accept="image/*" className="sr-only" /></label></div>;
 }
 
 export default function ContentManager() {
@@ -45,8 +45,13 @@ export default function ContentManager() {
   const patch = (p) => setEdit({ ...edit, item: { ...edit.item, ...p } });
   const nameOf = (x) => t(x.name || x.title || x.district, "en") || x.id;
 
-  async function save() {
-    const { type, item } = edit;
+  // What "Submit changes" captured — kept separately so nothing (closing the
+  // drawer, a stray click) can lose it before "Confirm & submit".
+  const [pending, setPending] = useState(null);
+
+  async function save(target = pending) {
+    if (!target) return;
+    const { type, item } = target;
     const [list, setter] = lists[type];
     const idx = list.findIndex((x) => x.id === item.id);
     const order = idx >= 0 ? idx : list.length;
@@ -59,6 +64,7 @@ export default function ContentManager() {
     } catch (e) {
       flash(`⚠️ Not saved: ${e.code === "permission-denied" ? "only an Admin can change this." : e.message}`);
     }
+    setPending(null);
     setBusy(false);
   }
 
@@ -80,7 +86,7 @@ export default function ContentManager() {
   const blank = {
     committee: { id: `leader-${Date.now()}`, level: "vp", initials: "NP", name: tri(), role: tri(), phone: "", email: "", bio: tri() },
     districts: { id: `dp-${Date.now()}`, district: tri(), name: tri(), initials: "DP", phone: "" },
-    orgs: { id: `org-${Date.now()}`, category: "cells", icon: "⭐", color: "var(--sky)", name: tri(), head: tri(), phone: "", email: "", about: tri() },
+    orgs: { id: `org-${Date.now()}`, category: "cells", icon: "", color: "var(--sky)", name: tri(), head: tri(), phone: "", email: "", about: tri() },
     events: { id: `event-${Date.now()}`, title: tri(), place: tri(), district: "", group: "", startInHours: 48, durationHours: 3, going: 0, lat: 22.57, lng: 88.36 },
     people: { id: `person-${Date.now()}`, group: "bengal", years: "", initials: "NP", name: tri(), line: tri() },
   };
@@ -92,10 +98,10 @@ export default function ContentManager() {
         <button className="btn btn-saffron" onClick={() => setEdit({ type: tab, item: blank[tab] })}>+ Add {label}</button>
       </PageTitle>
       <Flash msg={msg} />
-      {loadState === "loading" && <p className="form-note">⏳ Loading the latest from the database…</p>}
-      {loadState === "error" && <p className="cs-warn small">⚠️ Couldn&apos;t load from the database — showing built-in data. Check your internet and reload before editing.</p>}
-      <ConfirmPublish open={confirming} page={edit ? `${{ committee: "State Committee", districts: "District Presidents", orgs: "Organisation", events: "Events", people: "Our inspiration" }[edit.type]} — ${t(edit.item.name || edit.item.title || edit.item.district, "en") || "new entry"}` : ""} onCancel={() => setConfirming(false)} onConfirm={() => { setConfirming(false); save(); }} />
-      <Tabs value={tab} onChange={setTab} tabs={[["committee", "🏛️ State Committee", leaders.length], ["districts", "📍 District Presidents", dps.length], ["orgs", "👥 Organisations", orgs.length], ["events", "🗓️ Events", events.length], ["people", "🌟 Inspiration", people.length]]} />
+      {loadState === "loading" && <p className="form-note">Loading the latest from the database…</p>}
+      {loadState === "error" && <p className="cs-warn small">Couldn&apos;t load from the database — showing built-in data. Check your internet and reload before editing.</p>}
+      <ConfirmPublish open={confirming && !!pending} page={pending ? `${{ committee: "State Committee", districts: "District Presidents", orgs: "Organisation", events: "Events", people: "Our inspiration" }[pending.type]} — ${t(pending.item.name || pending.item.title || pending.item.district, "en") || "new entry"}` : ""} onCancel={() => { setConfirming(false); setPending(null); }} onConfirm={() => { setConfirming(false); save(pending); }} />
+      <Tabs value={tab} onChange={setTab} tabs={[["committee", "State Committee", leaders.length], ["districts", "District Presidents", dps.length], ["orgs", "Organisations", orgs.length], ["events", "Events", events.length], ["people", "Inspiration", people.length]]} />
       <Panel>
         <table className="cs-table">
           <tbody>
@@ -108,14 +114,14 @@ export default function ContentManager() {
                 <td><button className="btn btn-ghost btn-sm" onClick={() => setEdit({ type: "districts", item: { ...p } })}>Edit</button></td></tr>
             ))}
             {tab === "orgs" && orgs.map((o) => (
-              <tr key={o.id}><td><b>{o.icon} {t(o.name, "en")}</b><br /><small className="cs-muted">{CATS.find((c) => c[0] === o.category)?.[1]}</small></td><td>{t(o.head, "en")}</td><td>{o.phone}</td>
+              <tr key={o.id}><td><b>{t(o.name, "en")}</b><br /><small className="cs-muted">{CATS.find((c) => c[0] === o.category)?.[1]}</small></td><td>{t(o.head, "en")}</td><td>{o.phone}</td>
                 <td><button className="btn btn-ghost btn-sm" onClick={() => setEdit({ type: "orgs", item: { ...o } })}>Edit</button></td></tr>
             ))}
             {tab === "people" && people.map((p) => (
               <tr key={p.id}><td><b>{t(p.name, "en")}</b><br /><small className="cs-muted">{t(p.line, "en")}</small></td><td>{p.years}</td><td>{p.group === "bengal" ? "From Bengal" : "National"}</td>
                 <td><button className="btn btn-ghost btn-sm" onClick={() => setEdit({ type: "people", item: { ...p } })}>Edit</button></td></tr>
             ))}            {tab === "events" && events.map((e) => (
-              <tr key={e.id}><td><b>{t(e.title, "en")}</b><br /><small className="cs-muted">📍 {t(e.place, "en")}</small></td><td>{e.district ? t(districts[e.district], "en") : "—"}</td><td>👥 {e.going}</td>
+              <tr key={e.id}><td><b>{t(e.title, "en")}</b><br /><small className="cs-muted">{t(e.place, "en")}</small></td><td>{e.district ? t(districts[e.district], "en") : "—"}</td><td>{e.going} going</td>
                 <td><button className="btn btn-ghost btn-sm" onClick={() => setEdit({ type: "events", item: { ...e } })}>Edit</button></td></tr>
             ))}
           </tbody>
@@ -126,10 +132,10 @@ export default function ContentManager() {
         footer={
           <div className="cs-row">
             {edit && lists[edit.type][0].some((x) => x.id === edit.item.id) && (
-              <button className="btn btn-ghost btn-sm" disabled={busy} onClick={remove}>🗑 Remove</button>
+              <button className="btn btn-ghost btn-sm" disabled={busy} onClick={remove}>Remove</button>
             )}
             <button className="btn btn-ghost btn-sm" onClick={() => setEdit(null)}>Cancel</button>
-            <button className="btn btn-saffron btn-sm" disabled={busy || loadState !== "ok"} onClick={() => setConfirming(true)}>{busy ? "Saving…" : "Submit changes"}</button>
+            <button className="btn btn-saffron btn-sm" disabled={busy || loadState !== "ok"} onClick={() => { setPending({ type: edit.type, item: { ...edit.item } }); setConfirming(true); }}>{busy ? "Saving…" : "Submit changes"}</button>
           </div>
         }>
         {edit?.type === "committee" && (
@@ -157,7 +163,7 @@ export default function ContentManager() {
             <div className="field"><label>Category</label><select value={edit.item.category} onChange={(e) => patch({ category: e.target.value })}>{CATS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></div>
             <LangField label="One-line description (shown on the card)" value={edit.item.short} onChange={(v) => patch({ short: v })} />
             <LangField label="President / head (shown on its own page)" value={edit.item.head} onChange={(v) => patch({ head: v })} />
-            <div className="cs-two"><div className="field"><label>Phone (to connect)</label><input value={edit.item.phone} onChange={(e) => patch({ phone: e.target.value })} /></div><div className="field"><label>Icon (emoji)</label><input value={edit.item.icon} maxLength={4} onChange={(e) => patch({ icon: e.target.value })} /></div></div>
+            <div className="cs-two"><div className="field"><label>Phone (to connect)</label><input value={edit.item.phone} onChange={(e) => patch({ phone: e.target.value })} /></div></div>
             <LangField label="About" value={edit.item.about} onChange={(v) => patch({ about: v })} multiline />
             <div className="field"><label>Colour</label><div className="checks">{COLOURS.map(([v, l]) => <label key={v}><input type="radio" name="oc" checked={edit.item.color === v} onChange={() => patch({ color: v })} /> <span className="swatch-dot" style={{ background: v }} /> {l}</label>)}</div></div>
           </div>
@@ -168,7 +174,7 @@ export default function ContentManager() {
             <LangField label="Place" value={edit.item.place} onChange={(v) => patch({ place: v })} />
             <DistrictPick value={edit.item.district} onChange={(v) => patch({ district: v })} />
             <div className="cs-two"><div className="field"><label>Date & time</label><input type="datetime-local" value={toLocalInput(eventStart(edit.item))} onChange={(e) => e.target.value && patch({ startsAt: new Date(e.target.value).toISOString(), startInHours: undefined })} /></div><div className="field"><label>Duration (hours)</label><input type="number" value={edit.item.durationHours} onChange={(e) => patch({ durationHours: +e.target.value })} /></div></div>
-            <div className="field"><label>Organisation</label><select value={edit.item.group || ""} onChange={(e) => patch({ group: e.target.value || null })}><option value="">Party (no specific organisation)</option>{orgs.map((g) => <option key={g.id} value={g.id}>{g.icon} {t(g.name, "en")}</option>)}</select></div>
+            <div className="field"><label>Organisation</label><select value={edit.item.group || ""} onChange={(e) => patch({ group: e.target.value || null })}><option value="">Party (no specific organisation)</option>{orgs.map((g) => <option key={g.id} value={g.id}>{t(g.name, "en")}</option>)}</select></div>
             <div className="cs-two"><div className="field"><label>Map pin — latitude</label><input type="number" step="0.0001" value={edit.item.lat} onChange={(e) => patch({ lat: +e.target.value })} /></div><div className="field"><label>Longitude</label><input type="number" step="0.0001" value={edit.item.lng} onChange={(e) => patch({ lng: +e.target.value })} /></div></div>
           </div>
         )}

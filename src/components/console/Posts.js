@@ -7,6 +7,7 @@ import { postAuthors } from "@/data/console";
 import { useRole } from "./ConsoleShell";
 import { PageTitle, Panel, Tabs, Status, Drawer, LangField, DistrictPick, Flash, useFlash, fmtDate } from "./ui";
 import { useLiveList, saveItem, removeItem, requestPublish, savedMessage, LIVE } from "@/lib/cms";
+import Icon from "../Icon";
 
 // Editor works with `link` + `story`; the website reads `videoUrl` + `excerpt`.
 const tri0 = () => ({ en: "", bn: "", hi: "" });
@@ -14,8 +15,8 @@ const prep = (p) => ({ ...p, link: p.link ?? p.videoUrl ?? "", story: p.story ||
 const platformOf = (url) => ({ YouTube: "youtube", Instagram: "instagram", Facebook: "facebook", X: "x" })[detectPlatform(url)] || null;
 
 // Newsroom posts — managed by Admins.
-const KIND = { statement: "🟥 Statement", report: "✓ Verified report", story: "Story", explainer: "Explainer" };
-const FORMAT = { reel: "📱 Reel", video: "▶️ Video", blog: "📝 Blog" };
+const KIND = { statement: "Statement", report: "Verified report", story: "Story", explainer: "Explainer" };
+const FORMAT = { reel: "Reel", video: "Video", blog: "Blog" };
 
 function detectPlatform(url) {
   if (/youtu\.?be/.test(url)) return "YouTube";
@@ -83,8 +84,8 @@ export default function Posts() {
         <button className="btn btn-saffron" onClick={() => setEdit({ ...blank })}>+ New post</button>
       </PageTitle>
       <Flash msg={msg} />
-      {loadState === "loading" && <p className="form-note">⏳ Loading the latest from the database…</p>}
-      {loadState === "error" && <p className="cs-warn small">⚠️ Couldn&apos;t load from the database — check your internet and reload before editing.</p>}
+      {loadState === "loading" && <p className="form-note">Loading the latest from the database…</p>}
+      {loadState === "error" && <p className="cs-warn small">Couldn&apos;t load from the database — check your internet and reload before editing.</p>}
       <Tabs value={tab} onChange={setTab} tabs={[["mine", "My posts", list.filter((p) => p.author === me.email).length], ["all", "All posts", list.length]]} />
       <Panel>
         <table className="cs-table">
@@ -101,7 +102,7 @@ export default function Posts() {
                   {canEdit(p) ? (
                     <button className="btn btn-ghost btn-sm" onClick={() => setEdit({ ...p })}>Edit</button>
                   ) : (
-                    <span className="cs-lock" title={p.kind === "statement" ? "Only Leadership can edit official statements" : "Only the author or an Admin Editor can edit this"}>🔒</span>
+                    <span className="cs-lock" title={p.kind === "statement" ? "Only Leadership can edit official statements" : "Only the author or an Admin Editor can edit this"}><Icon name="lock" size={15} /></span>
                   )}
                 </td>
               </tr>
@@ -117,7 +118,7 @@ export default function Posts() {
         onClose={() => setEdit(null)}
         footer={edit && (
           <div className="cs-row">
-            {edit.id && canEdit(edit) && <button className="btn btn-ghost btn-sm" disabled={busy} onClick={del}>🗑 Delete</button>}
+            {edit.id && canEdit(edit) && <button className="btn btn-ghost btn-sm" disabled={busy} onClick={del}>Delete</button>}
             <button className="btn btn-ghost btn-sm" disabled={busy || !ready} onClick={() => save("draft")}>Save draft</button>
             <button className="btn btn-saffron btn-sm" disabled={busy || !ready || !edit.title.en} onClick={() => save("published")}>{busy ? "Saving…" : "Publish"}</button>
           </div>

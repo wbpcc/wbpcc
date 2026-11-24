@@ -6,6 +6,7 @@ import PageHead from "@/components/PageHead";
 import ShareButtons from "@/components/ShareButtons";
 import PetitionCard from "@/components/PetitionCard";
 import { campaignRuns } from "@/components/CampaignCard";
+import Icon from "@/components/Icon";
 
 export function generateStaticParams() {
   return campaigns.map((c) => ({ id: c.id }));
@@ -39,8 +40,8 @@ export default async function CampaignPage({ params }) {
       <div className="wrap detail">
         <div>
           <div className="facts" data-reveal>
-            <div className="fact"><i>🗓️</i><div><b>{d.event.when}</b><span>{campaignRuns(c, lang, s.runs)}</span></div></div>
-            <div className="fact"><i>{g?.icon || "🏳️"}</i><div><b>{s.ledBy}</b>
+            <div className="fact"><i><Icon name="calendar" /></i><div><b>{d.event.when}</b><span>{campaignRuns(c, lang, s.runs)}</span></div></div>
+            <div className="fact"><i><Icon name="flag" /></i><div><b>{s.ledBy}</b>
               {g ? <Link href={`/${lang}/groups/${g.id}`} className="link-arrow">{t(g.name, lang)}</Link> : <span>{d.event.organiserParty}</span>}
             </div></div>
           </div>
@@ -55,7 +56,7 @@ export default async function CampaignPage({ params }) {
             {evs.map((e, i) => (
               <Link key={e.id} href={`/${lang}/events/${e.id}`} className="card card-link" data-reveal style={{ "--i": i, padding: 16 }}>
                 <b>{t(e.title, lang)}</b>
-                <div style={{ color: "var(--muted)", fontSize: 14 }}>📍 {t(e.place, lang)} · 👥 {e.going}</div>
+                <div style={{ color: "var(--muted)", fontSize: 14 }}><Icon name="pin" size={15} /> {t(e.place, lang)} · <Icon name="users" size={15} /> {e.going}</div>
               </Link>
             ))}
           </div>
@@ -75,8 +76,8 @@ export default async function CampaignPage({ params }) {
             <span className="camp-band" aria-hidden="true" />
             <p className="eyebrow">{s.goal}</p>
             <p className="big-text" style={{ margin: "0 0 14px" }}>{t(c.goal, lang)}</p>
-            <Link href={`/${lang}/join`} className="btn btn-saffron">✋ {s.join}</Link>
-            {evs[0] && <Link href={`/${lang}/events/${evs[0].id}`} className="btn btn-outline" style={{ marginTop: 10 }}>📍 {d.happening.rsvp}</Link>}
+            <Link href={`/${lang}/join`} className="btn btn-saffron">{s.join}</Link>
+            {evs[0] && <Link href={`/${lang}/events/${evs[0].id}`} className="btn btn-outline" style={{ marginTop: 10 }}>{d.happening.rsvp}</Link>}
           </div>
         </aside>
       </div>

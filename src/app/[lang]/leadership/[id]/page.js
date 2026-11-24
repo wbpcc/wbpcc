@@ -4,6 +4,7 @@ import { getDictionary, t } from "@/i18n/config";
 import { leaders, posts, findLeader } from "@/data/placeholder";
 import PageHead from "@/components/PageHead";
 import PostCard from "@/components/PostCard";
+import Icon from "@/components/Icon";
 
 export function generateStaticParams() {
   return leaders.map((l) => ({ id: l.id }));
@@ -45,9 +46,9 @@ export default async function LeaderPage({ params }) {
             <h3>{t(p.name, lang)}</h3>
             <p>{t(p.role, lang)}</p>
             <div style={{ display: "grid", gap: 8, marginTop: 16 }}>
-              {p.phone && <a href={`tel:${p.phone.replace(/\s/g, "")}`} className="btn btn-outline btn-sm">📞 {p.phone}</a>}
-              {p.email && <a href={`mailto:${p.email}`} className="btn btn-outline btn-sm">✉️ {p.email}</a>}
-              {p.level === "president" && <Link href={`/${lang}/appointment`} className="btn btn-saffron btn-sm">🗓️ {d.committee.appointment}</Link>}
+              {p.phone && <a href={`tel:${p.phone.replace(/\s/g, "")}`} className="btn btn-outline btn-sm"><Icon name="phone" size={16} /> {p.phone}</a>}
+              {p.email && <a href={`mailto:${p.email}`} className="btn btn-outline btn-sm"><Icon name="mail" size={16} /> {p.email}</a>}
+              {p.level === "president" && <Link href={`/${lang}/appointment`} className="btn btn-saffron btn-sm">{d.committee.appointment}</Link>}
             </div>
           </div>
         </aside>

@@ -8,8 +8,8 @@ export default function LegalPage({ lang, d, title, sections }) {
     <>
       <PageHead crumbHref={`/${lang}`} crumbLabel={d.nav.home} eyebrow={l.updated} title={title} />
       <div className="wrap legal">
-        <p className="form-note">⚠️ {l.draft}</p>
-        {lang !== "en" && l.englishOnly && <p className="form-note" lang={lang}>🌐 {l.englishOnly}</p>}
+        <p className="form-note">{l.draft}</p>
+        {lang !== "en" && l.englishOnly && <p className="form-note" lang={lang}>{l.englishOnly}</p>}
         <nav className="legal-toc" aria-label="Contents">
           {sections.map((s, i) => <a key={i} href={`#s${i + 1}`}>{i + 1}. {s.h}</a>)}
         </nav>

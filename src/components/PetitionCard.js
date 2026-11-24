@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { t, fill, formatNumber } from "@/i18n/config";
+import Icon from "./Icon";
 
 export default function PetitionCard({ p, lang, a, i = 0 }) {
   const pct = Math.min(100, Math.round((p.signatures / p.goal) * 100));
   return (
     <Link href={`/${lang}/petitions/${p.id}`} className="card card-link petition" data-reveal style={{ "--i": i }}>
       <span className={`pill petition-tag ${p.type === "formal" ? "tag-formal" : "tag-online"}`}>
-        {p.type === "formal" ? `🏛️ ${a.formal}` : `🌐 ${a.online}`}
+        {p.type === "formal" ? <><Icon name="landmark" size={14} /> {a.formal}</> : <><Icon name="globe" size={14} /> {a.online}</>}
       </span>
       <h3>{t(p.title, lang)}</h3>
       <p>{t(p.desc, lang)}</p>

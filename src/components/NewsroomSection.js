@@ -3,6 +3,7 @@ import { t } from "@/i18n/config";
 import { posts } from "@/data/placeholder";
 import PostCard, { KindBadge, PLATFORM, postDate } from "./PostCard";
 import Rail from "./Rail";
+import Icon from "./Icon";
 
 // Homepage newsroom: the latest official statement (video) up top with
 // the next few headlines beside it, then a swipeable rail of reels + blogs.
@@ -28,7 +29,7 @@ export default function NewsroomSection({ lang, d }) {
           <Link href={`/${lang}/newsroom/${featured.id}`} className="featured-post" data-reveal>
             <div className="media-frame media-16x9">
               {featured.platform && <span className="platform">{PLATFORM[featured.platform]} · {n.video}</span>}
-              <span className="play" aria-hidden="true">▶</span>
+              <span className="play" aria-hidden="true"><Icon name="play" size={24} /></span>
             </div>
             <div className="body">
               <KindBadge post={featured} n={n} />
@@ -45,7 +46,7 @@ export default function NewsroomSection({ lang, d }) {
             {headlines.map((p) => (
               <Link key={p.id} href={`/${lang}/newsroom/${p.id}`} className="headline">
                 <span className={`headline-thumb ${p.format === "reel" ? "is-reel" : ""}`} aria-hidden="true">
-                  {p.format === "blog" ? (p.kind === "explainer" ? "💡" : "📝") : "▶"}
+                  <Icon name={p.format === "blog" ? "doc" : "play"} size={14} />
                 </span>
                 <span className="headline-text">
                   <KindBadge post={p} n={n} />

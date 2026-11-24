@@ -13,22 +13,22 @@ export const ideology = fromPage("about", "ideology", {
   },
   pillars: [
     {
-      icon: "🤝",
+      icon: "",
       t: { en: "Unity in diversity", bn: "বৈচিত্র্যের মধ্যে ঐক্য", hi: "विविधता में एकता" },
       d: { en: "Every faith, language and community of Bengal, equal before the law.", bn: "বাংলার প্রতিটি ধর্ম, ভাষা ও সম্প্রদায় আইনের চোখে সমান।", hi: "बंगाल का हर धर्म, भाषा और समुदाय क़ानून की नज़र में बराबर।" },
     },
     {
-      icon: "⚖️",
+      icon: "",
       t: { en: "Social justice", bn: "সামাজিক ন্যায়", hi: "सामाजिक न्याय" },
       d: { en: "Dignity, opportunity and protection for the poorest first.", bn: "সবচেয়ে গরিবদের জন্য আগে মর্যাদা, সুযোগ ও সুরক্ষা।", hi: "सबसे ग़रीब के लिए पहले सम्मान, अवसर और सुरक्षा।" },
     },
     {
-      icon: "📜",
+      icon: "",
       t: { en: "Democracy & the Constitution", bn: "গণতন্ত্র ও সংবিধান", hi: "लोकतंत्र और संविधान" },
       d: { en: "Free institutions, a free press, free and fair elections.", bn: "স্বাধীন প্রতিষ্ঠান, স্বাধীন সংবাদমাধ্যম, অবাধ ও সুষ্ঠু নির্বাচন।", hi: "स्वतंत्र संस्थाएँ, स्वतंत्र प्रेस, स्वतंत्र और निष्पक्ष चुनाव।" },
     },
     {
-      icon: "🛠️",
+      icon: "",
       t: { en: "Work with dignity", bn: "মর্যাদার সঙ্গে কাজ", hi: "सम्मान के साथ काम" },
       d: { en: "Jobs, fair wages and support for farmers and workers.", bn: "কাজ, ন্যায্য মজুরি এবং কৃষক ও শ্রমিকদের পাশে থাকা।", hi: "रोज़गार, उचित मज़दूरी और किसानों-मज़दूरों का साथ।" },
     },
@@ -36,12 +36,12 @@ export const ideology = fromPage("about", "ideology", {
 });
 
 export const values = fromPage("about", "values", [
-  { icon: "🕊️", t: { en: "Non-violence", bn: "অহিংসা", hi: "अहिंसा" }, d: { en: "Change through peaceful means — the path shown by Mahatma Gandhi.", bn: "শান্তিপূর্ণ পথে পরিবর্তন — মহাত্মা গান্ধীর দেখানো পথ।", hi: "शांतिपूर्ण तरीक़ों से बदलाव — महात्मा गांधी का दिखाया रास्ता।" } },
-  { icon: "🤝", t: { en: "Secularism", bn: "ধর্মনিরপেক্ষতা", hi: "धर्मनिरपेक्षता" }, d: { en: "Equal respect for every faith. The state belongs to all.", bn: "সব ধর্মের প্রতি সমান শ্রদ্ধা। রাষ্ট্র সবার।", hi: "हर धर्म का बराबर सम्मान। राज्य सबका है।" } },
-  { icon: "📜", t: { en: "Faith in the Constitution", bn: "সংবিধানে আস্থা", hi: "संविधान में आस्था" }, d: { en: "Rights, freedoms and free institutions protected for every citizen.", bn: "প্রত্যেক নাগরিকের অধিকার, স্বাধীনতা ও স্বাধীন প্রতিষ্ঠান সুরক্ষিত।", hi: "हर नागरिक के अधिकार, आज़ादी और स्वतंत्र संस्थाएँ सुरक्षित।" } },
-  { icon: "⚖️", t: { en: "Equality & justice", bn: "সমতা ও ন্যায়", hi: "समानता और न्याय" }, d: { en: "No one held back by caste, creed, gender or income.", bn: "জাত, ধর্ম, লিঙ্গ বা আয়ের কারণে কেউ পিছিয়ে থাকবে না।", hi: "जाति, धर्म, लिंग या आय के कारण कोई पीछे नहीं रहेगा।" } },
-  { icon: "🙏", t: { en: "Service (Seva)", bn: "সেবা", hi: "सेवा" }, d: { en: "Politics as service to people — not a path to power.", bn: "রাজনীতি মানে মানুষের সেবা — ক্ষমতার পথ নয়।", hi: "राजनीति यानी जनता की सेवा — सत्ता का रास्ता नहीं।" } },
-  { icon: "🇮🇳", t: { en: "Unity of India", bn: "ভারতের ঐক্য", hi: "भारत की एकता" }, d: { en: "One nation of many languages, cultures and peoples.", bn: "বহু ভাষা, সংস্কৃতি ও মানুষের এক দেশ।", hi: "अनेक भाषाओं, संस्कृतियों और लोगों का एक देश।" } },
+  { icon: "", t: { en: "Non-violence", bn: "অহিংসা", hi: "अहिंसा" }, d: { en: "Change through peaceful means — the path shown by Mahatma Gandhi.", bn: "শান্তিপূর্ণ পথে পরিবর্তন — মহাত্মা গান্ধীর দেখানো পথ।", hi: "शांतिपूर्ण तरीक़ों से बदलाव — महात्मा गांधी का दिखाया रास्ता।" } },
+  { icon: "", t: { en: "Secularism", bn: "ধর্মনিরপেক্ষতা", hi: "धर्मनिरपेक्षता" }, d: { en: "Equal respect for every faith. The state belongs to all.", bn: "সব ধর্মের প্রতি সমান শ্রদ্ধা। রাষ্ট্র সবার।", hi: "हर धर्म का बराबर सम्मान। राज्य सबका है।" } },
+  { icon: "", t: { en: "Faith in the Constitution", bn: "সংবিধানে আস্থা", hi: "संविधान में आस्था" }, d: { en: "Rights, freedoms and free institutions protected for every citizen.", bn: "প্রত্যেক নাগরিকের অধিকার, স্বাধীনতা ও স্বাধীন প্রতিষ্ঠান সুরক্ষিত।", hi: "हर नागरिक के अधिकार, आज़ादी और स्वतंत्र संस्थाएँ सुरक्षित।" } },
+  { icon: "", t: { en: "Equality & justice", bn: "সমতা ও ন্যায়", hi: "समानता और न्याय" }, d: { en: "No one held back by caste, creed, gender or income.", bn: "জাত, ধর্ম, লিঙ্গ বা আয়ের কারণে কেউ পিছিয়ে থাকবে না।", hi: "जाति, धर्म, लिंग या आय के कारण कोई पीछे नहीं रहेगा।" } },
+  { icon: "", t: { en: "Service (Seva)", bn: "সেবা", hi: "सेवा" }, d: { en: "Politics as service to people — not a path to power.", bn: "রাজনীতি মানে মানুষের সেবা — ক্ষমতার পথ নয়।", hi: "राजनीति यानी जनता की सेवा — सत्ता का रास्ता नहीं।" } },
+  { icon: "", t: { en: "Unity of India", bn: "ভারতের ঐক্য", hi: "भारत की एकता" }, d: { en: "One nation of many languages, cultures and peoples.", bn: "বহু ভাষা, সংস্কৃতি ও মানুষের এক দেশ।", hi: "अनेक भाषाओं, संस्कृतियों और लोगों का एक देश।" } },
 ]);
 
 export const vision = fromPage("about", "vision", {
@@ -59,7 +59,7 @@ export const vision = fromPage("about", "vision", {
 
 export const manifesto = fromPage("manifesto", "items", [
   {
-    id: "jobs", icon: "💼",
+    id: "jobs", icon: "",
     t: { en: "Jobs & economy", bn: "কাজ ও অর্থনীতি", hi: "रोज़गार और अर्थव्यवस्था" },
     items: [
       { en: "Fill all vacant government posts within a fixed timeline", bn: "নির্দিষ্ট সময়ের মধ্যে সব শূন্য সরকারি পদ পূরণ", hi: "तय समय में सभी ख़ाली सरकारी पद भरना" },
@@ -68,7 +68,7 @@ export const manifesto = fromPage("manifesto", "items", [
     ],
   },
   {
-    id: "education", icon: "🎓",
+    id: "education", icon: "",
     t: { en: "Education", bn: "শিক্ষা", hi: "शिक्षा" },
     items: [
       { en: "Transparent teacher recruitment", bn: "স্বচ্ছ শিক্ষক নিয়োগ", hi: "पारदर्शी शिक्षक भर्ती" },
@@ -77,7 +77,7 @@ export const manifesto = fromPage("manifesto", "items", [
     ],
   },
   {
-    id: "health", icon: "🏥",
+    id: "health", icon: "",
     t: { en: "Health", bn: "স্বাস্থ্য", hi: "स्वास्थ्य" },
     items: [
       { en: "A doctor at every primary health centre", bn: "প্রতিটি প্রাথমিক স্বাস্থ্যকেন্দ্রে ডাক্তার", hi: "हर प्राथमिक स्वास्थ्य केंद्र में डॉक्टर" },
@@ -86,7 +86,7 @@ export const manifesto = fromPage("manifesto", "items", [
     ],
   },
   {
-    id: "women", icon: "🛡️",
+    id: "women", icon: "",
     t: { en: "Women & safety", bn: "নারী ও নিরাপত্তা", hi: "महिलाएँ और सुरक्षा" },
     items: [
       { en: "Well-lit, patrolled streets and transport", bn: "আলোকিত, টহলদারি রাস্তা ও যানবাহন", hi: "रोशन, गश्त वाली सड़कें और परिवहन" },
@@ -95,7 +95,7 @@ export const manifesto = fromPage("manifesto", "items", [
     ],
   },
   {
-    id: "farmers", icon: "🌾",
+    id: "farmers", icon: "",
     t: { en: "Farmers & workers", bn: "কৃষক ও শ্রমিক", hi: "किसान और मज़दूर" },
     items: [
       { en: "A legal guarantee of a fair minimum support price for crops", bn: "ফসলের ন্যায্য ন্যূনতম সহায়ক মূল্যের আইনি নিশ্চয়তা", hi: "फ़सलों के उचित न्यूनतम समर्थन मूल्य की क़ानूनी गारंटी" },
@@ -107,36 +107,36 @@ export const manifesto = fromPage("manifesto", "items", [
 
 // Contact form "Type of contact" → which inbox it lands in (role emails, see ROADMAP).
 export const contactTopics = fromPage("contact", "topics", [
-  { id: "feedback", icon: "💬", inbox: "feedback@wbpcc.org", t: { en: "Feedback", bn: "মতামত", hi: "राय" } },
-  { id: "suggestion", icon: "💡", inbox: "feedback@wbpcc.org", t: { en: "Suggestion", bn: "পরামর্শ", hi: "सुझाव" } },
-  { id: "grievance", icon: "⚠️", inbox: "grievance@wbpcc.org", t: { en: "Grievance / complaint", bn: "অভিযোগ", hi: "शिकायत" } },
-  { id: "help", icon: "🆘", inbox: "help@wbpcc.org", t: { en: "Need help", bn: "সাহায্য দরকার", hi: "मदद चाहिए" } },
-  { id: "volunteer", icon: "🙋", inbox: "volunteer@wbpcc.org", t: { en: "I want to volunteer", bn: "স্বেচ্ছাসেবক হতে চাই", hi: "स्वयंसेवक बनना चाहता/चाहती हूँ" } },
-  { id: "petition", icon: "✍️", inbox: "petitions@wbpcc.org", t: { en: "Suggest a petition", bn: "আবেদনের প্রস্তাব", hi: "याचिका का सुझाव" } },
-  { id: "media", icon: "📰", inbox: "media@wbpcc.org", t: { en: "Media enquiry", bn: "সংবাদমাধ্যমের প্রশ্ন", hi: "मीडिया पूछताछ" } },
-  { id: "other", icon: "✳️", inbox: "info@wbpcc.org", t: { en: "Other", bn: "অন্য কিছু", hi: "अन्य" } },
+  { id: "feedback", icon: "", inbox: "feedback@wbpcc.org", t: { en: "Feedback", bn: "মতামত", hi: "राय" } },
+  { id: "suggestion", icon: "", inbox: "feedback@wbpcc.org", t: { en: "Suggestion", bn: "পরামর্শ", hi: "सुझाव" } },
+  { id: "grievance", icon: "", inbox: "grievance@wbpcc.org", t: { en: "Grievance / complaint", bn: "অভিযোগ", hi: "शिकायत" } },
+  { id: "help", icon: "", inbox: "help@wbpcc.org", t: { en: "Need help", bn: "সাহায্য দরকার", hi: "मदद चाहिए" } },
+  { id: "volunteer", icon: "", inbox: "volunteer@wbpcc.org", t: { en: "I want to volunteer", bn: "স্বেচ্ছাসেবক হতে চাই", hi: "स्वयंसेवक बनना चाहता/चाहती हूँ" } },
+  { id: "petition", icon: "", inbox: "petitions@wbpcc.org", t: { en: "Suggest a petition", bn: "আবেদনের প্রস্তাব", hi: "याचिका का सुझाव" } },
+  { id: "media", icon: "", inbox: "media@wbpcc.org", t: { en: "Media enquiry", bn: "সংবাদমাধ্যমের প্রশ্ন", hi: "मीडिया पूछताछ" } },
+  { id: "other", icon: "", inbox: "info@wbpcc.org", t: { en: "Other", bn: "অন্য কিছু", hi: "अन्य" } },
 ]);
 // Help topics → which group handles them (null = state help desk).
 export const helpTopics = fromPage("contact", "helpTopics", [
-  { id: "ration", icon: "🍚", group: null, t: { en: "Ration & food", bn: "রেশন ও খাদ্য", hi: "राशन और भोजन" } },
-  { id: "health", icon: "🏥", group: null, t: { en: "Health", bn: "স্বাস্থ্য", hi: "स्वास्थ्य" } },
-  { id: "education", icon: "🎓", group: "chhatra-parishad", t: { en: "Education & scholarships", bn: "শিক্ষা ও স্কলারশিপ", hi: "शिक्षा और छात्रवृत्ति" } },
-  { id: "jobs", icon: "💼", group: "intuc", t: { en: "Jobs & wages", bn: "কাজ ও মজুরি", hi: "रोज़गार और मज़दूरी" } },
-  { id: "women", icon: "🛡️", group: "mahila-congress", t: { en: "Women's safety", bn: "নারীর নিরাপত্তা", hi: "महिला सुरक्षा" } },
-  { id: "farm", icon: "🌾", group: "kisan-congress", t: { en: "Farming", bn: "চাষবাস", hi: "खेती-किसानी" } },
-  { id: "legal", icon: "⚖️", group: null, t: { en: "Legal help", bn: "আইনি সাহায্য", hi: "क़ानूनी मदद" } },
-  { id: "other", icon: "✳️", group: null, t: { en: "Something else", bn: "অন্য কিছু", hi: "कुछ और" } },
+  { id: "ration", icon: "", group: null, t: { en: "Ration & food", bn: "রেশন ও খাদ্য", hi: "राशन और भोजन" } },
+  { id: "health", icon: "", group: null, t: { en: "Health", bn: "স্বাস্থ্য", hi: "स्वास्थ्य" } },
+  { id: "education", icon: "", group: "chhatra-parishad", t: { en: "Education & scholarships", bn: "শিক্ষা ও স্কলারশিপ", hi: "शिक्षा और छात्रवृत्ति" } },
+  { id: "jobs", icon: "", group: "intuc", t: { en: "Jobs & wages", bn: "কাজ ও মজুরি", hi: "रोज़गार और मज़दूरी" } },
+  { id: "women", icon: "", group: "mahila-congress", t: { en: "Women's safety", bn: "নারীর নিরাপত্তা", hi: "महिला सुरक्षा" } },
+  { id: "farm", icon: "", group: "kisan-congress", t: { en: "Farming", bn: "চাষবাস", hi: "खेती-किसानी" } },
+  { id: "legal", icon: "", group: null, t: { en: "Legal help", bn: "আইনি সাহায্য", hi: "क़ानूनी मदद" } },
+  { id: "other", icon: "", group: null, t: { en: "Something else", bn: "অন্য কিছু", hi: "कुछ और" } },
 ]);
 
 export const volunteerSkills = fromPage("contact", "volunteerSkills", [
-  { id: "events", icon: "🎪", t: { en: "Event help", bn: "অনুষ্ঠানে সাহায্য", hi: "कार्यक्रम में मदद" } },
-  { id: "door", icon: "🚪", t: { en: "Door-to-door", bn: "বাড়ি বাড়ি প্রচার", hi: "घर-घर संपर्क" } },
-  { id: "social", icon: "📱", t: { en: "Social media", bn: "সোশ্যাল মিডিয়া", hi: "सोशल मीडिया" } },
-  { id: "design", icon: "🎬", t: { en: "Design & video", bn: "ডিজাইন ও ভিডিও", hi: "डिज़ाइन और वीडियो" } },
-  { id: "translation", icon: "🔤", t: { en: "Translation", bn: "অনুবাদ", hi: "अनुवाद" } },
-  { id: "legal", icon: "⚖️", t: { en: "Legal aid", bn: "আইনি সহায়তা", hi: "क़ानूनी सहायता" } },
-  { id: "medical", icon: "🩺", t: { en: "Medical camps", bn: "চিকিৎসা শিবির", hi: "चिकित्सा शिविर" } },
-  { id: "transport", icon: "🚐", t: { en: "Transport", bn: "যানবাহন", hi: "परिवहन" } },
+  { id: "events", icon: "", t: { en: "Event help", bn: "অনুষ্ঠানে সাহায্য", hi: "कार्यक्रम में मदद" } },
+  { id: "door", icon: "", t: { en: "Door-to-door", bn: "বাড়ি বাড়ি প্রচার", hi: "घर-घर संपर्क" } },
+  { id: "social", icon: "", t: { en: "Social media", bn: "সোশ্যাল মিডিয়া", hi: "सोशल मीडिया" } },
+  { id: "design", icon: "", t: { en: "Design & video", bn: "ডিজাইন ও ভিডিও", hi: "डिज़ाइन और वीडियो" } },
+  { id: "translation", icon: "", t: { en: "Translation", bn: "অনুবাদ", hi: "अनुवाद" } },
+  { id: "legal", icon: "", t: { en: "Legal aid", bn: "আইনি সহায়তা", hi: "क़ानूनी सहायता" } },
+  { id: "medical", icon: "", t: { en: "Medical camps", bn: "চিকিৎসা শিবির", hi: "चिकित्सा शिविर" } },
+  { id: "transport", icon: "", t: { en: "Transport", bn: "যানবাহন", hi: "परिवहन" } },
 ]);
 
 export const availability = fromPage("contact", "availability", [

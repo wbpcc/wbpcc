@@ -34,7 +34,7 @@ export default function Statements() {
   return (
     <>
       <PageTitle title="Official statements" sub="Only Admins can issue these. Each one gets a permanent ID and a QR code so forwarded copies can be checked.">
-        {!editing && <button className="btn btn-saffron" onClick={() => setEditing(true)}>🟥 New statement</button>}
+        {!editing && <button className="btn btn-saffron" onClick={() => setEditing(true)}>New statement</button>}
       </PageTitle>
       <Flash msg={msg} />
 

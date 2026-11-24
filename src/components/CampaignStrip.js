@@ -8,7 +8,7 @@ export default function CampaignStrip({ lang, s }) {
   return (
     <div className="camp-strip">
       <div className="camp-strip-head">
-        <h3>✊ {s.ongoing}</h3>
+        <h3>{s.ongoing}</h3>
         <Link href={`/${lang}/campaigns`} className="link-arrow">{s.all} →</Link>
       </div>
       <div className="camp-row">

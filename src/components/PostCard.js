@@ -1,6 +1,7 @@
 ﻿import Link from "next/link";
 import { t, intlLocale } from "@/i18n/config";
 import { districts } from "@/data/placeholder";
+import Icon from "./Icon";
 
 export const PLATFORM = { youtube: "YouTube", instagram: "Instagram", facebook: "Facebook" };
 
@@ -16,7 +17,7 @@ export function postDate(post, lang) {
 
 export function PostMeta({ post, lang, n }) {
   const bits = [];
-  if (post.kind === "report") bits.push(`👤 ${n.byMember}`);
+  if (post.kind === "report") bits.push(n.byMember);
   if (post.district) bits.push(t(districts[post.district], lang));
   bits.push(postDate(post, lang));
   return <small>{bits.join(" · ")}</small>;
@@ -31,7 +32,7 @@ export default function PostCard({ post, lang, n, i = 0, wide = false, reveal = 
     return (
       <Link href={href} className="post-card post-blog" {...rv} style={{ "--i": i }}>
         <div style={{ display: "grid", gap: 10 }}>
-          <span className="blog-icon" aria-hidden="true">{post.kind === "statement" ? "📜" : post.kind === "explainer" ? "💡" : "📝"}</span>
+          <span className="blog-icon" aria-hidden="true"><Icon name={post.kind === "statement" ? "doc" : "pen"} size={22} /></span>
           <div><KindBadge post={post} n={n} /></div>
           <h4>{t(post.title, lang)}</h4>
           <p>{t(post.excerpt, lang)}</p>
@@ -49,7 +50,7 @@ export default function PostCard({ post, lang, n, i = 0, wide = false, reveal = 
       <Link href={href} className="post-card post-reel" {...rv} style={{ "--i": i }}>
         <div className="media-frame media-9x16">
           {post.platform && <span className="platform">{PLATFORM[post.platform]} · {n.reel}</span>}
-          <span className="play" aria-hidden="true">▶</span>
+          <span className="play" aria-hidden="true"><Icon name="play" size={24} /></span>
           <div className="overlay">
             <KindBadge post={post} n={n} />
             <h4>{t(post.title, lang)}</h4>
@@ -64,7 +65,7 @@ export default function PostCard({ post, lang, n, i = 0, wide = false, reveal = 
     <Link href={href} className={`post-card${wide ? " wide" : ""}`} {...rv} style={{ "--i": i }}>
       <div className="media-frame media-16x9">
         {post.platform && <span className="platform">{PLATFORM[post.platform]} · {n.video}</span>}
-        <span className="play" aria-hidden="true">▶</span>
+        <span className="play" aria-hidden="true"><Icon name="play" size={24} /></span>
       </div>
       <KindBadge post={post} n={n} />
       <h4>{t(post.title, lang)}</h4>

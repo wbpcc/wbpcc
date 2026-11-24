@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { t, fill, intlLocale } from "@/i18n/config";
 import { findGroup } from "@/data/placeholder";
+import Icon from "./Icon";
 
 export function campaignRuns(c, lang, tpl) {
   const f = new Intl.DateTimeFormat(intlLocale[lang], { day: "numeric", month: "short" });
@@ -19,8 +20,8 @@ export default function CampaignCard({ c, lang, s, i = 0, compact = false }) {
       <h3>{t(c.title, lang)}</h3>
       {!compact && <p>{t(c.goal, lang)}</p>}
       <div className="camp-foot">
-        {g && <span>{g.icon} {t(g.name, lang)}</span>}
-        <span>🗓️ {c.events.length} · ✍️ {c.petitions.length}</span>
+        {g && <span>{t(g.name, lang)}</span>}
+        <span><Icon name="calendar" size={14} /> {c.events.length} · <Icon name="pen" size={14} /> {c.petitions.length}</span>
       </div>
     </Link>
   );

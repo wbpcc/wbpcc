@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { fill } from "@/i18n/config";
 import { demoMember } from "@/data/portal";
 import { setSession, LIVE, signIn, resetPassword } from "./session";
+import Icon from "./Icon";
+import PasswordInput from "./PasswordInput";
 
 // Sign-in messages (kept here so the dictionaries stay as they were).
 const MSG = {
@@ -90,9 +92,9 @@ export function OtpInput({ value, onChange, label }) {
 // One login form. The person picks their category first (Member / Contributor / Admin);
 // the fields below change to match. Contributors & Admins get a 2-step code after the password.
 const CATS = [
-  { id: "member", icon: "🪪" },
-  { id: "contributor", icon: "✍️" },
-  { id: "admin", icon: "🏗️" },
+  { id: "member", icon: "id" },
+  { id: "contributor", icon: "pen" },
+  { id: "admin", icon: "shield" },
 ];
 
 export function SignInFlow({ lang, a }) {
@@ -145,7 +147,7 @@ export function SignInFlow({ lang, a }) {
           {CATS.map((x) => (
             <label key={x.id} className={`login-cat${cat === x.id ? " on" : ""}`}>
               <input type="radio" name="cat" value={x.id} checked={cat === x.id} onChange={() => pick(x.id)} />
-              <i aria-hidden="true">{x.icon}</i>
+              <i aria-hidden="true"><Icon name={x.icon} size={22} /></i>
               <span>{a.doors[x.id].t}</span>
             </label>
           ))}
@@ -162,15 +164,15 @@ export function SignInFlow({ lang, a }) {
           </div>
           <div className="field">
             <label htmlFor="lp">{a.password}</label>
-            <input id="lp" type="password" required autoComplete="current-password" value={pw} onChange={(e) => setPw(e.target.value)} />
+            <PasswordInput id="lp" required autoComplete="current-password" value={pw} onChange={(e) => setPw(e.target.value)} />
           </div>
-          {note && <p className={`form-note${note.kind === "err" ? " form-err" : ""}`} role={note.kind === "err" ? "alert" : "status"}>{note.kind === "err" ? "⚠️" : "✉️"} {note.text}</p>}
+          {note && <p className={`form-note${note.kind === "err" ? " form-err" : ""}`} role={note.kind === "err" ? "alert" : "status"}><Icon name={note.kind === "err" ? "alert" : "mail"} size={16} /> {note.text}</p>}
           <button className={`btn ${isMember ? "btn-saffron" : "btn-navy"}`} type="submit" disabled={busy}>{busy ? m.wait : a.signin}</button>
           <button type="button" className="text-btn" onClick={forgot}>{a.forgot}</button>
         </>
       ) : (
         <>
-          <p className="form-note">🔐 {a.twofaHint}</p>
+          <p className="form-note">{a.twofaHint}</p>
           <div className="field"><label>{a.twofa}</label><OtpInput value={code} onChange={setCode} label={a.twofa} /></div>
           <button className="btn btn-navy" type="submit" disabled={code.length < 6}>{a.verify}</button>
           <button type="button" className="text-btn" onClick={() => setStep(1)}>← {a.back}</button>
@@ -183,7 +185,7 @@ export function SignInFlow({ lang, a }) {
           <span>{a.notMember} <Link href={`/${lang}/join`} className="link-arrow">{a.join}</Link></span>
         </div>
       ) : (
-        <p className="form-note">🛡️ {a.teamNote}</p>
+        <p className="form-note"><Icon name="shield" size={15} /> {a.teamNote}</p>
       )}
     </form>
   );
@@ -217,16 +219,16 @@ export function ActivateFlow({ lang, v }) {
             <b>{demoMember.id}</b>
             <span className="tricolour"><span /><span /><span /></span>
           </div>
-          <p className="form-note">🔒 {v.idNote}</p>
+          <p className="form-note"><Icon name="lock" size={15} /> {v.idNote}</p>
           <div className="field"><label htmlFor="ae">{v.email}</label><input id="ae" type="email" required autoComplete="email" /></div>
-          <div className="field"><label htmlFor="ap">{v.password}</label><input id="ap" type="password" required minLength={8} value={pw} onChange={(e) => setPw(e.target.value)} autoComplete="new-password" /></div>
+          <div className="field"><label htmlFor="ap">{v.password}</label><PasswordInput id="ap" required minLength={8} value={pw} onChange={(e) => setPw(e.target.value)} autoComplete="new-password" /></div>
           <div className="field">
             <label htmlFor="ap2">{v.confirm}</label>
-            <input id="ap2" type="password" required value={pw2} onChange={(e) => setPw2(e.target.value)} autoComplete="new-password" />
+            <PasswordInput id="ap2" required value={pw2} onChange={(e) => setPw2(e.target.value)} autoComplete="new-password" />
             {mismatch && <small style={{ color: "var(--red)", fontWeight: 700 }}>{v.mismatch}</small>}
           </div>
           <label className="check"><input type="checkbox" required /> {v.pledge}</label>
-          <button className="btn btn-saffron" type="submit" disabled={!!mismatch}>✋ {v.finish}</button>
+          <button className="btn btn-saffron" type="submit" disabled={!!mismatch}>{v.finish}</button>
         </form>
       )}
     </div>

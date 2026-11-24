@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getDictionary, formatNumber } from "@/i18n/config";
 import PageHead from "@/components/PageHead";
 import { JoinForm } from "@/components/PublicForms";
+import Icon from "@/components/Icon";
 
 export async function generateMetadata({ params }) {
   const { lang } = await params;
@@ -32,12 +33,12 @@ export default async function JoinPage({ params }) {
               </li>
             ))}
           </ol>
-          <p className="privacy-note" data-reveal><span aria-hidden="true">🔒</span><span>{j.privacy}</span></p>
+          <p className="privacy-note" data-reveal><span aria-hidden="true"><Icon name="lock" /></span><span>{j.privacy}</span></p>
           <h2 style={{ marginTop: 36 }}>{j.contribTitle}</h2>
           <div className="contrib-grid" style={{ gridTemplateColumns: "1fr 1fr" }}>
             {j.contrib.map((c, i) => (
               <Link key={c.t} href={contribHrefs[i]} className="card card-link contrib" data-reveal style={{ "--i": i }}>
-                <i aria-hidden="true">{c.i}</i>
+                
                 <b>{c.t}</b>
                 <span>{c.d}</span>
               </Link>

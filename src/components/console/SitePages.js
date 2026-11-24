@@ -43,14 +43,14 @@ function buildState({ about, historyDoc, manifestoDoc, contact, site, text } = {
   };
 }
 const SECTIONS = [
-  { id: "ideology", page: "About", label: "Vision & aim (AICC)", icon: "📜" },
-  { id: "values", page: "About", label: "Ethos / values (AICC)", icon: "🤍" },
-  { id: "vision", page: "About", label: "Vision (President's quote)", icon: "🕊️" },
-  { id: "history", page: "History", label: "Timeline", icon: "🕰️" },
-  { id: "manifesto", page: "Manifesto", label: "Promises", icon: "📘" },
-  { id: "contact", page: "Contact", label: "Types of contact & inboxes", icon: "✉️" },
-  { id: "footer", page: "Site-wide", label: "Footer & contact details", icon: "🧭" },
-  { id: "press", page: "Press kit", label: "About-the-party text", icon: "📰" },
+  { id: "ideology", page: "About", label: "Vision & aim (AICC)" },
+  { id: "values", page: "About", label: "Ethos / values (AICC)" },
+  { id: "vision", page: "About", label: "Vision (President's quote)" },
+  { id: "history", page: "History", label: "Timeline" },
+  { id: "manifesto", page: "Manifesto", label: "Promises" },
+  { id: "contact", page: "Contact", label: "Types of contact & inboxes" },
+  { id: "footer", page: "Site-wide", label: "Footer & contact details" },
+  { id: "press", page: "Press kit", label: "About-the-party text" },
 ];
 
 export default function SitePages() {
@@ -109,8 +109,8 @@ export default function SitePages() {
         <button className="btn btn-saffron" disabled={busy || (LIVE && loadState !== "ready")} onClick={() => setConfirming(true)}>{busy ? "Saving…" : "Submit changes"}</button>
       </PageTitle>
       <Flash msg={msg} />
-      {loadState === "loading" && <p className="form-note">⏳ Loading the live pages from the database…</p>}
-      {loadState === "error" && <p className="cs-warn small">⚠️ Couldn&apos;t load from the database — check your internet and reload before editing.</p>}
+      {loadState === "loading" && <p className="form-note">Loading the live pages from the database…</p>}
+      {loadState === "error" && <p className="cs-warn small">Couldn&apos;t load from the database — check your internet and reload before editing.</p>}
       <ConfirmPublish open={confirming} page={`${cur.page} · ${cur.label}`} onCancel={() => setConfirming(false)} onConfirm={publish} />
       <div className="tr-layout">
         <Panel title="Sections">
@@ -119,8 +119,8 @@ export default function SitePages() {
               <li key={s.id}>
                 <button type="button" aria-pressed={s.id === sel} onClick={() => setSel(s.id)}>
                   <small>{s.page}</small>
-                  <b>{s.icon} {s.label}</b>
-                  <span>{published[s.id] ? `🟢 Saved ${published[s.id].toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}` : "Live version"}</span>
+                  <b>{s.label}</b>
+                  <span>{published[s.id] ? `Saved ${published[s.id].toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}` : "Live version"}</span>
                 </button>
               </li>
             ))}
@@ -134,7 +134,7 @@ export default function SitePages() {
                 <LangField label="Introduction" value={state.ideology.intro} onChange={(v) => set("ideology", { ...state.ideology, intro: v })} multiline />
                 {state.ideology.pillars.map((p, i) => (
                   <div key={i} className="cs-sub">
-                    <b>{p.icon} Pillar {i + 1}</b>
+                    <b>Pillar {i + 1}</b>
                     <LangField label="Title" value={p.t} onChange={(v) => set("ideology", { ...state.ideology, pillars: state.ideology.pillars.map((x, j) => (j === i ? { ...x, t: v } : x)) })} />
                     <LangField label="One line" value={p.d} onChange={(v) => set("ideology", { ...state.ideology, pillars: state.ideology.pillars.map((x, j) => (j === i ? { ...x, d: v } : x)) })} />
                   </div>
@@ -143,7 +143,7 @@ export default function SitePages() {
             )}
             {sel === "values" && state.values.map((v, i) => (
               <div key={i} className="cs-sub">
-                <b>{v.icon} Value {i + 1}</b>
+                <b>Value {i + 1}</b>
                 <LangField label="Name" value={v.t} onChange={(x) => upd("values", i, { t: x })} />
                 <LangField label="One line" value={v.d} onChange={(x) => upd("values", i, { d: x })} />
               </div>
@@ -162,7 +162,7 @@ export default function SitePages() {
                   <div key={i} className="cs-sub">
                     <div className="cs-two">
                       <div className="field"><label>Year</label><input value={h.year} onChange={(e) => upd("history", i, { year: e.target.value })} /></div>
-                      <div className="cs-row" style={{ alignItems: "end" }}><button type="button" className="btn btn-ghost btn-sm" onClick={() => set("history", state.history.filter((_, j) => j !== i))}>🗑 Remove</button></div>
+                      <div className="cs-row" style={{ alignItems: "end" }}><button type="button" className="btn btn-ghost btn-sm" onClick={() => set("history", state.history.filter((_, j) => j !== i))}>Remove</button></div>
                     </div>
                     <LangField label="Title" value={h.t} onChange={(v) => upd("history", i, { t: v })} />
                     <LangField label="What happened" value={h.d} onChange={(v) => upd("history", i, { d: v })} multiline rows={3} />
@@ -173,7 +173,7 @@ export default function SitePages() {
             )}
             {sel === "manifesto" && state.manifesto.map((m, i) => (
               <div key={m.id} className="cs-sub">
-                <b>{m.icon} {t(m.t, "en")}</b>
+                <b>{t(m.t, "en")}</b>
                 <LangField label="Topic name" value={m.t} onChange={(v) => upd("manifesto", i, { t: v })} />
                 <LangField label="Promises — one per line" value={m.text} onChange={(v) => upd("manifesto", i, { text: v })} multiline rows={4} />
               </div>
@@ -183,7 +183,7 @@ export default function SitePages() {
                 <p className="form-note">Each topic on the Contact page sends its messages to this inbox.</p>
                 {state.contact.map((c, i) => (
                   <div key={c.id} className="cs-inline">
-                    <span>{c.icon} {t(c.t, "en")}</span>
+                    <span>{t(c.t, "en")}</span>
                     <input type="email" value={c.inbox} onChange={(e) => upd("contact", i, { inbox: e.target.value })} aria-label={`Inbox for ${t(c.t, "en")}`} />
                   </div>
                 ))}
@@ -194,10 +194,10 @@ export default function SitePages() {
                 <p className="form-note">Choose which group receives each kind of help request.</p>
                 {state.help.map((h, i) => (
                   <div key={h.id} className="cs-inline">
-                    <span>{h.icon} {t(h.t, "en")}</span>
+                    <span>{t(h.t, "en")}</span>
                     <select value={h.group || ""} onChange={(e) => upd("help", i, { group: e.target.value || null })} aria-label={`Team for ${t(h.t, "en")}`}>
                       <option value="">State help desk</option>
-                      {groups.map((g) => <option key={g.id} value={g.id}>{g.icon} {t(g.name, "en")}</option>)}
+                      {groups.map((g) => <option key={g.id} value={g.id}>{t(g.name, "en")}</option>)}
                     </select>
                   </div>
                 ))}
@@ -224,7 +224,7 @@ export default function SitePages() {
               <>
                 <LangField label="About the party (journalists copy this)" value={state.press.text} onChange={(v) => set("press", { ...state.press, text: v })} multiline rows={5} />
                 <div className="field"><label>Media contact email</label><input type="email" value={state.press.media} onChange={(e) => set("press", { ...state.press, media: e.target.value })} /></div>
-                <div className="field"><label>Logo files & leader photos</label>{LIVE ? <p className="form-note">🖼️ File uploads come in a later step.</p> : <label className="dropzone"><span>🖼️ Upload files</span><small>SVG / PNG / JPG</small><input type="file" multiple className="sr-only" /></label>}</div>
+                <div className="field"><label>Logo files & leader photos</label>{LIVE ? <p className="form-note">File uploads come in a later step.</p> : <label className="dropzone"><span>Upload files</span><small>SVG / PNG / JPG</small><input type="file" multiple className="sr-only" /></label>}</div>
               </>
             )}
           </div>

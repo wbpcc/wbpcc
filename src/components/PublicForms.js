@@ -8,6 +8,8 @@ import { contactTopics } from "@/data/pages";
 import { Done, DistrictSelect } from "./Forms";
 import { OtpInput } from "./AuthFlows";
 import { useSession } from "./session";
+import Icon from "./Icon";
+import PasswordInput from "./PasswordInput";
 
 // ---------------------------------------------------------------------
 // The three public forms: Contact · Appointment with the President · Join.
@@ -76,9 +78,9 @@ export function ContactForm({ lang, s, c }) {
     <form className="card form" onSubmit={(e) => { e.preventDefault(); setDone(ref("WB")); }}>
       <F label={s.type} req>
         <select value={type} onChange={(e) => setType(e.target.value)}>
-          {contactTopics.map((x) => <option key={x.id} value={x.id}>{x.icon} {t(x.t, lang)}</option>)}
+          {contactTopics.map((x) => <option key={x.id} value={x.id}>{t(x.t, lang)}</option>)}
         </select>
-        <small className="route">✉️ {fill(s.goesTo, { email: cur.inbox })}</small>
+        <small className="route"><Icon name="mail" size={15} /> {fill(s.goesTo, { email: cur.inbox })}</small>
       </F>
       <F label={s.name}><input autoComplete="name" /></F>
       <F label={s.email} req><input type="email" required autoComplete="email" /></F>
@@ -100,7 +102,7 @@ export function AppointmentForm({ lang, s, g, c, requireMember = false }) {
   if (requireMember && session !== undefined && session?.role !== "member") {
     return (
       <div className="card members-only">
-        <span className="big" aria-hidden="true">🪪</span>
+        <span className="big" aria-hidden="true"><Icon name="id" size={40} /></span>
         <p>{s.membersOnly}</p>
         <div className="cs-row" style={{ justifyContent: "center" }}>
           <Link href={`/${lang}/signin`} className="btn btn-saffron">{s.signin}</Link>
@@ -172,8 +174,8 @@ export function AppointmentForm({ lang, s, g, c, requireMember = false }) {
         <label className="check wide"><input type="checkbox" /> {s.updates}</label>
       </Section>
 
-      {!verified && <p className="form-note">📱 {s.otpNote}</p>}
-      <button className="btn btn-saffron" type="submit" disabled={!verified}>🗓️ {s.submit}</button>
+      {!verified && <p className="form-note">{s.otpNote}</p>}
+      <button className="btn btn-saffron" type="submit" disabled={!verified}>{s.submit}</button>
       <p className="form-note">{c.demoNote}</p>
     </form>
   );
@@ -224,7 +226,7 @@ export function JoinForm({ lang, j, c }) {
         <F label={j.org} wide>
           <select defaultValue="">
             <option value="">{j.none}</option>
-            {groups.map((g) => <option key={g.id} value={g.id}>{g.icon} {t(g.name, lang)}</option>)}
+            {groups.map((g) => <option key={g.id} value={g.id}>{t(g.name, lang)}</option>)}
           </select>
         </F>
         <F label={j.address} wide><textarea rows={2} autoComplete="street-address" /></F>
@@ -237,7 +239,7 @@ export function JoinForm({ lang, j, c }) {
         <F label={j.whatsapp}><input type="tel" /></F>
         <F label={j.email}><input type="email" autoComplete="email" /></F>
         <F label={j.password} req wide>
-          <input type="password" required value={pw} onChange={(e) => setPw(e.target.value)} autoComplete="new-password" />
+          <PasswordInput required value={pw} onChange={(e) => setPw(e.target.value)} autoComplete="new-password" />
           <small className={pw && !strong(pw) ? "err" : "hint"}>{pw && !strong(pw) ? j.pwWeak : j.pwRule}</small>
         </F>
         <F label={j.photo} wide><input type="file" accept="image/*" /></F>
@@ -254,7 +256,7 @@ export function JoinForm({ lang, j, c }) {
         <span className="fee-amount">{j.feeAmount}</span>
       </div>
 
-      <button className="btn btn-saffron" type="submit" disabled={!verified}>✋ {j.submit}</button>
+      <button className="btn btn-saffron" type="submit" disabled={!verified}>{j.submit}</button>
       <p className="form-note">{c.demoNote}</p>
     </form>
   );
@@ -287,8 +289,8 @@ export function DonateForm({ lang, s, c }) {
       <F label={s.address}><textarea rows={2} autoComplete="street-address" /></F>
       <DistrictSelect lang={lang} label={s.district} name="don-district" />
       <label className="check"><input type="checkbox" required /> {s.citizen}</label>
-      <button className="btn btn-saffron" type="submit">❤️ {fill(s.submit, { amt: money(value) })}</button>
-      <p className="form-note">💳 {s.note}</p>
+      <button className="btn btn-saffron" type="submit">{fill(s.submit, { amt: money(value) })}</button>
+      <p className="form-note">{s.note}</p>
     </form>
   );
 }

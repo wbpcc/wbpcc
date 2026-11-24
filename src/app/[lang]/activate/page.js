@@ -17,7 +17,7 @@ export default async function ActivatePage({ params }) {
       <PageHead crumbHref={`/${lang}/signin`} crumbLabel={d.auth.eyebrow} eyebrow={v.eyebrow} title={v.title} lead={v.lead} />
       <section className="section deco deco-c auth-wrap">
         <div className="wrap" style={{ maxWidth: 560 }}>
-          <p className="demo-note">🧪 {d.auth.demo}</p>
+          <p className="demo-note">{d.auth.demo}</p>
           <ActivateFlow lang={lang} v={v} />
         </div>
       </section>

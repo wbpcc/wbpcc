@@ -8,7 +8,6 @@ export function GroupCard({ gr, lang, o, i = 0 }) {
   return (
     <Link href={`/${lang}/groups/${gr.id}`} className="card org-card" style={{ "--g": gr.color, "--i": i }} data-reveal>
       <div className="group-top">
-        <span className="group-icon" aria-hidden="true">{gr.icon}</span>
         <div>
           <small className="org-cat">{o.cats[gr.category]}</small>
           <h3>{t(gr.name, lang)}</h3>

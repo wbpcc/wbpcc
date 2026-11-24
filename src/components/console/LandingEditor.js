@@ -73,8 +73,8 @@ export default function LandingEditor() {
         <button className="btn btn-saffron" disabled={!dirty || busy || (LIVE && loadState !== "ready")} onClick={() => setConfirming(true)}>{busy ? "Saving…" : "Submit changes"}</button>
       </PageTitle>
       <Flash msg={msg} />
-      {loadState === "loading" && <p className="form-note">⏳ Loading the live homepage from the database…</p>}
-      {loadState === "error" && <p className="cs-warn small">⚠️ Couldn&apos;t load from the database — check your internet and reload before editing.</p>}
+      {loadState === "loading" && <p className="form-note">Loading the live homepage from the database…</p>}
+      {loadState === "error" && <p className="cs-warn small">Couldn&apos;t load from the database — check your internet and reload before editing.</p>}
       <ConfirmPublish open={confirming} page="Home page" changes={["Hero text", "LIVE ticker (" + ticker.length + " items)", "“Live now” card", "Headline numbers"]} onCancel={() => setConfirming(false)} onConfirm={publish} />
 
       <div className="cs-two wide-left">
@@ -88,8 +88,8 @@ export default function LandingEditor() {
               <div className="field">
                 <label>Hero photo</label>
                 {LIVE
-                  ? <p className="form-note">🖼️ Photo uploads come in a later step.</p>
-                  : <label className="dropzone"><span>🖼️ Upload a photo</span><small>Rally or Congress Bhavan · at least 1600 px wide</small><input type="file" accept="image/*" className="sr-only" onChange={() => setDirty(true)} /></label>}
+                  ? <p className="form-note">Photo uploads come in a later step.</p>
+                  : <label className="dropzone"><span>Upload a photo</span><small>Rally or Congress Bhavan · at least 1600 px wide</small><input type="file" accept="image/*" className="sr-only" onChange={() => setDirty(true)} /></label>}
               </div>
             </div>
           </Panel>
@@ -146,7 +146,7 @@ export default function LandingEditor() {
                 <small>{hero.eyebrow[pl] || hero.eyebrow.en}</small>
                 <h3>{hero.title[pl] || hero.title.en}<br /><em>{hero.titleEm[pl] || hero.titleEm.en}</em></h3>
                 <p>{hero.sub[pl] || hero.sub.en}</p>
-                <div className="lp-btns"><i>✋ Join</i><i>📍 Events</i><i>✍️ Sign</i></div>
+                <div className="lp-btns"><i>Join</i><i>Events</i><i>Sign</i></div>
                 {ev && <div className="lp-live"><b>● LIVE NOW</b>{t(ev.title, pl)}</div>}
               </div>
               <div className="lp-stats"><span><b>{nums.events}</b>events</span><span><b>{stats.groups}</b>groups</span><span><b>{nums.districts}</b>districts</span></div>

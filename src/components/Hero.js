@@ -2,6 +2,7 @@ import Link from "next/link";
 import { t } from "@/i18n/config";
 import { events, featured, stats } from "@/data/placeholder";
 import { CountUp, LiveCount } from "./LiveNumbers";
+import Icon from "./Icon";
 
 export default function Hero({ lang, d }) {
   const live = events.find((e) => e.id === featured.eventId);
@@ -19,9 +20,9 @@ export default function Hero({ lang, d }) {
             </h1>
             <p className="hero-sub">{h.sub}</p>
             <div className="hero-ctas">
-              <Link href={`/${lang}/join`} className="btn btn-saffron">✋ {h.ctaJoin}</Link>
-              <Link href={`/${lang}/events`} className="btn btn-outline">📍 {h.ctaEvents}</Link>
-              <Link href={`/${lang}/petitions`} className="btn btn-outline">✍️ {h.ctaSign}</Link>
+              <Link href={`/${lang}/join`} className="btn btn-saffron">{h.ctaJoin}</Link>
+              <Link href={`/${lang}/events`} className="btn btn-outline">{h.ctaEvents}</Link>
+              <Link href={`/${lang}/petitions`} className="btn btn-outline">{h.ctaSign}</Link>
             </div>
           </div>
 
@@ -37,7 +38,7 @@ export default function Hero({ lang, d }) {
                 <span className="pill pill-live"><span className="dot" />{h.liveLabel}</span>
                 <h3>{t(live.title, lang)}</h3>
                 <p>{t(live.place, lang)} · {t(featured.when, lang)}</p>
-                <p>👥 <LiveCount base={live.going} lang={lang} template={d.happening.going} /></p>
+                <p><Icon name="users" size={16} /> <LiveCount base={live.going} lang={lang} template={d.happening.going} /></p>
                 <span className="go">{h.liveCta}</span>
               </Link>
             )}

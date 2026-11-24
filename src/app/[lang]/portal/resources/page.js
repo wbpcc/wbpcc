@@ -1,6 +1,7 @@
 import { getDictionary, locales, t } from "@/i18n/config";
 import { campaigns, findGroup } from "@/data/placeholder";
 import Printables from "@/components/Printables";
+import Icon from "@/components/Icon";
 
 export async function generateMetadata({ params }) {
   const { lang } = await params;
@@ -22,7 +23,7 @@ export default async function ResourcesPage({ params }) {
         <p className="portal-lead">{r.lead}</p>
       </div>
       <div>
-        <h2 className="portal-h">📦 {r.ready}</h2>
+        <h2 className="portal-h">{r.ready}</h2>
         <div className="kit-grid">
           {campaigns.map((c, i) => {
             const g = c.group ? findGroup(c.group) : null;
@@ -32,11 +33,11 @@ export default async function ResourcesPage({ params }) {
                 <small>{r.kit}</small>
                 <b>{t(c.title, lang)}</b>
                 <ul>
-                  <li>🪧 {p.templates.poster}</li>
-                  <li>✊ {p.templates.placard}</li>
-                  <li>📄 {p.templates.leaflet}</li>
+                  <li>{p.templates.poster}</li>
+                  <li>{p.templates.placard}</li>
+                  <li>{p.templates.leaflet}</li>
                 </ul>
-                <button className="btn btn-ghost btn-sm" disabled title={r.soon}>⬇ {r.download}</button>
+                <button className="btn btn-ghost btn-sm" disabled title={r.soon}><Icon name="download" /> {r.download}</button>
                 <small className="cs-muted">{r.soon}</small>
               </article>
             );
@@ -44,7 +45,7 @@ export default async function ResourcesPage({ params }) {
         </div>
       </div>
       <div>
-        <h2 className="portal-h">🖨️ {r.create}</h2>
+        <h2 className="portal-h">{r.create}</h2>
         <p className="portal-lead" style={{ marginTop: -6, marginBottom: 12 }}>{r.createLead}</p>
         <Printables lang={lang} p={p} printText={printText} />
       </div>

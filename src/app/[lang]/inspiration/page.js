@@ -25,7 +25,7 @@ export default async function InspirationPage({ params }) {
           </div>
         </section>
       ))}
-      <div className="wrap"><p className="form-note" style={{ margin: "0 0 40px" }}>🖼️ {s.photoNote}</p></div>
+      <div className="wrap"><p className="form-note" style={{ margin: "0 0 40px" }}>{s.photoNote}</p></div>
     </>
   );
 }

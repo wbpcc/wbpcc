@@ -21,7 +21,7 @@ export default function TakeAction({ lang, d, showHead = true }) {
           {petitions.map((p, i) => <PetitionCard key={p.id} p={p} lang={lang} a={a} i={i} />)}
         </div>
         <div className="request-box" data-reveal>
-          <p>💡 {a.requestText}</p>
+          <p>{a.requestText}</p>
           <Link href={`/${lang}/contact?type=petition`} className="btn btn-navy btn-sm">{a.requestBtn}</Link>
         </div>
       </div>

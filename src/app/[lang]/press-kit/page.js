@@ -5,6 +5,7 @@ import { leaders, posts } from "@/data/placeholder";
 import PageHead from "@/components/PageHead";
 import { postDate } from "@/components/PostCard";
 import { CopyText } from "@/components/InfoForms";
+import Icon from "@/components/Icon";
 
 export async function generateMetadata({ params }) {
   const { lang } = await params;
@@ -24,8 +25,8 @@ export default async function PressKitPage({ params }) {
         <div className="wrap press-grid">
           <div className="card" data-reveal>
             <h2>{s.contact}</h2>
-            <div className="fact"><i>✉️</i><div><b>{s.contact}</b><a className="link-arrow" href={`mailto:${hq.media}`}>{hq.media}</a></div></div>
-            <div className="fact" style={{ marginTop: 10 }}><i>📞</i><div><b>{d.contact.phone}</b><span>{hq.phone}</span></div></div>
+            <div className="fact"><i><Icon name="mail" /></i><div><b>{s.contact}</b><a className="link-arrow" href={`mailto:${hq.media}`}>{hq.media}</a></div></div>
+            <div className="fact" style={{ marginTop: 10 }}><i><Icon name="phone" /></i><div><b>{d.contact.phone}</b><span>{hq.phone}</span></div></div>
           </div>
 
           <div className="card" data-reveal style={{ "--i": 1 }}>
@@ -34,7 +35,7 @@ export default async function PressKitPage({ params }) {
               <div className="logo-tile"><img src="/brand/logo.svg" alt="WBPCC logo" width={84} height={84} /></div>
               <div className="logo-tile dark"><img src="/brand/logo.svg" alt="WBPCC logo on navy" width={84} height={84} /></div>
             </div>
-            <a className="btn btn-navy btn-sm" href="/brand/logo.svg" download="wbpcc-logo.svg" style={{ marginTop: 12 }}>⬇ {s.download} (SVG)</a>
+            <a className="btn btn-navy btn-sm" href="/brand/logo.svg" download="wbpcc-logo.svg" style={{ marginTop: 12 }}><Icon name="download" /> {s.download} (SVG)</a>
           </div>
 
           <div className="card" data-reveal style={{ "--i": 2 }}>

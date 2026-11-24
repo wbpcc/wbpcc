@@ -35,7 +35,7 @@ export function EventRsvp({ event, lang, h, ev }) {
       <button className={`btn ${going ? "btn-navy" : "btn-saffron"}`} onClick={() => setGoing((g) => !g)} aria-pressed={going}>
         {going ? "✓ " : ""}{h.rsvp}
       </button>
-      {going && <p className="form-note" style={{ animation: "fadeUp .4s both" }}>🎉 {ev.goingNow}</p>}
+      {going && <p className="form-note" style={{ animation: "fadeUp .4s both" }}>{ev.goingNow}</p>}
       <a className="btn btn-outline" href={`https://www.google.com/maps/dir/?api=1&destination=${event.lat},${event.lng}`} target="_blank" rel="noopener noreferrer">
         {h.directions} ↗
       </a>

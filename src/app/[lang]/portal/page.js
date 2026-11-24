@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getDictionary, t, intlLocale } from "@/i18n/config";
 import { findEvent } from "@/data/placeholder";
 import { demoMember, announcements } from "@/data/portal";
+import Icon from "@/components/Icon";
 
 export async function generateMetadata({ params }) {
   const { lang } = await params;
@@ -14,9 +15,9 @@ export default async function PortalDashboard({ params }) {
   const p = d.portal;
   const date = (iso) => new Intl.DateTimeFormat(intlLocale[lang], { day: "numeric", month: "short" }).format(new Date(iso));
   const quick = [
-    ["/resources", "🖨️", d.resources.title, d.resources.ready + " · " + d.resources.create],
-    ["/appointment", "🗓️", d.appointment.title, d.appointment.eyebrow],
-    ["/feedback", "💬", d.contactForm.types.feedback, d.contactForm.types.suggestion + " · " + d.contactForm.types.grievance],
+    ["/resources", "print", d.resources.title, d.resources.ready + " · " + d.resources.create],
+    ["/appointment", "calendar", d.appointment.title, d.appointment.eyebrow],
+    ["/feedback", "chat", d.contactForm.types.feedback, d.contactForm.types.suggestion + " · " + d.contactForm.types.grievance],
   ];
 
   return (
@@ -26,7 +27,7 @@ export default async function PortalDashboard({ params }) {
         <div className="quick-grid">
           {quick.map(([href, icon, title, sub], i) => (
             <Link key={href} href={`/${lang}/portal${href}`} className="card card-link quick" data-reveal style={{ "--i": i }}>
-              <i aria-hidden="true">{icon}</i>
+              <i aria-hidden="true"><Icon name={icon} size={24} /></i>
               <b>{title}</b>
               <small>{sub}</small>
             </Link>
@@ -36,7 +37,7 @@ export default async function PortalDashboard({ params }) {
 
       <div className="two-col">
         <div>
-          <h2 className="portal-h">📣 {p.announcements}</h2>
+          <h2 className="portal-h">{p.announcements}</h2>
           <div className="announce-list">
             {announcements.map((a, i) => (
               <article key={a.id} className="card announce" data-reveal style={{ "--i": i }}>
@@ -47,14 +48,14 @@ export default async function PortalDashboard({ params }) {
           </div>
         </div>
         <div>
-          <h2 className="portal-h">🗓️ {p.upcoming}</h2>
+          <h2 className="portal-h">{p.upcoming}</h2>
           <div className="announce-list">
             {demoMember.upcoming.map((id, i) => {
               const e = findEvent(id);
               return (
                 <Link key={id} href={`/${lang}/events/${id}`} className="card card-link announce" data-reveal style={{ "--i": i }}>
                   <b>{t(e.title, lang)}</b>
-                  <small>📍 {t(e.place, lang)}</small>
+                  <small><Icon name="pin" size={14} /> {t(e.place, lang)}</small>
                 </Link>
               );
             })}

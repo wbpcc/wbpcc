@@ -7,13 +7,14 @@ import { petitions as petSeed, campaigns as campSeed, events, groups, districts 
 import { useRole } from "./ConsoleShell";
 import { PageTitle, Panel, Tabs, Status, Drawer, LangField, DistrictPick, Flash, useFlash, fmtDate } from "./ui";
 import { useLiveList, saveItem, requestPublish, savedMessage, LIVE } from "@/lib/cms";
+import Icon from "../Icon";
 
 // Start petitions & campaigns directly (Admin).
 // Contributors create theirs under "My submissions" → Review queue.
 // In the database: `stage` = where a petition is (live / closed / …);
 // `status` = published (on the website) or draft (Admins only).
 const tri = (x) => x || { en: "", bn: "", hi: "" };
-const PSTATUS = { live: ["approved", "Live"], closed: ["review", "Closed"], submitted: ["changes", "Submitted to govt"], won: ["approved", "Won 🎉"], draft: ["review", "Draft"] };
+const PSTATUS = { live: ["approved", "Live"], closed: ["review", "Closed"], submitted: ["changes", "Submitted to govt"], won: ["approved", "Won"], draft: ["review", "Draft"] };
 const prepPet = (p) => ({ ...p, stage: p.stage || (p.status === "draft" ? "draft" : "live"), why: p.why || p.desc || tri(), addressedTo: p.addressedTo || tri() });
 const prepCamp = (c) => ({ ...c, desc: c.desc || tri(), events: c.events || [], petitions: c.petitions || [] });
 
@@ -70,14 +71,14 @@ export default function CampaignsPetitions() {
   return (
     <>
       <PageTitle title="Petitions & campaigns" sub="Start a petition or campaign and publish it straight to the website — no code. Contributors' submissions arrive through the Review queue.">
-        <button className="btn btn-ghost" disabled={!canStartCamp} title={canStartCamp ? "" : "You don't have permission to start campaigns"} onClick={() => setEdit({ type: "campaign", item: blankCamp() })}>✊ Start a campaign</button>
-        <button className="btn btn-saffron" disabled={!canStartPet} title={canStartPet ? "" : "You don't have permission to start petitions"} onClick={() => setEdit({ type: "petition", item: blankPet() })}>✍️ Start a petition</button>
+        <button className="btn btn-ghost" disabled={!canStartCamp} title={canStartCamp ? "" : "You don't have permission to start campaigns"} onClick={() => setEdit({ type: "campaign", item: blankCamp() })}>Start a campaign</button>
+        <button className="btn btn-saffron" disabled={!canStartPet} title={canStartPet ? "" : "You don't have permission to start petitions"} onClick={() => setEdit({ type: "petition", item: blankPet() })}>Start a petition</button>
       </PageTitle>
       <Flash msg={msg} />
-      {loadState === "loading" && <p className="form-note">⏳ Loading the latest from the database…</p>}
-      {loadState === "error" && <p className="cs-warn small">⚠️ Couldn&apos;t load from the database — check your internet and reload before editing.</p>}
+      {loadState === "loading" && <p className="form-note">Loading the latest from the database…</p>}
+      {loadState === "error" && <p className="cs-warn small">Couldn&apos;t load from the database — check your internet and reload before editing.</p>}
 
-      <Tabs value={tab} onChange={setTab} tabs={[["petitions", "✍️ Petitions", pets.length], ["campaigns", "✊ Campaigns", camps.length]]} />
+      <Tabs value={tab} onChange={setTab} tabs={[["petitions", "Petitions", pets.length], ["campaigns", "Campaigns", camps.length]]} />
 
       <Panel>
         {tab === "petitions" && (
@@ -87,10 +88,10 @@ export default function CampaignsPetitions() {
               {pets.map((p) => (
                 <tr key={p.id}>
                   <td><b>{t(p.title, "en")}</b><br /><small className="cs-muted">{p.startedBy === "member" ? "From a contributor" : "Started by the party"}{p.district ? ` · ${t(districts[p.district], "en")}` : ""}</small></td>
-                  <td>{p.type === "formal" ? "🏛️ Government" : "🌐 Online"}</td>
+                  <td>{p.type === "formal" ? "Government" : "Online"}</td>
                   <td>{p.signatures.toLocaleString("en-IN")} / {Number(p.goal).toLocaleString("en-IN")}</td>
                   <td><Status kind={(PSTATUS[p.stage] || PSTATUS.live)[0]}>{(PSTATUS[p.stage] || PSTATUS.live)[1]}</Status></td>
-                  <td>{canEditExisting ? <button className="btn btn-ghost btn-sm" onClick={() => setEdit({ type: "petition", item: { ...p } })}>Edit</button> : <span className="cs-lock" title="Not in your permissions">🔒</span>}</td>
+                  <td>{canEditExisting ? <button className="btn btn-ghost btn-sm" onClick={() => setEdit({ type: "petition", item: { ...p } })}>Edit</button> : <span className="cs-lock" title="Not in your permissions"><Icon name="lock" size={15} /></span>}</td>
                 </tr>
               ))}
             </tbody>
@@ -104,9 +105,9 @@ export default function CampaignsPetitions() {
                 <tr key={c.id}>
                   <td><b>{t(c.title, "en")}</b><br /><small className="cs-muted">{t(c.goal, "en")}</small></td>
                   <td>{c.start ? `${fmtDate(c.start)} – ${c.end ? fmtDate(c.end) : "…"}` : "—"}</td>
-                  <td>🗓️ {c.events.length} · ✍️ {c.petitions.length}</td>
+                  <td>{c.events.length} events · {c.petitions.length} petitions</td>
                   <td>{c.status === "draft" ? <Status kind="review">Draft</Status> : c.featured ? <Status kind="approved">Featured</Status> : "—"}</td>
-                  <td>{canEditExisting ? <button className="btn btn-ghost btn-sm" onClick={() => setEdit({ type: "campaign", item: { ...c } })}>Edit</button> : <span className="cs-lock" title="Not in your permissions">🔒</span>}</td>
+                  <td>{canEditExisting ? <button className="btn btn-ghost btn-sm" onClick={() => setEdit({ type: "campaign", item: { ...c } })}>Edit</button> : <span className="cs-lock" title="Not in your permissions"><Icon name="lock" size={15} /></span>}</td>
                 </tr>
               ))}
             </tbody>
@@ -133,8 +134,8 @@ export default function CampaignsPetitions() {
             <fieldset className="field" style={{ border: 0, padding: 0, margin: 0 }}>
               <legend>Type</legend>
               <div className="checks" style={{ marginTop: 6 }}>
-                <label><input type="radio" checked={edit.item.type === "online"} onChange={() => patch({ type: "online" })} /> 🌐 Online signatures</label>
-                <label><input type="radio" checked={edit.item.type === "formal"} onChange={() => patch({ type: "formal" })} /> 🏛️ For government (collects name + address)</label>
+                <label><input type="radio" checked={edit.item.type === "online"} onChange={() => patch({ type: "online" })} /> Online signatures</label>
+                <label><input type="radio" checked={edit.item.type === "formal"} onChange={() => patch({ type: "formal" })} /> For government (collects name + address)</label>
               </div>
             </fieldset>
             <div className="cs-two">
@@ -142,7 +143,7 @@ export default function CampaignsPetitions() {
               <div className="field"><label>Closes on</label><input type="date" value={edit.item.closes || ""} onChange={(e) => patch({ closes: e.target.value })} /></div>
             </div>
             <DistrictPick value={edit.item.district} onChange={(v) => patch({ district: v })} />
-            <div className="field"><label>Group</label><select value={edit.item.group || ""} onChange={(e) => patch({ group: e.target.value })}><option value="">— None —</option>{groups.map((g) => <option key={g.id} value={g.id}>{g.icon} {t(g.name, "en")}</option>)}</select></div>
+            <div className="field"><label>Group</label><select value={edit.item.group || ""} onChange={(e) => patch({ group: e.target.value })}><option value="">— None —</option>{groups.map((g) => <option key={g.id} value={g.id}>{t(g.name, "en")}</option>)}</select></div>
             <div className="field"><label>Status</label><select value={edit.item.stage} onChange={(e) => patch({ stage: e.target.value })}>{Object.entries(PSTATUS).map(([k, v]) => <option key={k} value={k}>{v[1]}</option>)}</select><small className="cs-muted">“Draft” keeps it off the website.</small></div>
           </div>
         )}
@@ -155,7 +156,7 @@ export default function CampaignsPetitions() {
               <div className="field"><label>Starts</label><input type="date" value={edit.item.start} onChange={(e) => patch({ start: e.target.value })} /></div>
               <div className="field"><label>Ends</label><input type="date" value={edit.item.end} onChange={(e) => patch({ end: e.target.value })} /></div>
             </div>
-            <div className="field"><label>Leading group</label><select value={edit.item.group || ""} onChange={(e) => patch({ group: e.target.value })}><option value="">Whole party</option>{groups.map((g) => <option key={g.id} value={g.id}>{g.icon} {t(g.name, "en")}</option>)}</select></div>
+            <div className="field"><label>Leading group</label><select value={edit.item.group || ""} onChange={(e) => patch({ group: e.target.value })}><option value="">Whole party</option>{groups.map((g) => <option key={g.id} value={g.id}>{t(g.name, "en")}</option>)}</select></div>
             <fieldset className="field" style={{ border: 0, padding: 0, margin: 0 }}>
               <legend>Events in this campaign</legend>
               <div className="checks" style={{ marginTop: 6 }}>{events.map((e) => <label key={e.id}><input type="checkbox" checked={edit.item.events.includes(e.id)} onChange={() => toggle("events", e.id)} /> {t(e.title, "en")}</label>)}</div>
@@ -164,7 +165,7 @@ export default function CampaignsPetitions() {
               <legend>Petitions in this campaign</legend>
               <div className="checks" style={{ marginTop: 6 }}>{pets.map((p) => <label key={p.id}><input type="checkbox" checked={edit.item.petitions.includes(p.id)} onChange={() => toggle("petitions", p.id)} /> {t(p.title, "en")}</label>)}</div>
             </fieldset>
-            <div className="field"><label>Cover photo</label>{LIVE ? <p className="form-note">🖼️ Photo uploads come in a later step.</p> : <label className="dropzone"><span>🖼️ Upload a cover</span><small>Wide photo, at least 1600 px</small><input type="file" accept="image/*" className="sr-only" /></label>}</div>
+            <div className="field"><label>Cover photo</label>{LIVE ? <p className="form-note">Photo uploads come in a later step.</p> : <label className="dropzone"><span>Upload a cover</span><small>Wide photo, at least 1600 px</small><input type="file" accept="image/*" className="sr-only" /></label>}</div>
             <label className="check"><input type="checkbox" checked={edit.item.featured} onChange={(e) => patch({ featured: e.target.checked })} /> Feature on the landing page</label>
           </div>
         )}

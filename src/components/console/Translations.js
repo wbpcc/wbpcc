@@ -12,7 +12,7 @@ import { PageTitle, Panel, Flash, useFlash } from "./ui";
 
 // Wikipedia-style translation editor: English is locked (the source),
 // Bangla / Hindi are edited side by side. Every save is logged + revertible.
-const ST = { auto: ["🟡", "Auto-translated"], outdated: ["🟠", "English changed — recheck"], reviewed: ["🟢", "Reviewed"] };
+const ST = { auto: ["", "Auto-translated"], outdated: ["", "English changed — recheck"], reviewed: ["", "Reviewed"] };
 
 function sourceFor(id) {
   if (id === "home-hero") return Object.fromEntries([["en", en], ["bn", bn], ["hi", hi]].map(([k, d]) => [k, `${d.hero.title} ${d.hero.titleEm}\n${d.hero.sub}`]));
@@ -71,7 +71,7 @@ export default function Translations() {
                 <button type="button" aria-pressed={x.id === sel} onClick={() => pick(x.id)}>
                   <small>{x.area}</small>
                   <b>{x.title}</b>
-                  <span>{ST[x[lang]][0]} {ST[x[lang]][1]}</span>
+                  <span>{ST[x[lang]][1]}</span>
                 </button>
               </li>
             ))}
@@ -79,7 +79,7 @@ export default function Translations() {
         </Panel>
 
         <div className="cs-stack">
-          <Panel title={cur.title} actions={<span className="cs-muted">{ST[cur[lang]][0]} {ST[cur[lang]][1]}</span>}>
+          <Panel title={cur.title} actions={<span className="cs-muted">{ST[cur[lang]][1]}</span>}>
             <div className="tr-side">
               <div className="field"><label>English (source — locked)</label><textarea value={cur.text.en} readOnly rows={8} className="locked" /></div>
               <div className="field"><label>{lang === "bn" ? "বাংলা" : "हिन्दी"}</label><textarea value={draft} onChange={(e) => setDraft(e.target.value)} rows={8} lang={lang} /></div>

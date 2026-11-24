@@ -572,6 +572,18 @@ html[lang="bn"] .page-head h1, html[lang="hi"] .page-head h1 { line-height: 1.25
 }
 .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--sky); box-shadow: 0 0 0 4px var(--sky-soft); }
 .field textarea { min-height: 110px; resize: vertical; }
+
+/* Password box with a show / hide eye button */
+.pw-wrap { position: relative; }
+.pw-wrap input { width: 100%; padding-right: 50px; }
+.pw-eye { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 38px; height: 38px; border: 0; border-radius: 9px; background: transparent; color: var(--muted); display: grid; place-items: center; cursor: pointer; }
+.pw-eye:hover, .pw-eye:focus-visible { color: var(--navy); background: var(--cream-2); outline: none; }
+
+/* Plain line icons (components/Icon.js) */
+.ico { display: inline-block; flex: none; vertical-align: -0.22em; }
+.btn .ico { margin-right: 6px; vertical-align: -0.2em; }
+.fact i .ico, .door i .ico, .blog-icon .ico, .portal-nav i .ico { color: var(--navy); }
+.play .ico { color: #fff; margin-left: 3px; }
 .check { display: flex; gap: 10px; align-items: start; font-size: 14px; }
 .check input { margin-top: 3px; width: 18px; height: 18px; accent-color: var(--saffron); flex: none; }
 .checks { display: flex; flex-wrap: wrap; gap: 8px; border: 0; padding: 0; margin: 0; }

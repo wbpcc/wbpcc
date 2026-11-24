@@ -9,7 +9,7 @@ import { PageTitle, Panel, Status, Drawer, LangField, DistrictPick, Flash, useFl
 
 // Contributor workspace: create articles / blogs, petitions and campaigns,
 // then "Submit for review". Nothing goes live until an Admin accepts — until then only Admins can see it.
-const KIND = { article: "📝 Article", blog: "📝 Blog", petition: "✍️ Petition", campaign: "✊ Campaign" };
+const KIND = { article: "Article", blog: "Blog", petition: "Petition", campaign: "Campaign" };
 const ST = { draft: ["review", "Draft"], review: ["review", "Waiting for review"], approved: ["approved", "Published"], changes: ["changes", "Needs changes"], rejected: ["rejected", "Not accepted"] };
 const tri = (en = "") => ({ en, bn: "", hi: "" });
 
@@ -46,9 +46,9 @@ export default function MySubmissions() {
   return (
     <>
       <PageTitle title="Add article, campaign or petition" sub="Create and submit. You can edit a submission while it's a draft or when it's sent back with changes.">
-        <button className="btn btn-ghost" onClick={() => setEdit(blank("article"))}>📝 Add article / news</button>
-        <button className="btn btn-ghost" onClick={() => setEdit(blank("campaign"))}>✊ Add campaign</button>
-        <button className="btn btn-saffron" onClick={() => setEdit(blank("petition"))}>✍️ Add petition</button>
+        <button className="btn btn-ghost" onClick={() => setEdit(blank("article"))}>Add article / news</button>
+        <button className="btn btn-ghost" onClick={() => setEdit(blank("campaign"))}>Add campaign</button>
+        <button className="btn btn-saffron" onClick={() => setEdit(blank("petition"))}>Add petition</button>
       </PageTitle>
       <Flash msg={msg} />
       <Panel>
@@ -86,7 +86,7 @@ export default function MySubmissions() {
               <fieldset className="field" style={{ border: 0, padding: 0, margin: 0 }}>
                 <legend>Format</legend>
                 <div className="checks" style={{ marginTop: 6 }}>
-                  {[["blog", "📝 Article / blog"], ["reel", "📱 Reel"], ["video", "▶️ Video"]].map(([k, l]) => (
+                  {[["blog", "Article / blog"], ["reel", "Reel"], ["video", "Video"]].map(([k, l]) => (
                     <label key={k}><input type="radio" checked={edit.format === k} onChange={() => patch({ format: k })} /> {l}</label>
                   ))}
                 </div>
@@ -101,8 +101,8 @@ export default function MySubmissions() {
               <>
                 <LangField label="Addressed to (who must act)" value={edit.authority} onChange={(v) => patch({ authority: v })} />
                 <div className="checks">
-                  <label><input type="radio" checked={edit.ptype === "online"} onChange={() => patch({ ptype: "online" })} /> 🌐 Online signatures</label>
-                  <label><input type="radio" checked={edit.ptype === "formal"} onChange={() => patch({ ptype: "formal" })} /> 🏛️ For government</label>
+                  <label><input type="radio" checked={edit.ptype === "online"} onChange={() => patch({ ptype: "online" })} /> Online signatures</label>
+                  <label><input type="radio" checked={edit.ptype === "formal"} onChange={() => patch({ ptype: "formal" })} /> For government</label>
                 </div>
                 <div className="field"><label>Signature goal</label><input type="number" min={100} value={edit.goal} onChange={(e) => patch({ goal: e.target.value })} /></div>
               </>
@@ -122,8 +122,8 @@ export default function MySubmissions() {
               </>
             )}
             <DistrictPick value={edit.district} onChange={(v) => patch({ district: v })} />
-            <div className="field"><label>Organisation (optional)</label><select value={edit.group} onChange={(e) => patch({ group: e.target.value })}><option value="">— None —</option>{groups.map((g) => <option key={g.id} value={g.id}>{g.icon} {t(g.name, "en")}</option>)}</select></div>
-            <div className="field"><label>Cover photo (optional)</label><label className="dropzone"><span>🖼️ Upload</span><small>JPG / PNG</small><input type="file" accept="image/*" className="sr-only" /></label></div>
+            <div className="field"><label>Organisation (optional)</label><select value={edit.group} onChange={(e) => patch({ group: e.target.value })}><option value="">— None —</option>{groups.map((g) => <option key={g.id} value={g.id}>{t(g.name, "en")}</option>)}</select></div>
+            <div className="field"><label>Cover photo (optional)</label><label className="dropzone"><span>Upload</span><small>JPG / PNG</small><input type="file" accept="image/*" className="sr-only" /></label></div>
           </div>
         )}
       </Drawer>

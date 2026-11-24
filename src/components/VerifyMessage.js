@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { fill, intlLocale } from "@/i18n/config";
+import Icon from "./Icon";
 
 // "Is this forwarded statement real?" — checks the ID against the registry.
 // Phase 2: checks the database and also works by scanning the QR on the PDF.
@@ -24,7 +25,7 @@ export default function VerifyMessage({ lang, n, known }) {
 
   return (
     <div className="verify" id="verify">
-      <h3>✅ {n.verifyTitle}</h3>
+      <h3>{n.verifyTitle}</h3>
       <p>{n.verifyText}</p>
       <form onSubmit={check}>
         <input
@@ -37,7 +38,7 @@ export default function VerifyMessage({ lang, n, known }) {
       </form>
       {result && (
         <p key={result.text} className={`verify-result ${result.ok ? "ok" : "bad"}`} role="status">
-          {result.ok ? "✔ " : "⚠ "}{result.text}
+          <Icon name={result.ok ? "check" : "alert"} size={16} /> {result.text}
         </p>
       )}
     </div>

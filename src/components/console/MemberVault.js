@@ -5,6 +5,7 @@ import { t } from "@/i18n/config";
 import { districts, findGroup } from "@/data/placeholder";
 import { applications } from "@/data/console";
 import { PageTitle, Panel, Tabs, Status, Drawer, Flash, useFlash, fmtDate } from "./ui";
+import Icon from "../Icon";
 
 // Members list — Admins only. Every record
 // opened here is written to the audit log (Phase 2: enforced server-side).
@@ -34,8 +35,8 @@ export default function MemberVault() {
   return (
     <>
       <PageTitle title="Members list" sub="Every member and new registration. Only Admins can see this list — members never see each other." />
-      <div className="cs-onhold"><span style={{ fontSize: 24 }}>⏸️</span><div><b>Verification process on hold</b>The party is still deciding how members are verified and given access. This screen shows the proposed flow for discussion — the steps may change before it goes live.</div></div>
-      <div className="cs-warn">🔒 Every record you open is recorded in the audit log with your account and the time.</div>
+      <div className="cs-onhold"><span><Icon name="clock" size={24} /></span><div><b>Verification process on hold</b>The party is still deciding how members are verified and given access. This screen shows the proposed flow for discussion — the steps may change before it goes live.</div></div>
+      <div className="cs-warn"><Icon name="lock" size={15} /> Every record you open is recorded in the audit log with your account and the time.</div>
       <Flash msg={msg} />
       <Tabs value={tab} onChange={setTab} tabs={[["new", "New", count("new")], ["verifying", "Verifying", count("verifying")], ["approved", "Approved", count("approved")], ["rejected", "Rejected", count("rejected")], ["all", "All", apps.length]]} />
       <Panel>
@@ -49,7 +50,7 @@ export default function MemberVault() {
                 <td>{a.groups.map((g) => findGroup(g).icon).join(" ") || "—"}</td>
                 <td>{fmtDate(a.date)}</td>
                 <td><Status kind={ST[a.status][0]}>{ST[a.status][1]}</Status></td>
-                <td><button className="btn btn-ghost btn-sm" onClick={() => { setOpenId(a.id); setNote(""); }}>Open 🔓</button></td>
+                <td><button className="btn btn-ghost btn-sm" onClick={() => { setOpenId(a.id); setNote(""); }}>Open</button></td>
               </tr>
             ))}
             {shown.length === 0 && <tr><td colSpan={6} className="cs-muted">Nothing here.</td></tr>}
@@ -64,7 +65,7 @@ export default function MemberVault() {
         footer={open && (open.status === "new" || open.status === "verifying") && (
           <div className="cs-row">
             <button className="btn btn-ghost btn-sm" onClick={() => { update(open.id, { status: "rejected", note: note || "Not approved" }); flash("Application rejected"); }}>✕ Reject</button>
-            {open.status === "new" && <button className="btn btn-ghost btn-sm" onClick={() => { update(open.id, { status: "verifying", note: `${method}${note ? ` — ${note}` : ""}` }); flash("Marked as verifying"); }}>📞 Mark verifying</button>}
+            {open.status === "new" && <button className="btn btn-ghost btn-sm" onClick={() => { update(open.id, { status: "verifying", note: `${method}${note ? ` — ${note}` : ""}` }); flash("Marked as verifying"); }}>Mark verifying</button>}
             <button className="btn btn-saffron btn-sm" onClick={() => approve(open)}>✓ Verified — approve</button>
           </div>
         )}
@@ -78,7 +79,7 @@ export default function MemberVault() {
               <dt>Email</dt><dd>{open.email || "—"}</dd>
               <dt>District</dt><dd>{t(districts[open.district], "en")}</dd>
               <dt>Constituency</dt><dd>{open.constituency}</dd>
-              <dt>Groups</dt><dd>{open.groups.map((g) => `${findGroup(g).icon} ${t(findGroup(g).name, "en")}`).join(", ") || "—"}</dd>
+              <dt>Groups</dt><dd>{open.groups.map((g) => t(findGroup(g).name, "en")).join(", ") || "—"}</dd>
               <dt>Status</dt><dd><Status kind={ST[open.status][0]}>{ST[open.status][1]}</Status></dd>
               {open.note && (<><dt>Note</dt><dd>{open.note}</dd></>)}
             </dl>

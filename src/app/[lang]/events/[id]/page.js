@@ -5,6 +5,7 @@ import { events, findEvent, findGroup, campaignForEvent } from "@/data/placehold
 import PageHead from "@/components/PageHead";
 import ShareButtons from "@/components/ShareButtons";
 import { EventStatus, EventWhen, EventRsvp, EventMap } from "@/components/EventLive";
+import Icon from "@/components/Icon";
 
 export function generateStaticParams() {
   return events.map((e) => ({ id: e.id }));
@@ -33,17 +34,17 @@ export default async function EventPage({ params }) {
         crumbLabel={h.allEvents}
         badges={<EventStatus event={e} h={h} />}
         title={t(e.title, lang)}
-        lead={`📍 ${t(e.place, lang)}`}
+        lead={t(e.place, lang)}
       />
       <div className="wrap detail">
         <div>
           <div className="facts" data-reveal>
-            <div className="fact"><i>🗓️</i><div><b>{ev.when}</b><EventWhen event={e} lang={lang} /></div></div>
-            <div className="fact"><i>📍</i><div><b>{ev.where}</b><span>{t(e.place, lang)}</span></div></div>
-            <div className="fact"><i>🏳️</i><div><b>{ev.organiser}</b>
-              {group ? <Link href={`/${lang}/groups/${group.id}`} className="link-arrow">{group.icon} {t(group.name, lang)}</Link> : <span>{ev.organiserParty}</span>}
+            <div className="fact"><i><Icon name="calendar" /></i><div><b>{ev.when}</b><EventWhen event={e} lang={lang} /></div></div>
+            <div className="fact"><i><Icon name="pin" /></i><div><b>{ev.where}</b><span>{t(e.place, lang)}</span></div></div>
+            <div className="fact"><i><Icon name="flag" /></i><div><b>{ev.organiser}</b>
+              {group ? <Link href={`/${lang}/groups/${group.id}`} className="link-arrow">{t(group.name, lang)}</Link> : <span>{ev.organiserParty}</span>}
             </div></div>
-            {camp && <div className="fact"><i>✊</i><div><b>{d.campaign.partOf}</b><Link href={`/${lang}/campaigns/${camp.id}`} className="link-arrow">{t(camp.title, lang)}</Link></div></div>}
+            {camp && <div className="fact"><i><Icon name="flag" /></i><div><b>{d.campaign.partOf}</b><Link href={`/${lang}/campaigns/${camp.id}`} className="link-arrow">{t(camp.title, lang)}</Link></div></div>}
           </div>
           <EventMap event={e} lang={lang} h={h} />
           <div className="prose" data-reveal>
@@ -61,7 +62,7 @@ export default async function EventPage({ params }) {
                 {others.map((o) => (
                   <Link key={o.id} href={`/${lang}/events/${o.id}`} className="card card-link" style={{ padding: 14 }}>
                     <b>{t(o.title, lang)}</b>
-                    <div style={{ color: "var(--muted)", fontSize: 14 }}>📍 {t(o.place, lang)}</div>
+                    <div style={{ color: "var(--muted)", fontSize: 14 }}><Icon name="pin" size={15} /> {t(o.place, lang)}</div>
                   </Link>
                 ))}
               </div>

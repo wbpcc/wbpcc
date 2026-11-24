@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { t } from "@/i18n/config";
+import Icon from "./Icon";
 
 // 35 district presidents with a quick search box.
 export default function DistrictPresidents({ list, lang, c }) {
@@ -20,7 +21,7 @@ export default function DistrictPresidents({ list, lang, c }) {
             <div>
               <small>{t(p.district, lang)}</small>
               <b>{t(p.name, lang)}</b>
-              <a href={`tel:${p.phone.replace(/\s/g, "")}`}>📞 {p.phone}</a>
+              <a href={`tel:${p.phone.replace(/\s/g, "")}`}><Icon name="phone" size={15} /> {p.phone}</a>
             </div>
           </article>
         ))}

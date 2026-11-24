@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { ROLES, NAV, navAllows } from "@/data/console";
 import { clearSession, useSession, LIVE } from "../session";
+import Icon from "../Icon";
 
 // ---------------------------------------------------------------------
 // Team console shell.
@@ -83,41 +84,41 @@ export default function ConsoleShell({ children }) {
                 <p key={`g${i}`} className="cs-group">{n.group}</p>
               ) : (
                 <Link key={n.href} href={n.href} aria-current={current?.href === n.href ? "page" : undefined}>
-                  <i aria-hidden="true">{n.icon}</i>{n.label}
+                  <i aria-hidden="true"><Icon name={n.icon} size={18} /></i>{n.label}
                 </Link>
               )
             )}
           </nav>
           <div className="cs-side-foot">
-            <Link href="/en">↗ View website</Link>
-            <button type="button" onClick={async () => { await clearSession(); router.push("/en"); }}>↩ Sign out</button>
+            <Link href="/en">View website ↗</Link>
+            <button type="button" onClick={async () => { await clearSession(); router.push("/en"); }}><Icon name="logout" size={16} /> Sign out</button>
           </div>
         </aside>
 
         <div className="cs-main">
           <header className="cs-top">
-            <button type="button" className="cs-burger" onClick={() => setOpen((o) => !o)} aria-label="Menu">☰</button>
+            <button type="button" className="cs-burger" onClick={() => setOpen((o) => !o)} aria-label="Menu"><Icon name="menu" size={20} /></button>
             {LIVE ? (
               <>
                 <span className="cs-live">● Live</span>
-                <span className="cs-me cs-me-live">{me.icon} {me.label} · {me.email}</span>
+                <span className="cs-me cs-me-live"><Icon name={me.icon} size={15} /> {me.label} · {me.email}</span>
               </>
             ) : (
               <>
-                <span className="cs-demo">🧪 Preview — nothing is saved</span>
+                <span className="cs-demo">Preview — nothing is saved</span>
                 <label className="cs-role">
                   <span>Viewing as</span>
                   <select value={role} onChange={(e) => setRole(e.target.value)}>
-                    {Object.entries(ROLES).map(([k, r]) => <option key={k} value={k}>{r.icon} {r.label}</option>)}
+                    {Object.entries(ROLES).map(([k, r]) => <option key={k} value={k}>{r.label}</option>)}
                   </select>
                 </label>
-                <span className="cs-me" title="2-step verification on">🔐 {me.email}</span>
+                <span className="cs-me" title="2-step verification on"><Icon name="lock" size={14} /> {me.email}</span>
               </>
             )}
           </header>
           <main className="cs-content">
             {LIVE && allowed && !connected && (
-              <p className="cs-warn small cs-not-yet">🧪 This screen isn&apos;t connected to the database yet — changes here are <b>not saved</b>. Connected so far: <Link href="/console/landing">Landing page</Link>, <Link href="/console/pages">Site pages</Link>, <Link href="/console/content">Leadership &amp; organisation</Link>, <Link href="/console/campaigns">Petitions &amp; campaigns</Link>, <Link href="/console/posts">Newsroom posts</Link>.</p>
+              <p className="cs-warn small cs-not-yet">This screen isn&apos;t connected to the database yet — changes here are <b>not saved</b>. Connected so far: <Link href="/console/landing">Landing page</Link>, <Link href="/console/pages">Site pages</Link>, <Link href="/console/content">Leadership &amp; organisation</Link>, <Link href="/console/campaigns">Petitions &amp; campaigns</Link>, <Link href="/console/posts">Newsroom posts</Link>.</p>
             )}
             {allowed ? children : <NoAccess roleLabel={me.label} />}
           </main>
@@ -130,7 +131,7 @@ export default function ConsoleShell({ children }) {
 export function NoAccess({ roleLabel }) {
   return (
     <div className="cs-panel cs-noaccess">
-      <div className="big">🔒</div>
+      <div className="big"><Icon name="lock" size={44} /></div>
       <h2>Not available for {roleLabel}</h2>
       <p>This screen is limited to other roles. In the real console it won&apos;t even appear in your menu — the server blocks it too.</p>
       <Link href="/console" className="btn btn-navy btn-sm">Back to dashboard</Link>

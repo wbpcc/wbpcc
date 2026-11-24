@@ -6,6 +6,7 @@ import PageHead from "@/components/PageHead";
 import ShareButtons from "@/components/ShareButtons";
 import PetitionCard from "@/components/PetitionCard";
 import { PetitionSignBox } from "@/components/Forms";
+import Icon from "@/components/Icon";
 
 export function generateStaticParams() {
   return petitions.map((p) => ({ id: p.id }));
@@ -32,18 +33,18 @@ export default async function PetitionPage({ params }) {
       <PageHead
         crumbHref={`/${lang}/petitions`}
         crumbLabel={a.viewAll}
-        badges={<span className={`pill ${pet.type === "formal" ? "tag-formal" : "tag-online"}`}>{pet.type === "formal" ? `🏛️ ${a.formal}` : `🌐 ${a.online}`}</span>}
+        badges={<span className={`pill ${pet.type === "formal" ? "tag-formal" : "tag-online"}`}>{pet.type === "formal" ? <><Icon name="landmark" size={15} /> {a.formal}</> : <><Icon name="globe" size={15} /> {a.online}</>}</span>}
         title={t(pet.title, lang)}
         lead={t(pet.desc, lang)}
       />
       <div className="wrap detail">
         <div>
           <div className="facts" data-reveal>
-            <div className="fact"><i>🏛️</i><div><b>{p.addressedTo}</b><span>{t(pet.addressedTo, lang)}</span></div></div>
-            <div className="fact"><i>👤</i><div><b>{p.startedBy}</b><span>{startedBy}</span></div></div>
-            {camp && <div className="fact"><i>✊</i><div><b>{d.campaign.partOf}</b><Link className="link-arrow" href={`/${lang}/campaigns/${camp.id}`}>{t(camp.title, lang)}</Link></div></div>}
+            <div className="fact"><i><Icon name="landmark" /></i><div><b>{p.addressedTo}</b><span>{t(pet.addressedTo, lang)}</span></div></div>
+            <div className="fact"><i><Icon name="user" /></i><div><b>{p.startedBy}</b><span>{startedBy}</span></div></div>
+            {camp && <div className="fact"><i><Icon name="flag" /></i><div><b>{d.campaign.partOf}</b><Link className="link-arrow" href={`/${lang}/campaigns/${camp.id}`}>{t(camp.title, lang)}</Link></div></div>}
             {group && (
-              <div className="fact"><i>{group.icon}</i><div><b>{d.groups.eyebrow}</b><Link className="link-arrow" href={`/${lang}/groups/${group.id}`}>{t(group.name, lang)}</Link></div></div>
+              <div className="fact"><i><Icon name="users" /></i><div><b>{d.groups.eyebrow}</b><Link className="link-arrow" href={`/${lang}/groups/${group.id}`}>{t(group.name, lang)}</Link></div></div>
             )}
           </div>
           <div className="prose" data-reveal>

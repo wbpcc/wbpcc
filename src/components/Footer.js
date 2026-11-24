@@ -54,7 +54,7 @@ export default function Footer({ lang, d }) {
               <li><Link href={`/${lang}/newsroom#verify`}>{f.verify}</Link></li>
               <li><Link href={L("press-kit")}>{f.pressKit}</Link></li>
               {lang !== "en" && (
-                <li id="report-translation"><Link href={L("contact")}>🟡 {d.tnotice.report}</Link></li>
+                <li id="report-translation"><Link href={L("contact")}>{d.tnotice.report}</Link></li>
               )}
             </ul>
           </div>

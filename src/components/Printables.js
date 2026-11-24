@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { locales, localeNames } from "@/i18n/config";
+import Icon from "./Icon";
 
 // ---------------------------------------------------------------------
 // Printables maker. Templates are fixed (party-approved): members only
@@ -12,10 +13,10 @@ import { locales, localeNames } from "@/i18n/config";
 // ---------------------------------------------------------------------
 
 const TEMPLATES = {
-  poster: { fields: ["headline", "sub", "date", "place", "cta"], page: "A4 portrait", icon: "🪧" },
-  placard: { fields: ["slogan"], page: "A3 landscape", icon: "✊" },
-  leaflet: { fields: ["headline", "sub", "points", "cta"], page: "A4 portrait", icon: "📄" },
-  social: { fields: ["headline", "sub", "date", "place"], page: "A4 portrait", icon: "📱" },
+  poster: { fields: ["headline", "sub", "date", "place", "cta"], page: "A4 portrait" },
+  placard: { fields: ["slogan"], page: "A3 landscape" },
+  leaflet: { fields: ["headline", "sub", "points", "cta"], page: "A4 portrait" },
+  social: { fields: ["headline", "sub", "date", "place"], page: "A4 portrait" },
 };
 
 function Lockup() {
@@ -63,8 +64,8 @@ function Preview({ tpl, theme, v, joinUs, printLang }) {
             )}
             {(tpl === "poster" || tpl === "social") && (
               <div className="pr-details">
-                {v.date && <span>🗓 {v.date}</span>}
-                {v.place && <span>📍 {v.place}</span>}
+                {v.date && <span><Icon name="calendar" size="1em" /> {v.date}</span>}
+                {v.place && <span><Icon name="pin" size="1em" /> {v.place}</span>}
               </div>
             )}
             {v.cta && tpl !== "social" && <div className="pr-cta">{v.cta}</div>}
@@ -104,7 +105,7 @@ export default function Printables({ lang, p, printText }) {
         <div className="tpl-picker">
           {Object.entries(TEMPLATES).map(([id, tdef]) => (
             <button key={id} type="button" className={`tpl${tpl === id ? " on" : ""}`} onClick={() => setTpl(id)} aria-pressed={tpl === id}>
-              <i aria-hidden="true">{tdef.icon}</i>
+              
               <b>{p.templates[id]}</b>
               <small>{p.sizes[id]}</small>
             </button>
@@ -128,8 +129,8 @@ export default function Printables({ lang, p, printText }) {
             <fieldset className="field" style={{ border: 0, padding: 0, margin: 0 }}>
               <legend>{p.theme}</legend>
               <div className="checks" style={{ marginTop: 6 }}>
-                <label><input type="radio" name="theme" checked={theme === "light"} onChange={() => setTheme("light")} /> ☀️ {p.light}</label>
-                <label><input type="radio" name="theme" checked={theme === "dark"} onChange={() => setTheme("dark")} /> 🌙 {p.dark}</label>
+                <label><input type="radio" name="theme" checked={theme === "light"} onChange={() => setTheme("light")} /> {p.light}</label>
+                <label><input type="radio" name="theme" checked={theme === "dark"} onChange={() => setTheme("dark")} /> {p.dark}</label>
               </div>
             </fieldset>
           )}
@@ -139,9 +140,9 @@ export default function Printables({ lang, p, printText }) {
               {locales.map((l) => <option key={l} value={l}>{localeNames[l]}</option>)}
             </select>
           </div>
-          <button className="btn btn-saffron" type="submit">⬇ {p.download}</button>
+          <button className="btn btn-saffron" type="submit"><Icon name="download" /> {p.download}</button>
           <p className="form-note">{p.downloadHint}</p>
-          <p className="form-note">🔒 {p.approved}</p>
+          <p className="form-note"><Icon name="lock" size={15} /> {p.approved}</p>
         </form>
 
         <div className="print-stage">

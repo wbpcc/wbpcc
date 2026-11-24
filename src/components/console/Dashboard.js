@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRole } from "./ConsoleShell";
 import { PageTitle, Panel } from "./ui";
 import { applications, submissionQueue, appointments, translationItems, auditLog, canSee } from "@/data/console";
+import Icon from "../Icon";
 
 export default function Dashboard() {
   const { role, me } = useRole();
@@ -12,32 +13,32 @@ export default function Dashboard() {
 
   const cards = (role === "contributor"
     ? [
-        { href: "/console/mine", icon: "⏳", n: mine.filter((s) => s.status === "review").length, label: "waiting for review" },
-        { href: "/console/mine", icon: "✅", n: mine.filter((s) => s.status === "approved").length, label: "published" },
-        { href: "/console/mine", icon: "✎", n: mine.filter((s) => s.status === "changes").length, label: "need changes" },
+        { href: "/console/mine", icon: "clock", n: mine.filter((s) => s.status === "review").length, label: "waiting for review" },
+        { href: "/console/mine", icon: "check", n: mine.filter((s) => s.status === "approved").length, label: "published" },
+        { href: "/console/mine", icon: "pen", n: mine.filter((s) => s.status === "changes").length, label: "need changes" },
       ]
     : [
-        { href: "/console/review", icon: "✅", n: submissionQueue.filter((s) => s.status === "review").length, label: "contributor submissions to review" },
-        { href: "/console/appointments", icon: "🗓️", n: appointments.filter((a) => a.status === "new").length, label: "appointment requests" },
-        { href: "/console/members", icon: "🔒", n: applications.filter((a) => a.status === "new").length, label: "new member registrations" },
-        { href: "/console/translations", icon: "🔤", n: needsReview, label: "translations to review" },
+        { href: "/console/review", icon: "check", n: submissionQueue.filter((s) => s.status === "review").length, label: "contributor submissions to review" },
+        { href: "/console/appointments", icon: "calendar", n: appointments.filter((a) => a.status === "new").length, label: "appointment requests" },
+        { href: "/console/members", icon: "lock", n: applications.filter((a) => a.status === "new").length, label: "new member registrations" },
+        { href: "/console/translations", icon: "globe", n: needsReview, label: "translations to review" },
       ]
   ).filter((c) => canSee(role, c.href));
 
   const actions = (role === "contributor"
     ? [
-        { href: "/console/mine?new=article", label: "📝 Add article / news" },
-        { href: "/console/mine?new=petition", label: "✍️ Add petition" },
-        { href: "/console/mine?new=campaign", label: "✊ Add campaign" },
+        { href: "/console/mine?new=article", label: "Add article / news" },
+        { href: "/console/mine?new=petition", label: "Add petition" },
+        { href: "/console/mine?new=campaign", label: "Add campaign" },
       ]
     : [
-        { href: "/console/edit", label: "✏️ Edit a page" },
-        { href: "/console/review", label: "✅ Review submissions" },
-        { href: "/console/campaigns", label: "✊ Start a petition or campaign" },
-        { href: "/console/content", label: "🏛️ Update the leadership team" },
-        { href: "/console/landing", label: "🏠 Edit the landing page" },
-        { href: "/console/statements", label: "🟥 Issue an official statement" },
-        { href: "/console/team", label: "👥 Add a contributor" },
+        { href: "/console/edit", label: "Edit a page" },
+        { href: "/console/review", label: "Review submissions" },
+        { href: "/console/campaigns", label: "Start a petition or campaign" },
+        { href: "/console/content", label: "Update the leadership team" },
+        { href: "/console/landing", label: "Edit the landing page" },
+        { href: "/console/statements", label: "Issue an official statement" },
+        { href: "/console/team", label: "Add a contributor" },
       ]
   ).filter((a) => canSee(role, a.href.split("?")[0]));
 
@@ -47,7 +48,7 @@ export default function Dashboard() {
       <div className="cs-cards">
         {cards.map((c) => (
           <Link key={c.label} href={c.href} className="cs-stat">
-            <i aria-hidden="true">{c.icon}</i>
+            <i aria-hidden="true"><Icon name={c.icon} size={22} /></i>
             <b>{c.n}</b>
             <span>{c.label}</span>
           </Link>

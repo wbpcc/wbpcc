@@ -7,6 +7,7 @@ import { t, fill, formatNumber, intlLocale } from "@/i18n/config";
 import { events, offices, districts, groups } from "@/data/placeholder";
 import { useNow, withTimes } from "./useEventTimes";
 import Rail from "./Rail";
+import Icon from "./Icon";
 
 // Leaflet touches `window`, so the map only loads in the browser — and only
 // when someone asks for it (Map view button). Each event's own page has its map.
@@ -34,14 +35,14 @@ function EventCard({ e, lang, h, isGoing, onGoing, fmt }) {
         {e.status === "live" && <span className="pill pill-live"><span className="dot" />{h.live}</span>}
         {e.status === "soon" && <span className="pill pill-soon">{h.soon}</span>}
         {e.status === "past" && <span className="pill pill-month">{h.month}</span>}
-        {group && <span className="ev-group">{group.icon} {t(group.name, lang)}</span>}
+        {group && <span className="ev-group">{t(group.name, lang)}</span>}
       </div>
       <div className="ev-body">
         <h3><Link href={`/${lang}/events/${e.id}`} className="stretch">{t(e.title, lang)}</Link></h3>
-        <p>📍 {t(e.place, lang)}</p>
-        <p>🕓 {fmt.time.format(date)}</p>
-        <p>👥 {fill(h.going, { n: formatNumber(e.going + (isGoing ? 1 : 0), lang) })}
-          {e.km != null && <> · 🧭 {fill(h.km, { n: formatNumber(Math.round(e.km), lang) })}</>}
+        <p><Icon name="pin" size={15} /> {t(e.place, lang)}</p>
+        <p><Icon name="clock" size={15} /> {fmt.time.format(date)}</p>
+        <p><Icon name="users" size={15} /> {fill(h.going, { n: formatNumber(e.going + (isGoing ? 1 : 0), lang) })}
+          {e.km != null && <> · {fill(h.km, { n: formatNumber(Math.round(e.km), lang) })}</>}
         </p>
         <div className="ev-actions">
           {e.status !== "past" ? (

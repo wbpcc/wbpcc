@@ -3,6 +3,7 @@ import { districts, findGroup } from "@/data/placeholder";
 import { demoMember } from "@/data/portal";
 import PortalNav from "@/components/PortalNav";
 import MemberGate from "@/components/MemberGate";
+import Icon from "@/components/Icon";
 
 const CHECKING = { en: "Checking your sign-in…", bn: "আপনার সাইন ইন যাচাই হচ্ছে…", hi: "आपका साइन इन जाँचा जा रहा है…" };
 
@@ -20,17 +21,17 @@ export default async function PortalLayout({ children, params }) {
     <div className="portal">
       <section className="portal-hero">
         <div className="wrap">
-          <p className="demo-note dark">🧪 {d.auth.demo}</p>
+          <p className="demo-note dark">{d.auth.demo}</p>
           <div className="portal-id">
             <div>
               <p className="eyebrow" style={{ color: "var(--yellow)" }}>{p.title}</p>
               <h1>{p.hello}</h1>
-              <p className="id-line"><code>{demoMember.id}</code> · {t(districts[demoMember.district], lang)} · {g.icon} {t(g.name, lang)}</p>
+              <p className="id-line"><code>{demoMember.id}</code> · {t(districts[demoMember.district], lang)} · {t(g.name, lang)}</p>
             </div>
             <div className="tier">
               <small>{fill(p.tier, { n: formatNumber(demoMember.day, lang) })}</small>
               <div className="progress"><span style={{ width: `${pct}%` }} /></div>
-              <small>🔒 {p.private}</small>
+              <small><Icon name="lock" size={14} /> {p.private}</small>
             </div>
           </div>
         </div>

@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { t, fill } from "@/i18n/config";
 import { findGroup } from "@/data/placeholder";
 import { Done, DistrictSelect } from "./Forms";
+import Icon from "./Icon";
 
 // ---------------------------------------------------------------------
 // DEMO FORMS for the info pages — nothing is sent or saved yet.
@@ -21,7 +22,7 @@ function TopicTiles({ name, topics, lang, value, onChange }) {
       {topics.map((tp) => (
         <label key={tp.id} className={`topic${value === tp.id ? " on" : ""}`}>
           <input type="radio" name={name} value={tp.id} checked={value === tp.id} onChange={() => onChange(tp.id)} required />
-          <i aria-hidden="true">{tp.icon}</i>
+          
           <span>{t(tp.t, lang)}</span>
         </label>
       ))}
@@ -40,7 +41,7 @@ export function ContactForm({ lang, topics, s, c }) {
         <legend>{s.topic}</legend>
         <TopicTiles name="topic" topics={topics} lang={lang} value={topic} onChange={setTopic} />
       </fieldset>
-      {current && <p className="route">✉️ {fill(s.goesTo, { email: current.inbox })}</p>}
+      {current && <p className="route"><Icon name="mail" size={15} /> {fill(s.goesTo, { email: current.inbox })}</p>}
       <div className="field"><label htmlFor="cname">{s.name}</label><input id="cname" autoComplete="name" /></div>
       <div className="field"><label htmlFor="creply">{s.reply}</label><input id="creply" /></div>
       <DistrictSelect lang={lang} label={s.district} name="cdistrict" />
@@ -56,7 +57,7 @@ export function HelpRequestForm({ lang, topics, s, c }) {
   const [topic, setTopic] = useState("");
   const [done, setDone] = useState(null);
   const current = topics.find((x) => x.id === topic);
-  const team = current?.group ? `${findGroup(current.group).icon} ${t(findGroup(current.group).name, lang)}` : s.desk;
+  const team = current?.group ? t(findGroup(current.group).name, lang) : s.desk;
   if (done) return <div className="card"><Done text={fill(s.thanks, { id: done })} c={c} /></div>;
   return (
     <form className="card form" onSubmit={(e) => { e.preventDefault(); setDone(ticket()); }}>
@@ -83,7 +84,7 @@ export function VolunteerForm({ lang, skills, slots, s, c }) {
       <fieldset className="field" style={{ border: 0, padding: 0, margin: 0 }}>
         <legend>{s.skills}</legend>
         <div className="checks" style={{ marginTop: 6 }}>
-          {skills.map((k) => <label key={k.id}><input type="checkbox" name="skills" value={k.id} /> {k.icon} {t(k.t, lang)}</label>)}
+          {skills.map((k) => <label key={k.id}><input type="checkbox" name="skills" value={k.id} /> {t(k.t, lang)}</label>)}
         </div>
       </fieldset>
       <fieldset className="field" style={{ border: 0, padding: 0, margin: 0 }}>
@@ -95,7 +96,7 @@ export function VolunteerForm({ lang, skills, slots, s, c }) {
       <div className="field"><label htmlFor="vname">{s.name}</label><input id="vname" required autoComplete="name" /></div>
       <div className="field"><label htmlFor="vphone">{s.phone}</label><input id="vphone" type="tel" required autoComplete="tel" /></div>
       <DistrictSelect lang={lang} label={s.district} name="vdistrict" />
-      <button className="btn btn-saffron" type="submit">🙋 {s.submit}</button>
+      <button className="btn btn-saffron" type="submit">{s.submit}</button>
       <p className="form-note">{c.demoNote}</p>
     </form>
   );
@@ -114,13 +115,13 @@ export function PetitionRequestForm({ lang, s, c }) {
       <fieldset className="field" style={{ border: 0, padding: 0, margin: 0 }}>
         <legend>{s.type}</legend>
         <div className="checks" style={{ marginTop: 6 }}>
-          <label><input type="radio" name="rkind" checked={kind === "online"} onChange={() => setKind("online")} /> 🌐 {s.typeOnline}</label>
-          <label><input type="radio" name="rkind" checked={kind === "formal"} onChange={() => setKind("formal")} /> 🏛️ {s.typeFormal}</label>
+          <label><input type="radio" name="rkind" checked={kind === "online"} onChange={() => setKind("online")} /> {s.typeOnline}</label>
+          <label><input type="radio" name="rkind" checked={kind === "formal"} onChange={() => setKind("formal")} /> {s.typeFormal}</label>
         </div>
       </fieldset>
       <div className="field"><label htmlFor="re">{s.evidence}</label><input id="re" type="url" placeholder="https://" /></div>
       <div className="field"><label htmlFor="rr">{s.reply}</label><input id="rr" required /></div>
-      <button className="btn btn-saffron" type="submit">💡 {s.submit}</button>
+      <button className="btn btn-saffron" type="submit">{s.submit}</button>
       <p className="form-note">{c.demoNote}</p>
     </form>
   );
@@ -134,7 +135,7 @@ export function CopyText({ text, label, done }) {
       className="btn btn-sm btn-ghost"
       onClick={async () => { try { await navigator.clipboard.writeText(text); setOk(true); setTimeout(() => setOk(false), 2000); } catch {} }}
     >
-      📋 {ok ? done : label}
+      {ok ? done : label}
     </button>
   );
 }

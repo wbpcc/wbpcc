@@ -28,7 +28,7 @@ export default async function HistoryPage({ params }) {
               </li>
             ))}
           </ol>
-          <p className="form-note" style={{ marginTop: 24 }}>📜 {h.note}</p>
+          <p className="form-note" style={{ marginTop: 24 }}>{h.note}</p>
         </div>
       </section>
     </>

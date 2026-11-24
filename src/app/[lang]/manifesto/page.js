@@ -2,6 +2,7 @@ import { getDictionary, t, fill, formatNumber } from "@/i18n/config";
 import { manifesto } from "@/data/pages";
 import PageHead from "@/components/PageHead";
 import ShareButtons from "@/components/ShareButtons";
+import Icon from "@/components/Icon";
 
 export async function generateMetadata({ params }) {
   const { lang } = await params;
@@ -18,14 +19,14 @@ export default async function ManifestoPage({ params }) {
     <>
       <PageHead crumbHref={`/${lang}/about`} crumbLabel={d.about.title} eyebrow={m.eyebrow} title={m.title} lead={m.lead} />
       <nav className="wrap jump" aria-label={d.about.jump}>
-        {manifesto.map((c) => <a key={c.id} href={`#${c.id}`}>{c.icon} {t(c.t, lang)}</a>)}
+        {manifesto.map((c) => <a key={c.id} href={`#${c.id}`}>{t(c.t, lang)}</a>)}
       </nav>
       <div className="wrap detail">
         <div className="accordion">
           {manifesto.map((c, ci) => (
             <details key={c.id} id={c.id} className="card" open={ci < 2} data-reveal style={{ "--i": ci }}>
               <summary>
-                <i aria-hidden="true">{c.icon}</i>
+                
                 <span>{t(c.t, lang)}</span>
                 <small>{fill(m.promises, { n: formatNumber(c.items.length, lang) })}</small>
               </summary>
@@ -46,7 +47,7 @@ export default async function ManifestoPage({ params }) {
         <aside>
           <div className="card" style={{ display: "grid", gap: 12 }}>
             <span className="badge-kind" style={{ justifySelf: "start" }}>PDF</span>
-            <button className="btn btn-navy" disabled>⬇ {m.pdf}</button>
+            <button className="btn btn-navy" disabled><Icon name="download" /> {m.pdf}</button>
             <p className="form-note">{m.pdfSoon}</p>
             <ShareButtons title={m.title} c={d.common} />
           </div>

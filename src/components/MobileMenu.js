@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { isActive } from "./NavLinks";
+import Icon from "./Icon";
 
 // Phone menu: full screen. Items with children show as a heading + sub-links.
 export default function MobileMenu({ items, joinHref, d }) {
@@ -22,7 +23,7 @@ export default function MobileMenu({ items, joinHref, d }) {
   return (
     <>
       <button className="menu-btn" aria-expanded={open} aria-label={d.header.menu} onClick={() => setOpen(true)}>
-        ☰
+        <Icon name="menu" size={22} />
       </button>
       {open && (
         <div className="mobile-nav" role="dialog" aria-modal="true" aria-label={d.header.menu}>
@@ -53,7 +54,7 @@ export default function MobileMenu({ items, joinHref, d }) {
               </Link>
             )
           )}
-          <Link href={joinHref} className="btn btn-saffron" onClick={() => setOpen(false)}>✋ {d.header.joinLong}</Link>
+          <Link href={joinHref} className="btn btn-saffron" onClick={() => setOpen(false)}>{d.header.joinLong}</Link>
         </div>
       )}
     </>

@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { t } from "@/i18n/config";
 import { districts } from "@/data/placeholder";
+import Icon from "../Icon";
+import { LIVE } from "../session";
 
 // Small building blocks shared by the console screens.
 
@@ -100,14 +102,14 @@ export function LangField({ label, value, onChange, multiline = false, rows = 4 
         onChange={(e) => onChange({ ...v, [tab]: e.target.value })}
         placeholder={tab === "en" ? "Write in English" : "Auto-translated from English, or type it"}
       />
-      {tab === "en" && (
+      {tab === "en" && !LIVE && (
         <button
           type="button"
           className="text-btn"
           style={{ justifySelf: "start" }}
-          onClick={() => onChange({ en: v.en, bn: v.bn || (v.en ? `🟡 ${v.en}` : ""), hi: v.hi || (v.en ? `🟡 ${v.en}` : "") })}
+          onClick={() => onChange({ en: v.en, bn: v.bn || v.en || "", hi: v.hi || v.en || "" })}
         >
-          🌐 Auto-translate to বাংলা & हिन्दी
+          Auto-translate to বাংলা & हिन्दी (preview)
         </button>
       )}
     </div>
@@ -129,7 +131,7 @@ export function DistrictPick({ value, onChange, label = "District" }) {
 export function Flash({ msg }) {
   if (!msg) return null;
   const bad = msg.startsWith("⚠️");
-  return <div className={`cs-flash${bad ? " cs-flash-bad" : ""}`} role={bad ? "alert" : "status"}>{bad ? msg : `✓ ${msg}`}</div>;
+  return <div className={`cs-flash${bad ? " cs-flash-bad" : ""}`} role={bad ? "alert" : "status"}>{bad ? <><Icon name="alert" size={16} /> {msg.replace(/^⚠️\s*/, "")}</> : <><Icon name="check" size={16} /> {msg}</>}</div>;
 }
 
 export function useFlash() {
@@ -151,7 +153,7 @@ export function ConfirmPublish({ open, page, changes = [], onConfirm, onCancel }
   return (
     <div className="cs-drawer-wrap cs-modal-wrap" onMouseDown={(e) => e.target === e.currentTarget && onCancel()}>
       <div className="cs-modal" role="dialog" aria-modal="true" aria-label="Confirm and submit">
-        <span className="cs-modal-icon" aria-hidden="true">🚀</span>
+        
         <h2>Publish these changes?</h2>
         <p><b>{page}</b> is saved straight away and appears on the public website in about 2 minutes.</p>
         {changes.length > 0 && <ul className="cs-modal-list">{changes.map((x) => <li key={x}>{x}</li>)}</ul>}
@@ -159,7 +161,7 @@ export function ConfirmPublish({ open, page, changes = [], onConfirm, onCancel }
         <label className="check"><input type="checkbox" checked={checked} onChange={(e) => setChecked(e.target.checked)} /> I have checked the English, Bangla and Hindi text.</label>
         <div className="cs-row">
           <button className="btn btn-ghost btn-sm" onClick={onCancel}>Go back & edit</button>
-          <button className="btn btn-saffron btn-sm" disabled={!checked} onClick={onConfirm} title={checked ? "" : "Tick the box above first"}>{checked ? "Confirm & submit" : "☝️ Tick the box to submit"}</button>
+          <button className="btn btn-saffron btn-sm" disabled={!checked} onClick={onConfirm} title={checked ? "" : "Tick the box above first"}>{checked ? "Confirm & submit" : "Tick the box to submit"}</button>
         </div>
       </div>
     </div>

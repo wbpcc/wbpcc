@@ -63,7 +63,7 @@ export default function Header({ lang, d }) {
           <NavLinks items={items} />
           <div className="header-actions">
             <Link href={`/${lang}/join`} className="btn btn-saffron btn-join">
-              <span className="hand" aria-hidden="true">✋</span> {d.header.join}
+              {d.header.join}
             </Link>
             <MobileMenu items={[{ href: `/${lang}`, label: d.nav.home }, ...items]} joinHref={`/${lang}/join`} d={d} />
           </div>

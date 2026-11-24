@@ -16,31 +16,31 @@
 //  uses an Admin account.)
 // =====================================================================
 export const ROLES = {
-  admin: { label: "Admin", email: "admin@wbpcc.org", icon: "🏗️" },
-  contributor: { label: "Contributor", email: "contributor1@wbpcc.org", icon: "✍️" },
+  admin: { label: "Admin", email: "admin@wbpcc.org", icon: "shield" },
+  contributor: { label: "Contributor", email: "contributor1@wbpcc.org", icon: "pen" },
 };
 
 const PA = ["admin"];
 export const NAV = [
-  { href: "/console", icon: "🏠", label: "Dashboard", roles: ["admin", "contributor"] },
-  { href: "/console/mine", icon: "✍️", label: "Add article, campaign or petition", roles: ["contributor"] },
-  { href: "/console/edit", icon: "✏️", label: "Edit a page", roles: PA },
+  { href: "/console", icon: "home", label: "Dashboard", roles: ["admin", "contributor"] },
+  { href: "/console/mine", icon: "pen", label: "Add article, campaign or petition", roles: ["contributor"] },
+  { href: "/console/edit", icon: "pen", label: "Edit a page", roles: PA },
   { group: "Review & publish" },
-  { href: "/console/review", icon: "✅", label: "Review queue", roles: PA },
-  { href: "/console/campaigns", icon: "✊", label: "Petitions & campaigns", roles: PA },
-  { href: "/console/statements", icon: "🟥", label: "Official statements", roles: PA },
-  { href: "/console/appointments", icon: "🗓️", label: "Appointments", roles: PA },
+  { href: "/console/review", icon: "check", label: "Review queue", roles: PA },
+  { href: "/console/campaigns", icon: "flag", label: "Petitions & campaigns", roles: PA },
+  { href: "/console/statements", icon: "shield", label: "Official statements", roles: PA },
+  { href: "/console/appointments", icon: "calendar", label: "Appointments", roles: PA },
   { group: "People" },
-  { href: "/console/members", icon: "🔒", label: "Members list", roles: PA },
-  { href: "/console/content", icon: "🏛️", label: "Leadership & organisation", roles: PA },
+  { href: "/console/members", icon: "lock", label: "Members list", roles: PA },
+  { href: "/console/content", icon: "landmark", label: "Leadership & organisation", roles: PA },
   { group: "Website" },
-  { href: "/console/landing", icon: "🏠", label: "Landing page", roles: PA },
-  { href: "/console/pages", icon: "🧩", label: "Site pages", roles: PA },
-  { href: "/console/posts", icon: "📰", label: "Newsroom posts", roles: PA },
-  { href: "/console/translations", icon: "🔤", label: "Translations", roles: PA },
+  { href: "/console/landing", icon: "layout", label: "Landing page", roles: PA },
+  { href: "/console/pages", icon: "doc", label: "Site pages", roles: PA },
+  { href: "/console/posts", icon: "megaphone", label: "Newsroom posts", roles: PA },
+  { href: "/console/translations", icon: "globe", label: "Translations", roles: PA },
   { group: "Admin" },
-  { href: "/console/team", icon: "👥", label: "Team & roles", roles: PA },
-  { href: "/console/audit", icon: "📜", label: "Audit log", roles: PA },
+  { href: "/console/team", icon: "users", label: "Team & roles", roles: PA },
+  { href: "/console/audit", icon: "list", label: "Audit log", roles: PA },
 ];
 
 export const navAllows = (n, role) => !!n && n.roles.includes(role);
@@ -103,7 +103,7 @@ export const auditLog = [
   { at: "2026-11-23 11:20", who: "president@wbpcc.org", action: "Changed role", target: "contributor2@wbpcc.org → Contributor" },
 ];
 
-// Translation status per item and language: auto (🟡) · outdated (🟠) · reviewed (🟢)
+// Translation status per item and language: auto · outdated · reviewed
 export const translationItems = [
   { id: "home-hero", area: "Landing page", title: "Hero headline & sub-line", bn: "reviewed", hi: "auto" },
   { id: "teacher-recruitment-statement", area: "Statement", title: "Statement on the teacher recruitment delay", bn: "auto", hi: "auto" },

@@ -5,6 +5,7 @@ import { posts, findPost, findLeader, districts, youtubeEmbed } from "@/data/pla
 import PageHead from "@/components/PageHead";
 import ShareButtons from "@/components/ShareButtons";
 import PostCard, { KindBadge, PLATFORM } from "@/components/PostCard";
+import Icon from "@/components/Icon";
 
 export function generateStaticParams() {
   return posts.map((p) => ({ id: p.id }));
@@ -49,10 +50,10 @@ export default async function PostPage({ params }) {
               {embed ? (
                 <iframe src={embed} title={t(post.title, lang)} allow="accelerometer; encrypted-media; picture-in-picture" allowFullScreen loading="lazy" />
               ) : post.videoUrl ? (
-                <a className="btn btn-saffron" href={post.videoUrl} target="_blank" rel="noopener noreferrer">▶ {fill(n.watchOn, { platform: PLATFORM[post.platform] })}</a>
+                <a className="btn btn-saffron" href={post.videoUrl} target="_blank" rel="noopener noreferrer"><Icon name="play" /> {fill(n.watchOn, { platform: PLATFORM[post.platform] })}</a>
               ) : (
                 <>
-                  <span className="play" aria-hidden="true">▶</span>
+                  <span className="play" aria-hidden="true"><Icon name="play" size={26} /></span>
                   <span className="media-note">{n.videoPlaceholder}</span>
                 </>
               )}
@@ -69,17 +70,17 @@ export default async function PostPage({ params }) {
             {post.statementId && (
               <>
                 <span className="badge-official" style={{ justifySelf: "start" }}>● {n.official}</span>
-                <div className="fact"><i>🆔</i><div><b>{n.id}</b><code style={{ fontWeight: 800 }}>{post.statementId}</code></div></div>
+                <div className="fact"><i><Icon name="id" /></i><div><b>{n.id}</b><code style={{ fontWeight: 800 }}>{post.statementId}</code></div></div>
                 {/* Phase 2: a real QR code that opens this page, printed on the PDF */}
                 <div style={{ width: 120, height: 120, borderRadius: 12, background: "repeating-conic-gradient(var(--navy) 0 25%, var(--white) 0 50%) 0 0 / 20px 20px", border: "6px solid var(--white)", boxShadow: "0 0 0 1px var(--line)" }} aria-label="QR code placeholder" />
               </>
             )}
-            <div className="fact"><i>🗓️</i><div><b>{n.issued}</b><span>{date}</span></div></div>
+            <div className="fact"><i><Icon name="calendar" /></i><div><b>{n.issued}</b><span>{date}</span></div></div>
             {leader && (
-              <div className="fact"><i>✍️</i><div><b>{n.signedBy}</b><Link className="link-arrow" href={`/${lang}/leadership/${leader.id}`}>{t(leader.role, lang)}</Link></div></div>
+              <div className="fact"><i><Icon name="pen" /></i><div><b>{n.signedBy}</b><Link className="link-arrow" href={`/${lang}/leadership/${leader.id}`}>{t(leader.role, lang)}</Link></div></div>
             )}
             {post.kind === "report" && (
-              <div className="fact"><i>👤</i><div><b>{n.report}</b><span>{n.byMember}{post.district ? ` · ${t(districts[post.district], lang)}` : ""}</span></div></div>
+              <div className="fact"><i><Icon name="user" /></i><div><b>{n.report}</b><span>{n.byMember}{post.district ? ` · ${t(districts[post.district], lang)}` : ""}</span></div></div>
             )}
             {post.videoUrl && post.platform && (
               <a className="btn btn-outline btn-sm" href={post.videoUrl} target="_blank" rel="noopener noreferrer">{fill(n.watchOn, { platform: PLATFORM[post.platform] })} ↗</a>

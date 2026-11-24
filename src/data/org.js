@@ -84,25 +84,25 @@ const SHORT = {
 };
 
 export const groups = fromLive("groups", [
-  org("youth-congress", "frontal", "⚡", "var(--saffron)", "Youth Congress", "যুব কংগ্রেস", "युवा कांग्रेस", 1),
-  org("chhatra-parishad", "frontal", "🎓", "var(--sky)", "Chhatra Parishad", "ছাত্র পরিষদ", "छात्र परिषद", 2),
-  org("seva-dal", "frontal", "🙏", "var(--green)", "Seva Dal", "সেবা দল", "सेवा दल", 3),
-  org("mahila-congress", "frontal", "✊", "var(--navy)", "Mahila Congress", "মহিলা কংগ্রেস", "महिला कांग्रेस", 4),
+  org("youth-congress", "frontal", "", "var(--saffron)", "Youth Congress", "যুব কংগ্রেস", "युवा कांग्रेस", 1),
+  org("chhatra-parishad", "frontal", "", "var(--sky)", "Chhatra Parishad", "ছাত্র পরিষদ", "छात्र परिषद", 2),
+  org("seva-dal", "frontal", "", "var(--green)", "Seva Dal", "সেবা দল", "सेवा दल", 3),
+  org("mahila-congress", "frontal", "", "var(--navy)", "Mahila Congress", "মহিলা কংগ্রেস", "महिला कांग्रेस", 4),
 
-  org("sc-cell", "cells", "🤝", "var(--navy-2)", "SC Cell", "তফসিলি জাতি সেল", "अनुसूचित जाति प्रकोष्ठ", 5),
-  org("st-cell", "cells", "🌿", "var(--green)", "ST Cell", "তফসিলি উপজাতি সেল", "अनुसूचित जनजाति प्रकोष्ठ", 6),
-  org("obc-cell", "cells", "⚖️", "var(--sky)", "OBC Cell", "ওবিসি সেল", "ओबीसी प्रकोष्ठ", 7),
-  org("minorities-cell", "cells", "☪️", "var(--navy)", "Minorities Cell", "সংখ্যালঘু সেল", "अल्पसंख्यक प्रकोष्ठ", 8),
-  org("kisan-congress", "cells", "🌾", "var(--yellow)", "Kisan Congress", "কিষাণ কংগ্রেস", "किसान कांग्रेस", 9),
-  org("adivasi-congress", "cells", "🏹", "var(--saffron)", "Adivasi Congress", "আদিবাসী কংগ্রেস", "आदिवासी कांग्रेस", 10),
-  org("professional-congress", "cells", "💼", "var(--navy-2)", "Professional Congress", "প্রফেশনাল কংগ্রেস", "प्रोफ़ेशनल कांग्रेस", 11),
-  org("cultural-cell", "cells", "🎭", "var(--saffron)", "Cultural Cell", "সাংস্কৃতিক সেল", "सांस्कृतिक प्रकोष्ठ", 12),
-  org("legal-cell", "cells", "📜", "var(--navy)", "Legal Cell", "আইন সেল", "विधि प्रकोष्ठ", 13),
+  org("sc-cell", "cells", "", "var(--navy-2)", "SC Cell", "তফসিলি জাতি সেল", "अनुसूचित जाति प्रकोष्ठ", 5),
+  org("st-cell", "cells", "", "var(--green)", "ST Cell", "তফসিলি উপজাতি সেল", "अनुसूचित जनजाति प्रकोष्ठ", 6),
+  org("obc-cell", "cells", "", "var(--sky)", "OBC Cell", "ওবিসি সেল", "ओबीसी प्रकोष्ठ", 7),
+  org("minorities-cell", "cells", "", "var(--navy)", "Minorities Cell", "সংখ্যালঘু সেল", "अल्पसंख्यक प्रकोष्ठ", 8),
+  org("kisan-congress", "cells", "", "var(--yellow)", "Kisan Congress", "কিষাণ কংগ্রেস", "किसान कांग्रेस", 9),
+  org("adivasi-congress", "cells", "", "var(--saffron)", "Adivasi Congress", "আদিবাসী কংগ্রেস", "आदिवासी कांग्रेस", 10),
+  org("professional-congress", "cells", "", "var(--navy-2)", "Professional Congress", "প্রফেশনাল কংগ্রেস", "प्रोफ़ेशनल कांग्रेस", 11),
+  org("cultural-cell", "cells", "", "var(--saffron)", "Cultural Cell", "সাংস্কৃতিক সেল", "सांस्कृतिक प्रकोष्ठ", 12),
+  org("legal-cell", "cells", "", "var(--navy)", "Legal Cell", "আইন সেল", "विधि प्रकोष्ठ", 13),
 
-  org("social-media", "media", "📱", "var(--sky)", "Social Media & Digital Communications", "সোশ্যাল মিডিয়া ও ডিজিটাল যোগাযোগ বিভাগ", "सोशल मीडिया और डिजिटल संचार विभाग", 14),
-  org("media-publishing", "media", "📰", "var(--navy)", "Media & Publishing", "মিডিয়া ও প্রকাশনা বিভাগ", "मीडिया और प्रकाशन विभाग", 15),
+  org("social-media", "media", "", "var(--sky)", "Social Media & Digital Communications", "সোশ্যাল মিডিয়া ও ডিজিটাল যোগাযোগ বিভাগ", "सोशल मीडिया और डिजिटल संचार विभाग", 14),
+  org("media-publishing", "media", "", "var(--navy)", "Media & Publishing", "মিডিয়া ও প্রকাশনা বিভাগ", "मीडिया और प्रकाशन विभाग", 15),
 
-  org("intuc", "intuc", "🛠️", "var(--green)", "INTUC", "আইএনটিইউসি", "इंटक", 16),
+  org("intuc", "intuc", "", "var(--green)", "INTUC", "আইএনটিইউসি", "इंटक", 16),
 ]);
 groups.forEach((g) => { g.short = SHORT[g.id]; });
 

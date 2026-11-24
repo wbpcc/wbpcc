@@ -33,12 +33,12 @@ export default async function AboutPage({ params }) {
             <p className="eyebrow">01</p>
             <h2 className="h-section">{a.ideology}</h2>
             <p className="big-text">{t(ideology.intro, lang)}</p>
-            <p className="form-note">📜 {a.source} <a className="link-arrow" href="https://inc.in" target="_blank" rel="noopener noreferrer">inc.in ↗</a></p>
+            <p className="form-note">{a.source} <a className="link-arrow" href="https://inc.in" target="_blank" rel="noopener noreferrer">inc.in ↗</a></p>
           </div>
           <div className="pillars">
             {ideology.pillars.map((p, i) => (
               <article key={i} className="card pillar" data-reveal style={{ "--i": i }}>
-                <i aria-hidden="true">{p.icon}</i>
+                
                 <h3>{t(p.t, lang)}</h3>
                 <p>{t(p.d, lang)}</p>
               </article>
@@ -59,7 +59,7 @@ export default async function AboutPage({ params }) {
           <div className="values-grid">
             {values.map((v, i) => (
               <article key={i} className="card value" data-reveal style={{ "--i": i }}>
-                <i aria-hidden="true">{v.icon}</i>
+                
                 <div>
                   <h3>{t(v.t, lang)}</h3>
                   <p>{t(v.d, lang)}</p>
@@ -101,7 +101,7 @@ export default async function AboutPage({ params }) {
           <div className="promise-cards">
             {manifesto.map((m, i) => (
               <Link key={m.id} href={`/${lang}/manifesto#${m.id}`} className="card card-link promise-card" data-reveal style={{ "--i": i }}>
-                <i aria-hidden="true">{m.icon}</i>
+                
                 <h3>{t(m.t, lang)}</h3>
                 <p>{t(m.items[0], lang)}</p>
                 <span className="go">{fill(d.manifesto.promises, { n: formatNumber(m.items.length, lang) })}</span>
@@ -114,15 +114,15 @@ export default async function AboutPage({ params }) {
       <section className="section deco deco-a">
         <div className="wrap more-grid">
           <Link href={`/${lang}/history`} className="card card-link more" data-reveal>
-            <i aria-hidden="true">📜</i>
+            
             <div><h3>{a.history} →</h3><p>{a.historySoon}</p></div>
           </Link>
           <Link href={`/${lang}/inspiration`} className="card card-link more" data-reveal style={{ "--i": 1 }}>
-            <i aria-hidden="true">🌟</i>
+            
             <div><h3>{d.inspiration.eyebrow} →</h3><p>{d.inspiration.lead}</p></div>
           </Link>
           <Link href={`/${lang}/leadership`} className="card card-link more" data-reveal style={{ "--i": 2 }}>
-            <i aria-hidden="true">👥</i>
+            
             <div><h3>{a.leaders} →</h3><p>{d.leaders.sub}</p></div>
           </Link>
         </div>

@@ -19,7 +19,7 @@ export default function AroundYou({ lang, d }) {
 
         <div className="around-block">
           <div className="around-head">
-            <h3>✊ {d.campaign.ongoing}</h3>
+            <h3>{d.campaign.ongoing}</h3>
             <Link href={`/${lang}/campaigns`} className="link-arrow">{s.allCampaigns} →</Link>
           </div>
           <div className="camp-grid">
@@ -29,14 +29,14 @@ export default function AroundYou({ lang, d }) {
 
         <div className="around-block">
           <div className="around-head">
-            <h3>✍️ {d.action.title}</h3>
+            <h3>{d.action.title}</h3>
             <Link href={`/${lang}/petitions`} className="link-arrow">{s.allPetitions} →</Link>
           </div>
           <div className="action-grid">
             {petitions.map((p, i) => <PetitionCard key={p.id} p={p} lang={lang} a={d.action} i={i} />)}
           </div>
           <div className="request-box" data-reveal>
-            <p>💡 {d.action.requestText}</p>
+            <p>{d.action.requestText}</p>
             <Link href={`/${lang}/contact?type=petition`} className="btn btn-navy btn-sm">{d.action.requestBtn}</Link>
           </div>
         </div>

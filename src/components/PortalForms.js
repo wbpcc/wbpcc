@@ -4,6 +4,8 @@ import { useState } from "react";
 import { t } from "@/i18n/config";
 import { groups } from "@/data/placeholder";
 import { Done, DistrictSelect } from "./Forms";
+import Icon from "./Icon";
+import PasswordInput from "./PasswordInput";
 
 // DEMO — nothing is sent yet. Phase 2: proposals go to the Leadership
 // review queue; ground reports go to the Admin Editors' verification queue.
@@ -12,7 +14,7 @@ export function ProposeForm({ lang, s, c }) {
   const [kind, setKind] = useState("petition");
   const [done, setDone] = useState(false);
   if (done) return <div className="card"><Done text={s.thanks} c={c} /></div>;
-  const kinds = [["petition", "✍️", s.petition], ["campaign", "📣", s.campaign], ["event", "🗓️", s.event]];
+  const kinds = [["petition", "pen", s.petition], ["campaign", "megaphone", s.campaign], ["event", "calendar", s.event]];
   return (
     <form className="card form" onSubmit={(e) => { e.preventDefault(); setDone(true); }}>
       <fieldset className="field" style={{ border: 0, padding: 0, margin: 0 }}>
@@ -21,7 +23,7 @@ export function ProposeForm({ lang, s, c }) {
           {kinds.map(([id, icon, label]) => (
             <label key={id} className={`topic${kind === id ? " on" : ""}`}>
               <input type="radio" name="pk" checked={kind === id} onChange={() => setKind(id)} />
-              <i aria-hidden="true">{icon}</i><span>{label}</span>
+              <i aria-hidden="true"><Icon name={icon} size={20} /></i><span>{label}</span>
             </label>
           ))}
         </div>
@@ -35,8 +37,8 @@ export function ProposeForm({ lang, s, c }) {
           <fieldset className="field" style={{ border: 0, padding: 0, margin: 0 }}>
             <legend>{s.petitionType}</legend>
             <div className="checks" style={{ marginTop: 6 }}>
-              <label><input type="radio" name="ptype" defaultChecked /> 🌐 {s.online}</label>
-              <label><input type="radio" name="ptype" /> 🏛️ {s.formal}</label>
+              <label><input type="radio" name="ptype" defaultChecked /> {s.online}</label>
+              <label><input type="radio" name="ptype" /> {s.formal}</label>
             </div>
           </fieldset>
         </>
@@ -47,10 +49,10 @@ export function ProposeForm({ lang, s, c }) {
         <label htmlFor="pg">{s.group}</label>
         <select id="pg" defaultValue="">
           <option value="">{s.noGroup}</option>
-          {groups.map((g) => <option key={g.id} value={g.id}>{g.icon} {t(g.name, lang)}</option>)}
+          {groups.map((g) => <option key={g.id} value={g.id}>{t(g.name, lang)}</option>)}
         </select>
       </div>
-      <button className="btn btn-saffron" type="submit">💡 {s.submit}</button>
+      <button className="btn btn-saffron" type="submit">{s.submit}</button>
       <p className="form-note">{c.demoNote}</p>
     </form>
   );
@@ -70,7 +72,7 @@ export function ReportForm({ lang, s, c }) {
       <div className="field">
         <label htmlFor="rp">{s.photos}</label>
         <label className="dropzone" htmlFor="rp">
-          <span>📷 {s.photos}</span>
+          <span>{s.photos}</span>
           <small>{s.photosHint}</small>
         </label>
         <input
@@ -82,7 +84,7 @@ export function ReportForm({ lang, s, c }) {
         )}
       </div>
       <label className="check"><input type="checkbox" required /> {s.consent}</label>
-      <button className="btn btn-saffron" type="submit">📹 {s.submit}</button>
+      <button className="btn btn-saffron" type="submit">{s.submit}</button>
       <p className="form-note">{c.demoNote}</p>
     </form>
   );
@@ -93,8 +95,8 @@ export function PasswordForm({ s }) {
   return (
     <form className="card form" onSubmit={(e) => { e.preventDefault(); setOk(true); e.currentTarget.reset(); setTimeout(() => setOk(false), 2500); }}>
       <h2 style={{ fontSize: 20, margin: 0 }}>{s.password}</h2>
-      <div className="field"><label htmlFor="cp">{s.current}</label><input id="cp" type="password" required autoComplete="current-password" /></div>
-      <div className="field"><label htmlFor="np">{s.newP}</label><input id="np" type="password" required minLength={8} autoComplete="new-password" /></div>
+      <div className="field"><label htmlFor="cp">{s.current}</label><PasswordInput id="cp" required autoComplete="current-password" /></div>
+      <div className="field"><label htmlFor="np">{s.newP}</label><PasswordInput id="np" required minLength={8} autoComplete="new-password" /></div>
       <button className="btn btn-navy" type="submit">{ok ? `✓ ${s.updated}` : s.update}</button>
     </form>
   );
