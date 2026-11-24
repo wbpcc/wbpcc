@@ -54,6 +54,17 @@ test("admin adds, edits and removes a leader; it is logged", async () => {
   await signOut();
 });
 
+test("admin can load every list the Leadership & organisation screen needs", async () => {
+  await signIn("admin", "admin@wbpcc.org", pw("admin"));
+  const { db } = await loadFirebase();
+  const m = await import("firebase/firestore");
+  for (const col of ["leaders", "districtPresidents", "groups", "events", "inspiration"]) {
+    const snap = await m.getDocs(m.collection(db, col));
+    assert.ok(snap.size > 0, `${col} loads`);
+  }
+  await signOut();
+});
+
 test("contributor cannot change the website directly", async () => {
   await signIn("contributor", "contributor1@wbpcc.org", pw("contributor"));
   await assert.rejects(saveItem("leaders", { id: "sneaky", name: { en: "x" } }, { order: 0, label: "x" }), { code: "permission-denied" });
