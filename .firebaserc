@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "demo-wbpcc"
+    "default": "demo-wbpcc",
+    "live": "wbpcc-website"
   }
 }

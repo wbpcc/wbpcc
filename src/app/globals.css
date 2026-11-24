@@ -579,6 +579,7 @@ html[lang="bn"] .page-head h1, html[lang="hi"] .page-head h1 { line-height: 1.25
 .checks label:has(input:checked) { border-color: var(--saffron); background: #fff3ea; }
 .checks input { accent-color: var(--saffron); }
 .form-note { font-size: 13px; color: var(--muted); background: var(--cream-2); border-radius: 10px; padding: 10px 12px; margin: 0; }
+.form-note.form-err { color: var(--red); background: #fdecee; font-weight: 600; }
 .form-ok { text-align: center; padding: 24px 10px; animation: popIn .5s var(--ease); }
 .form-ok .tick { width: 70px; height: 70px; border-radius: 50%; background: var(--green); color: #fff; display: grid; place-items: center; font-size: 34px; margin: 0 auto 14px; }
 .form-ok p { font-weight: 700; font-size: 18px; margin: 0 0 6px; }

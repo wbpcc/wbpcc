@@ -14,6 +14,7 @@ import { readFileSync } from "node:fs";
 import { initializeApp, cert } from "firebase-admin/app";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 import { getAuth } from "firebase-admin/auth";
+import { getSecurityRules } from "firebase-admin/security-rules";
 import { contentDocs } from "./content.mjs";
 
 const args = process.argv.slice(2);
@@ -26,8 +27,8 @@ if (process.env.FIRESTORE_EMULATOR_HOST || process.env.FIREBASE_AUTH_EMULATOR_HO
 }
 const project = flag("project");
 const keyPath = flag("key");
-if (!["content", "admin"].includes(cmd) || !project || !keyPath) {
-  fail("Usage:\n  npm run live:content -- --project <id> --key <key.json>\n  npm run live:admin -- --project <id> --key <key.json> --email <email> [--name \"Name\"]");
+if (!["rules", "content", "admin"].includes(cmd) || !project || !keyPath) {
+  fail("Usage:\n  npm run live:rules -- --project <id> --key <key.json>\n  npm run live:content -- --project <id> --key <key.json>\n  npm run live:admin -- --project <id> --key <key.json> --email <email> [--name \"Name\"]");
 }
 if (project.startsWith("demo-")) fail(`"${project}" is the local demo id — use the real project id.`);
 
@@ -82,5 +83,13 @@ async function makeAdmin() {
   console.log(link + "\n");
 }
 
-(cmd === "content" ? loadContent() : makeAdmin())
+// Publishes firestore.rules with the server key (no Firebase CLI login needed).
+async function publishRules() {
+  const source = readFileSync("firestore.rules", "utf8");
+  console.log(`Publishing firestore.rules to "${project}"…`);
+  const ruleset = await getSecurityRules().releaseFirestoreRulesetFromSource(source);
+  console.log(`✅ Rules are live (ruleset ${ruleset.name.split("/").pop()}).`);
+}
+
+({ rules: publishRules, content: loadContent, admin: makeAdmin })[cmd]()
   .catch((e) => fail(`Failed: ${e.message}`));

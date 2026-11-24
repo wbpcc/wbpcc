@@ -6,7 +6,8 @@
 // =====================================================================
 
 // All districts of West Bengal (used in forms + district presidents).
-export const districts = {
+import { fromLive, fromPage } from "./live";
+export const districts = fromPage("site", "districts", {
   alipurduar: { en: "Alipurduar", bn: "আলিপুরদুয়ার", hi: "अलीपुरद्वार" },
   bankura: { en: "Bankura", bn: "বাঁকুড়া", hi: "बांकुड़ा" },
   birbhum: { en: "Birbhum", bn: "বীরভূম", hi: "बीरभूम" },
@@ -30,7 +31,7 @@ export const districts = {
   purulia: { en: "Purulia", bn: "পুরুলিয়া", hi: "पुरुलिया" },
   s24pgs: { en: "South 24 Parganas", bn: "দক্ষিণ ২৪ পরগনা", hi: "दक्षिण 24 परगना" },
   udinajpur: { en: "Uttar Dinajpur", bn: "উত্তর দিনাজপুর", hi: "उत्तर दिनाजपुर" },
-};
+});
 
 const ph = { en: "Name Placeholder", bn: "নাম (পরে বসবে)", hi: "नाम (बाद में)" };
 const phone = (n) => `+91 00000 ${String(n).padStart(5, "0")}`;
@@ -39,11 +40,11 @@ const phone = (n) => `+91 00000 ${String(n).padStart(5, "0")}`;
 // level: president → vp → gs (shown top to bottom on the Leadership page)
 const vp = { en: "Vice President", bn: "সহ-সভাপতি", hi: "उपाध्यक्ष" };
 const gs = { en: "General Secretary", bn: "সাধারণ সম্পাদক", hi: "महासचिव" };
-export const leaders = [
+export const leaders = fromLive("leaders", [
   { id: "state-president", level: "president", initials: "SP", name: ph, role: { en: "State President", bn: "রাজ্য সভাপতি", hi: "प्रदेश अध्यक्ष" }, phone: phone(100), email: "president@wbpcc.org" },
   ...[1, 2, 3, 4].map((n) => ({ id: `vp-${n}`, level: "vp", initials: "VP", name: ph, role: vp, phone: phone(100 + n), email: `vp${n}@wbpcc.org` })),
   ...[1, 2, 3, 4].map((n) => ({ id: `gs-${n}`, level: "gs", initials: "GS", name: ph, role: gs, phone: phone(110 + n), email: `gensec${n}@wbpcc.org` })),
-];
+]);
 
 // ---------------- 35 District Presidents ----------------
 // The party has 35 organisational districts. The real list isn't in yet, so
@@ -52,9 +53,9 @@ const extra = Array.from({ length: 12 }, (_, i) => {
   const n = 24 + i;
   return [`org-district-${n}`, { en: `Organisational district ${n}`, bn: `সাংগঠনিক জেলা ${n}`, hi: `संगठनात्मक ज़िला ${n}` }];
 });
-export const districtPresidents = [...Object.entries(districts), ...extra].map(([key, name], i) => ({
+export const districtPresidents = fromLive("districtPresidents", [...Object.entries(districts), ...extra].map(([key, name], i) => ({
   id: `dp-${key}`, district: name, name: ph, initials: "DP", phone: phone(200 + i),
-}));
+})));
 
 // ---------------- Organisation system ----------------
 // category: frontal | cells | media | intuc
@@ -82,7 +83,7 @@ const SHORT = {
   "intuc": { en: "The Indian National Trade Union Congress — standing with workers for fair wages and safe jobs.", bn: "ভারতীয় জাতীয় ট্রেড ইউনিয়ন কংগ্রেস — ন্যায্য মজুরি ও নিরাপদ কাজের জন্য শ্রমিকদের পাশে।", hi: "भारतीय राष्ट्रीय ट्रेड यूनियन कांग्रेस — उचित मज़दूरी और सुरक्षित काम के लिए मज़दूरों के साथ।" },
 };
 
-export const groups = [
+export const groups = fromLive("groups", [
   org("youth-congress", "frontal", "⚡", "var(--saffron)", "Youth Congress", "যুব কংগ্রেস", "युवा कांग्रेस", 1),
   org("chhatra-parishad", "frontal", "🎓", "var(--sky)", "Chhatra Parishad", "ছাত্র পরিষদ", "छात्र परिषद", 2),
   org("seva-dal", "frontal", "🙏", "var(--green)", "Seva Dal", "সেবা দল", "सेवा दल", 3),
@@ -102,7 +103,7 @@ export const groups = [
   org("media-publishing", "media", "📰", "var(--navy)", "Media & Publishing", "মিডিয়া ও প্রকাশনা বিভাগ", "मीडिया और प्रकाशन विभाग", 15),
 
   org("intuc", "intuc", "🛠️", "var(--green)", "INTUC", "আইএনটিইউসি", "इंटक", 16),
-];
+]);
 groups.forEach((g) => { g.short = SHORT[g.id]; });
 
-export const ORG_CATEGORIES = ["frontal", "cells", "media", "intuc"];
+export const ORG_CATEGORIES = fromPage("site", "orgCategories", ["frontal", "cells", "media", "intuc"]);

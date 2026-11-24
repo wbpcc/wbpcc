@@ -4,9 +4,10 @@
 // Photos: placeholders (initials) until the Admin uploads official images.
 // =====================================================================
 
+import { fromLive, fromPage } from "./live";
 const p = (id, group, years, initials, name, line) => ({ id, group, years, initials, name, line });
 
-export const inspiration = [
+export const inspiration = fromLive("inspiration", [
   // ---------------- Leaders of the nation ----------------
   p("mahatma-gandhi", "national", "1869–1948", "MG",
     { en: "Mahatma Gandhi", bn: "মহাত্মা গান্ধী", hi: "महात्मा गांधी" },
@@ -55,4 +56,4 @@ export const inspiration = [
   p("pranab-mukherjee", "bengal", "1935–2020", "PM",
     { en: "Pranab Mukherjee", bn: "প্রণব মুখোপাধ্যায়", hi: "प्रणब मुखर्जी" },
     { en: "A towering Congress leader from Bengal who served as President of India, 2012–17.", bn: "বাংলার বিশিষ্ট কংগ্রেস নেতা, ২০১২–১৭ ভারতের রাষ্ট্রপতি।", hi: "बंगाल के दिग्गज कांग्रेस नेता, 2012–17 में भारत के राष्ट्रपति।" }),
-];
+]);

@@ -25,6 +25,10 @@
 .cs-role { margin-left: auto; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: var(--muted); }
 .cs-role select { font: inherit; font-weight: 700; color: var(--navy); padding: 7px 10px; border-radius: 10px; border: 1.5px solid var(--navy); background: #fff; }
 .cs-me { font-size: 13px; font-weight: 600; color: var(--navy); background: var(--cream-2); padding: 6px 10px; border-radius: 999px; }
+.cs-live { font-size: 12px; font-weight: 800; color: var(--green); background: #e6f4ec; border: 1px solid #b9dfc8; padding: 4px 10px; border-radius: 999px; }
+.cs-me-live { margin-left: auto; }
+.cs-not-yet { margin: 0; }
+.cs-gate { min-height: 100vh; display: grid; place-content: center; justify-items: center; gap: 14px; color: var(--muted); font-weight: 600; background: var(--cream); }
 .cs-content { padding: 26px; display: grid; gap: 18px; align-content: start; max-width: 1280px; width: 100%; }
 
 @media (max-width: 960px) {
@@ -55,7 +59,8 @@
 .cs-list { display: grid; gap: 12px; }
 .cs-warn { background: #fde8e8; color: #8f0d22; border: 1px solid #f5b5b5; border-radius: 12px; padding: 10px 14px; font-weight: 600; font-size: 14px; }
 .cs-warn.small { font-size: 13px; padding: 8px 12px; }
-.cs-flash { position: fixed; right: 20px; bottom: 20px; z-index: 90; background: var(--green); color: #fff; font-weight: 700; padding: 12px 18px; border-radius: 12px; box-shadow: var(--shadow-lg); animation: toastIn .4s var(--ease); }
+.cs-flash { position: fixed; right: 20px; bottom: 20px; z-index: 90; max-width: min(460px, calc(100vw - 40px)); background: var(--green); color: #fff; font-weight: 700; padding: 12px 18px; border-radius: 12px; box-shadow: var(--shadow-lg); animation: toastIn .4s var(--ease); }
+.cs-flash-bad { background: var(--red); }
 
 /* Dashboard */
 .cs-cards { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }

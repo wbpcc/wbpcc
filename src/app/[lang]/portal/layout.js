@@ -2,6 +2,9 @@ import { getDictionary, t, fill, formatNumber } from "@/i18n/config";
 import { districts, findGroup } from "@/data/placeholder";
 import { demoMember } from "@/data/portal";
 import PortalNav from "@/components/PortalNav";
+import MemberGate from "@/components/MemberGate";
+
+const CHECKING = { en: "Checking your sign-in…", bn: "আপনার সাইন ইন যাচাই হচ্ছে…", hi: "आपका साइन इन जाँचा जा रहा है…" };
 
 // Member portal shell: member card on top, menu on the left (top on phones).
 // Phase 2: only reachable with a signed-in member session.
@@ -13,6 +16,7 @@ export default async function PortalLayout({ children, params }) {
   const pct = Math.round((demoMember.day / 60) * 100);
 
   return (
+    <MemberGate lang={lang} checking={CHECKING[lang] || CHECKING.en}>
     <div className="portal">
       <section className="portal-hero">
         <div className="wrap">
@@ -36,5 +40,6 @@ export default async function PortalLayout({ children, params }) {
         <div className="portal-main">{children}</div>
       </div>
     </div>
+    </MemberGate>
   );
 }

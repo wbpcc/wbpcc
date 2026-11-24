@@ -5,7 +5,52 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { fill } from "@/i18n/config";
 import { demoMember } from "@/data/portal";
-import { setSession } from "./session";
+import { setSession, LIVE, signIn, resetPassword } from "./session";
+
+// Sign-in messages (kept here so the dictionaries stay as they were).
+const MSG = {
+  en: {
+    "wrong-category": "This login doesn't have that access. Pick the right category above.",
+    bad: "Wrong mobile/email or password.",
+    "too-many": "Too many tries. Wait a few minutes and try again.",
+    "use-mobile": "Sign in with your 10-digit mobile number.",
+    "bad-mobile": "Enter your 10-digit mobile number.",
+    network: "Couldn't connect. Check your internet and try again.",
+    resetSent: "If that email has a team login, a link to set a new password is on its way.",
+    resetNeed: "Type your email above first, then tap “Forgot password?”.",
+    memberReset: "Forgot your password? Tell your district office or use the Contact page — they can reset it.",
+    wait: "Signing in…",
+  },
+  bn: {
+    "wrong-category": "এই লগইনে ওই অ্যাক্সেস নেই। ওপরে সঠিক বিভাগটি বেছে নিন।",
+    bad: "মোবাইল/ইমেল বা পাসওয়ার্ড ভুল।",
+    "too-many": "অনেকবার চেষ্টা হয়েছে। কয়েক মিনিট পরে আবার চেষ্টা করুন।",
+    "use-mobile": "আপনার ১০ সংখ্যার মোবাইল নম্বর দিয়ে সাইন ইন করুন।",
+    "bad-mobile": "আপনার ১০ সংখ্যার মোবাইল নম্বর লিখুন।",
+    network: "সংযোগ হয়নি। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+    resetSent: "ওই ইমেলে টিম লগইন থাকলে, নতুন পাসওয়ার্ড দেওয়ার লিঙ্ক পাঠানো হয়েছে।",
+    resetNeed: "আগে ওপরে আপনার ইমেল লিখুন, তারপর “পাসওয়ার্ড ভুলে গেছেন?”-এ চাপুন।",
+    memberReset: "পাসওয়ার্ড ভুলে গেলে আপনার জেলা অফিস বা যোগাযোগ পাতায় জানান — তাঁরা রিসেট করে দেবেন।",
+    wait: "সাইন ইন হচ্ছে…",
+  },
+  hi: {
+    "wrong-category": "इस लॉगिन के पास यह एक्सेस नहीं है। ऊपर सही श्रेणी चुनें।",
+    bad: "मोबाइल/ईमेल या पासवर्ड गलत है।",
+    "too-many": "बहुत बार कोशिश हुई। कुछ मिनट बाद फिर कोशिश करें।",
+    "use-mobile": "अपने 10 अंकों के मोबाइल नंबर से साइन इन करें।",
+    "bad-mobile": "अपना 10 अंकों का मोबाइल नंबर लिखें।",
+    network: "कनेक्ट नहीं हो सका। इंटरनेट जाँचकर फिर कोशिश करें।",
+    resetSent: "अगर उस ईमेल पर टीम लॉगिन है, तो नया पासवर्ड रखने का लिंक भेज दिया गया है।",
+    resetNeed: "पहले ऊपर अपना ईमेल लिखें, फिर “पासवर्ड भूल गए?” दबाएँ।",
+    memberReset: "पासवर्ड भूल गए? अपने ज़िला कार्यालय या संपर्क पेज पर बताएँ — वे रीसेट कर देंगे।",
+    wait: "साइन इन हो रहा है…",
+  },
+};
+const errKey = (code = "") =>
+  code === "auth/too-many-requests" ? "too-many"
+  : code === "auth/network-request-failed" ? "network"
+  : ["wrong-category", "use-mobile", "bad-mobile"].includes(code) ? code
+  : "bad";
 
 /** Six boxes for a one-time code; typing jumps to the next box, paste fills all. */
 export function OtpInput({ value, onChange, label }) {
@@ -56,11 +101,35 @@ export function SignInFlow({ lang, a }) {
   const [step, setStep] = useState(1);
   const [user, setUser] = useState("");
   const [code, setCode] = useState("");
+  const [pw, setPw] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [note, setNote] = useState(null); // { kind: "err" | "ok", text }
+  const m = MSG[lang] || MSG.en;
   const isMember = cat === "member";
-  const pick = (id) => { setCat(id); setStep(1); setCode(""); setUser(""); };
+  const pick = (id) => { setCat(id); setStep(1); setCode(""); setUser(""); setPw(""); setNote(null); };
 
-  function submit(e) {
+  async function forgot() {
+    if (!LIVE) return;
+    if (isMember) { setNote({ kind: "ok", text: m.memberReset }); return; }
+    if (!user.includes("@")) { setNote({ kind: "err", text: m.resetNeed }); return; }
+    try { await resetPassword(user); } catch {}
+    setNote({ kind: "ok", text: m.resetSent }); // same message either way — doesn't reveal who has a login
+  }
+
+  async function submit(e) {
     e.preventDefault();
+    if (LIVE) {
+      setBusy(true); setNote(null);
+      try {
+        await signIn(cat, user, pw);
+        router.push(isMember ? `/${lang}/portal` : "/console");
+      } catch (err) {
+        setNote({ kind: "err", text: m[errKey(err.code)] });
+        setBusy(false);
+      }
+      return;
+    }
+    // ---- DEMO (no Firebase settings) ----
     if (isMember) { setSession({ role: "member", id: demoMember.id }); router.push(`/${lang}/portal`); return; }
     if (step === 1) { setStep(2); return; }
     setSession({ role: "team", email: user });
@@ -93,10 +162,11 @@ export function SignInFlow({ lang, a }) {
           </div>
           <div className="field">
             <label htmlFor="lp">{a.password}</label>
-            <input id="lp" type="password" required autoComplete="current-password" />
+            <input id="lp" type="password" required autoComplete="current-password" value={pw} onChange={(e) => setPw(e.target.value)} />
           </div>
-          <button className={`btn ${isMember ? "btn-saffron" : "btn-navy"}`} type="submit">{a.signin}</button>
-          <button type="button" className="text-btn">{a.forgot}</button>
+          {note && <p className={`form-note${note.kind === "err" ? " form-err" : ""}`} role={note.kind === "err" ? "alert" : "status"}>{note.kind === "err" ? "⚠️" : "✉️"} {note.text}</p>}
+          <button className={`btn ${isMember ? "btn-saffron" : "btn-navy"}`} type="submit" disabled={busy}>{busy ? m.wait : a.signin}</button>
+          <button type="button" className="text-btn" onClick={forgot}>{a.forgot}</button>
         </>
       ) : (
         <>

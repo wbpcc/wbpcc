@@ -27,7 +27,7 @@ export default function PortalNav({ lang, n, signout }) {
           </Link>
         );
       })}
-      <button type="button" onClick={() => { clearSession(); router.push(`/${lang}`); }}>
+      <button type="button" onClick={async () => { await clearSession(); router.push(`/${lang}`); }}>
         <i aria-hidden="true">↩</i>{signout}
       </button>
     </nav>

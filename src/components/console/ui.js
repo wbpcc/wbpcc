@@ -128,12 +128,13 @@ export function DistrictPick({ value, onChange, label = "District" }) {
 
 export function Flash({ msg }) {
   if (!msg) return null;
-  return <div className="cs-flash" role="status">✓ {msg}</div>;
+  const bad = msg.startsWith("⚠️");
+  return <div className={`cs-flash${bad ? " cs-flash-bad" : ""}`} role={bad ? "alert" : "status"}>{bad ? msg : `✓ ${msg}`}</div>;
 }
 
 export function useFlash() {
   const [msg, setMsg] = useState("");
-  const flash = (m) => { setMsg(m); setTimeout(() => setMsg(""), 2600); };
+  const flash = (m) => { setMsg(m); setTimeout(() => setMsg(""), m.startsWith("⚠️") ? 9000 : 6000); };
   return [msg, flash];
 }
 
@@ -152,9 +153,9 @@ export function ConfirmPublish({ open, page, changes = [], onConfirm, onCancel }
       <div className="cs-modal" role="dialog" aria-modal="true" aria-label="Confirm and submit">
         <span className="cs-modal-icon" aria-hidden="true">🚀</span>
         <h2>Publish these changes?</h2>
-        <p><b>{page}</b> will update on the live website within a few seconds.</p>
+        <p><b>{page}</b> is saved straight away and appears on the public website in about 2 minutes.</p>
         {changes.length > 0 && <ul className="cs-modal-list">{changes.map((x) => <li key={x}>{x}</li>)}</ul>}
-        <p className="cs-muted">The previous version is saved — you can restore it from the history at any time.</p>
+        <p className="cs-muted">Every change is recorded in the audit log with your name and the time.</p>
         <label className="check"><input type="checkbox" checked={checked} onChange={(e) => setChecked(e.target.checked)} /> I have checked the English, Bangla and Hindi text.</label>
         <div className="cs-row">
           <button className="btn btn-ghost btn-sm" onClick={onCancel}>Go back & edit</button>

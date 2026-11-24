@@ -5,6 +5,15 @@ import { t } from "@/i18n/config";
 import { events as evSeed, groups as orgSeed, leaders as ldSeed, districtPresidents as dpSeed, districts } from "@/data/placeholder";
 import { inspiration as inSeed } from "@/data/inspiration";
 import { PageTitle, Panel, Tabs, Drawer, LangField, DistrictPick, Flash, useFlash, ConfirmPublish, useQueryParam } from "./ui";
+import { useLiveList, saveItem, removeItem, requestPublish, savedMessage, LIVE } from "@/lib/cms";
+
+// Which database list each tab edits.
+const COL = { committee: "leaders", districts: "districtPresidents", orgs: "groups", events: "events", people: "inspiration" };
+const NOUN = { committee: "office-bearer", districts: "district president", orgs: "organisation", events: "event", people: "inspiring person" };
+
+// <input type="datetime-local"> works in local time without a zone.
+const toLocalInput = (iso) => { const d = new Date(iso); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16); };
+const eventStart = (e) => e.startsAt || new Date(Date.now() + (e.startInHours || 0) * 3600e3).toISOString();
 
 // Leadership & organisation (Admin + State President): State Committee,
 // 35 District Presidents, frontal organisations / cells / departments, events.
@@ -14,6 +23,7 @@ const COLOURS = [["var(--saffron)", "Saffron"], ["var(--green)", "Green"], ["var
 const tri = (x) => x || { en: "", bn: "", hi: "" };
 
 function Photo() {
+  if (LIVE) return <div className="field"><label>Photo</label><p className="form-note">🖼️ Photo uploads come in a later step. Until then the card shows initials.</p></div>;
   return <div className="field"><label>Photo</label><label className="dropzone"><span>🖼️ Upload photo</span><small>Square, at least 600 × 600 px</small><input type="file" accept="image/*" className="sr-only" /></label></div>;
 }
 
@@ -21,21 +31,51 @@ export default function ContentManager() {
   const [tab, setTab] = useState("committee");
   const [confirming, setConfirming] = useState(false);
   useQueryParam("tab", (v) => { if (["committee", "districts", "orgs", "events", "people"].includes(v)) setTab(v); });
-  const [leaders, setLeaders] = useState(ldSeed.map((l) => ({ ...l, bio: tri() })));
-  const [dps, setDps] = useState(dpSeed.map((p) => ({ ...p })));
-  const [orgs, setOrgs] = useState(orgSeed.map((o) => ({ ...o, about: tri() })));
-  const [events, setEvents] = useState(evSeed.map((e) => ({ ...e })));
-  const [people, setPeople] = useState(inSeed.map((p) => ({ ...p })));
+  const [leaders, setLeaders, s1] = useLiveList("leaders", ldSeed, (l) => ({ ...l, bio: l.bio || tri() }));
+  const [dps, setDps, s2] = useLiveList("districtPresidents", dpSeed);
+  const [orgs, setOrgs, s3] = useLiveList("groups", orgSeed, (o) => ({ ...o, about: o.about || tri() }));
+  const [events, setEvents, s4] = useLiveList("events", evSeed);
+  const [people, setPeople, s5] = useLiveList("inspiration", inSeed);
+  const loadState = [s1, s2, s3, s4, s5].includes("error") ? "error" : [s1, s2, s3, s4, s5].includes("loading") ? "loading" : "ok";
   const [edit, setEdit] = useState(null); // { type, item }
+  const [busy, setBusy] = useState(false);
   const [msg, flash] = useFlash();
 
   const lists = { committee: [leaders, setLeaders], districts: [dps, setDps], orgs: [orgs, setOrgs], events: [events, setEvents], people: [people, setPeople] };
   const patch = (p) => setEdit({ ...edit, item: { ...edit.item, ...p } });
-  function save() {
-    const [list, setter] = lists[edit.type];
-    setter(list.find((x) => x.id === edit.item.id) ? list.map((x) => (x.id === edit.item.id ? edit.item : x)) : [...list, edit.item]);
-    setEdit(null);
-    flash("Saved & published — the website updates in a few seconds");
+  const nameOf = (x) => t(x.name || x.title || x.district, "en") || x.id;
+
+  async function save() {
+    const { type, item } = edit;
+    const [list, setter] = lists[type];
+    const idx = list.findIndex((x) => x.id === item.id);
+    const order = idx >= 0 ? idx : list.length;
+    setBusy(true);
+    try {
+      await saveItem(COL[type], item, { order, label: `${NOUN[type]} “${nameOf(item)}”` });
+      setter(idx >= 0 ? list.map((x) => (x.id === item.id ? item : x)) : [...list, item]);
+      setEdit(null);
+      flash(savedMessage(await requestPublish(), "Saved"));
+    } catch (e) {
+      flash(`⚠️ Not saved: ${e.code === "permission-denied" ? "only an Admin can change this." : e.message}`);
+    }
+    setBusy(false);
+  }
+
+  async function remove() {
+    const { type, item } = edit;
+    if (!window.confirm(`Remove “${nameOf(item)}” from the website?`)) return;
+    const [list, setter] = lists[type];
+    setBusy(true);
+    try {
+      await removeItem(COL[type], item.id, `${NOUN[type]} “${nameOf(item)}”`);
+      setter(list.filter((x) => x.id !== item.id));
+      setEdit(null);
+      flash(savedMessage(await requestPublish(), "Removed"));
+    } catch (e) {
+      flash(`⚠️ Not removed: ${e.code === "permission-denied" ? "only an Admin can change this." : e.message}`);
+    }
+    setBusy(false);
   }
   const blank = {
     committee: { id: `leader-${Date.now()}`, level: "vp", initials: "NP", name: tri(), role: tri(), phone: "", email: "", bio: tri() },
@@ -52,6 +92,8 @@ export default function ContentManager() {
         <button className="btn btn-saffron" onClick={() => setEdit({ type: tab, item: blank[tab] })}>+ Add {label}</button>
       </PageTitle>
       <Flash msg={msg} />
+      {loadState === "loading" && <p className="form-note">⏳ Loading the latest from the database…</p>}
+      {loadState === "error" && <p className="cs-warn small">⚠️ Couldn&apos;t load from the database — showing built-in data. Check your internet and reload before editing.</p>}
       <ConfirmPublish open={confirming} page={edit ? `${{ committee: "State Committee", districts: "District Presidents", orgs: "Organisation", events: "Events", people: "Our inspiration" }[edit.type]} — ${t(edit.item.name || edit.item.title || edit.item.district, "en") || "new entry"}` : ""} onCancel={() => setConfirming(false)} onConfirm={() => { setConfirming(false); save(); }} />
       <Tabs value={tab} onChange={setTab} tabs={[["committee", "🏛️ State Committee", leaders.length], ["districts", "📍 District Presidents", dps.length], ["orgs", "👥 Organisations", orgs.length], ["events", "🗓️ Events", events.length], ["people", "🌟 Inspiration", people.length]]} />
       <Panel>
@@ -84,10 +126,10 @@ export default function ContentManager() {
         footer={
           <div className="cs-row">
             {edit && lists[edit.type][0].some((x) => x.id === edit.item.id) && (
-              <button className="btn btn-ghost btn-sm" onClick={() => { const [list, setter] = lists[edit.type]; setter(list.filter((x) => x.id !== edit.item.id)); setEdit(null); flash("Removed — it disappears from the website in a few seconds"); }}>🗑 Remove</button>
+              <button className="btn btn-ghost btn-sm" disabled={busy} onClick={remove}>🗑 Remove</button>
             )}
             <button className="btn btn-ghost btn-sm" onClick={() => setEdit(null)}>Cancel</button>
-            <button className="btn btn-saffron btn-sm" onClick={() => setConfirming(true)}>Submit changes</button>
+            <button className="btn btn-saffron btn-sm" disabled={busy || loadState !== "ok"} onClick={() => setConfirming(true)}>{busy ? "Saving…" : "Submit changes"}</button>
           </div>
         }>
         {edit?.type === "committee" && (
@@ -125,7 +167,7 @@ export default function ContentManager() {
             <LangField label="Title" value={edit.item.title} onChange={(v) => patch({ title: v })} />
             <LangField label="Place" value={edit.item.place} onChange={(v) => patch({ place: v })} />
             <DistrictPick value={edit.item.district} onChange={(v) => patch({ district: v })} />
-            <div className="cs-two"><div className="field"><label>Date & time</label><input type="datetime-local" /></div><div className="field"><label>Duration (hours)</label><input type="number" value={edit.item.durationHours} onChange={(e) => patch({ durationHours: +e.target.value })} /></div></div>
+            <div className="cs-two"><div className="field"><label>Date & time</label><input type="datetime-local" value={toLocalInput(eventStart(edit.item))} onChange={(e) => e.target.value && patch({ startsAt: new Date(e.target.value).toISOString(), startInHours: undefined })} /></div><div className="field"><label>Duration (hours)</label><input type="number" value={edit.item.durationHours} onChange={(e) => patch({ durationHours: +e.target.value })} /></div></div>
             <div className="field"><label>Organisation</label><select value={edit.item.group || ""} onChange={(e) => patch({ group: e.target.value || null })}><option value="">Party (no specific organisation)</option>{orgs.map((g) => <option key={g.id} value={g.id}>{g.icon} {t(g.name, "en")}</option>)}</select></div>
             <div className="cs-two"><div className="field"><label>Map pin — latitude</label><input type="number" step="0.0001" value={edit.item.lat} onChange={(e) => patch({ lat: +e.target.value })} /></div><div className="field"><label>Longitude</label><input type="number" step="0.0001" value={edit.item.lng} onChange={(e) => patch({ lng: +e.target.value })} /></div></div>
           </div>

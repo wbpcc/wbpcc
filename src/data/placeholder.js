@@ -5,13 +5,14 @@
 // Text fields are { en, bn, hi }.
 // =====================================================================
 
+import { fromLive, fromPage } from "./live";
 import { districts, groups, leaders } from "./org";
 export { districts, groups, leaders, districtPresidents, ORG_CATEGORIES } from "./org";
 
 
 // Times are relative to "now" so Live / Upcoming / This-month
 // always has something to show while we design.
-export const events = [
+export const events = fromLive("events", [
   {
     id: "jobs-for-youth-rally", district: "kolkata", group: "youth-congress", startInHours: -1, durationHours: 4, going: 1240, lat: 22.5646, lng: 88.3513,
     title: { en: "Jobs for Youth rally", bn: "যুবদের জন্য কাজ — সমাবেশ", hi: "युवाओं को रोज़गार — रैली" },
@@ -57,28 +58,28 @@ export const events = [
     title: { en: "Blood donation camp", bn: "রক্তদান শিবির", hi: "रक्तदान शिविर" },
     place: { en: "Kharagpur, Paschim Medinipur", bn: "খড়্গপুর, পশ্চিম মেদিনীপুর", hi: "खड़गपुर, पश्चिम मेदिनीपुर" },
   },
-];
+]);
 
-export const offices = [
+export const offices = fromLive("offices", [
   { id: "o1", lat: 22.5448, lng: 88.3876, name: { en: "State headquarters", bn: "রাজ্য সদর দপ্তর", hi: "प्रदेश मुख्यालय" } },
   { id: "o2", lat: 26.71, lng: 88.43, name: { en: "District office, Siliguri", bn: "জেলা কার্যালয়, শিলিগুড়ি", hi: "ज़िला कार्यालय, सिलीगुड़ी" } },
   { id: "o3", lat: 23.685, lng: 86.98, name: { en: "District office, Asansol", bn: "জেলা কার্যালয়, আসানসোল", hi: "ज़िला कार्यालय, आसनसोल" } },
   { id: "o4", lat: 25.0, lng: 88.15, name: { en: "District office, Malda", bn: "জেলা কার্যালয়, মালদা", hi: "ज़िला कार्यालय, मालदा" } },
-];
+]);
 
-export const featured = {
+export const featured = fromPage("home", "featured", {
   eventId: "jobs-for-youth-rally",
   when: { en: "Today · till 7 PM", bn: "আজ · সন্ধ্যা ৭টা পর্যন্ত", hi: "आज · शाम 7 बजे तक" },
-};
+});
 
-export const tickerItems = [
+export const tickerItems = fromPage("home", "tickerItems", [
   { href: "/events/jobs-for-youth-rally", text: { en: "Jobs for Youth rally at Esplanade, Kolkata — live now", bn: "ধর্মতলায় যুবদের কাজের দাবিতে সমাবেশ — এখন লাইভ", hi: "एस्प्लेनेड, कोलकाता में युवाओं के रोज़गार की रैली — अभी लाइव" } },
   { href: "/petitions/fill-teacher-posts", text: { en: "Teacher recruitment petition crosses 12,000 signatures", bn: "শিক্ষক নিয়োগের আবেদনে ১২,০০০-এর বেশি সই", hi: "शिक्षक भर्ती याचिका पर 12,000 से ज़्यादा हस्ताक्षर" } },
   { href: "/newsroom/teacher-recruitment-statement", text: { en: "New official statement: WBPCC/ST/2026/041", bn: "নতুন অফিসিয়াল বিবৃতি: WBPCC/ST/2026/041", hi: "नया आधिकारिक बयान: WBPCC/ST/2026/041" } },
   { href: "/events/womens-safety-barasat", text: { en: "Women's safety public meeting in Barasat the day after tomorrow", bn: "পরশু বারাসতে নারী সুরক্ষা নিয়ে জনসভা", hi: "परसों बारासात में महिला सुरक्षा पर जनसभा" } },
-];
+]);
 
-export const petitions = [
+export const petitions = fromLive("petitions", [
   {
     id: "fill-teacher-posts", type: "online", signatures: 12480, goal: 20000, startedBy: "leadership", district: null, group: "chhatra-parishad",
     title: { en: "Fill all vacant government teacher posts", bn: "সব শূন্য সরকারি শিক্ষক পদ পূরণ করুন", hi: "सभी ख़ाली सरकारी शिक्षक पद भरें" },
@@ -109,7 +110,7 @@ export const petitions = [
     },
     addressedTo: { en: "Labour Department, Government of West Bengal", bn: "শ্রম দপ্তর, পশ্চিমবঙ্গ সরকার", hi: "श्रम विभाग, पश्चिम बंगाल सरकार" },
   },
-];
+]);
 
 
 
@@ -119,7 +120,7 @@ export const petitions = [
 // kind:   statement (leadership only, has statementId) | report (verified, from members) | story | explainer
 // format: reel (9:16) | video (16:9) | blog (text only)
 // ---------------------------------------------------------------------
-export const posts = [
+export const posts = fromLive("posts", [
   {
     id: "teacher-recruitment-statement", kind: "statement", format: "video", platform: "youtube", videoUrl: null,
     statementId: "WBPCC/ST/2026/041", date: "2026-11-21", leaderId: "state-president", district: null,
@@ -166,13 +167,13 @@ export const posts = [
     title: { en: "Statement on rising essential prices", bn: "নিত্যপ্রয়োজনীয় জিনিসের দাম বৃদ্ধি নিয়ে বিবৃতি", hi: "ज़रूरी चीज़ों की बढ़ती क़ीमतों पर बयान" },
     excerpt: { en: "The party sets out five demands to bring prices under control.", bn: "দাম নিয়ন্ত্রণে আনতে দল পাঁচটি দাবি জানিয়েছে।", hi: "क़ीमतों पर क़ाबू के लिए पार्टी ने पाँच माँगें रखीं।" },
   },
-];
+]);
 
 // Every statement ID ever issued — used by "Verify a message".
-export const statementRegistry = [
+export const statementRegistry = fromPage("site", "statementRegistry", [
   ...posts.filter((p) => p.statementId).map((p) => ({ id: p.statementId, date: p.date })),
   { id: "WBPCC/ST/2026/039", date: "2026-11-02" },
-];
+]);
 
 export const stats = {
   eventsThisWeek: 12,
@@ -181,7 +182,7 @@ export const stats = {
   signatures: petitions.reduce((sum, p) => sum + p.signatures, 0),
 };
 
-export const social = {
+export const social = fromPage("site", "social", {
   handle: "INCWestBengal",
   links: [
     { label: "X", href: "#" },
@@ -190,7 +191,7 @@ export const social = {
     { label: "YT", href: "#" },
     { label: "WA", href: "#" },
   ],
-};
+});
 
 export const findEvent = (id) => events.find((e) => e.id === id);
 export const findPetition = (id) => petitions.find((p) => p.id === id);
@@ -209,7 +210,7 @@ export function youtubeEmbed(url) {
 // CAMPAIGNS — long-running drives started by Leadership / President.
 // A campaign groups events + petitions under one goal.
 // ---------------------------------------------------------------------
-export const campaigns = [
+export const campaigns = fromLive("campaigns", [
   {
     id: "jobs-for-youth", group: "youth-congress", start: "2026-11-01", end: "2026-12-31", featured: true,
     events: ["jobs-for-youth-rally", "students-career-fair"], petitions: ["fill-teacher-posts"],
@@ -228,7 +229,7 @@ export const campaigns = [
     title: { en: "Fair Wages, North Bengal", bn: "ন্যায্য মজুরি, উত্তরবঙ্গ", hi: "उचित मज़दूरी, उत्तर बंगाल" },
     goal: { en: "A living wage for every tea garden worker.", bn: "প্রতিটি চা-বাগান শ্রমিকের বাঁচার মতো মজুরি।", hi: "हर चाय बागान मज़दूर को जीने लायक़ मज़दूरी।" },
   },
-];
+]);
 
 export const findCampaign = (id) => campaigns.find((c) => c.id === id);
 export const campaignForEvent = (eventId) => campaigns.find((c) => c.events.includes(eventId));

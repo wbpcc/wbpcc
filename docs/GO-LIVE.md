@@ -49,20 +49,14 @@ so it stays with the party if people change. Sign in to https://console.firebase
 
 Replace `YOUR-PROJECT-ID` with the ID from step 2.
 
-### 7. Make sure the Firebase tool uses the party account
+### 7–8. Upload the security rules
+Uses the server key, so no Firebase CLI login is needed:
 ```powershell
-npx firebase login:list
+npm run live:rules -- --project YOUR-PROJECT-ID --key F:\JuniorProjects\secrets\wbpcc-service-account.json
 ```
-If it shows a different account than the one that owns the project, either add that
-account to the project (Project settings → Users and permissions → Add member → Editor), or run:
-```powershell
-npx firebase login:add
-```
-
-### 8. Upload the security rules
-```powershell
-npm run deploy:rules -- --project YOUR-PROJECT-ID
-```
+(The two database indexes in `firestore.indexes.json` need the Firebase CLI logged in with an
+account that can see the project: `npm run deploy:rules -- --project YOUR-PROJECT-ID`. They're
+only needed from step B2.)
 
 ### 9. Load the website's current content into the database
 ```powershell
@@ -82,6 +76,43 @@ is added from the website's console (built in B2).
 ### 11. Check it worked
 Firebase website → **Firestore Database**: you should see `pages`, `leaders`, `groups`,
 `events`, `posts` … and in **Authentication → Users**, your Admin.
+
+---
+
+## Part C — Vercel (when you deploy the site)
+
+How content gets to the public site: when Vercel **builds** the site, it first downloads the
+latest published content from Firestore (`npm run pull`). When an Admin saves something in the
+console, the site asks Vercel to rebuild — the change is live in about 2 minutes.
+
+### 12. Environment variables
+Vercel → your project → **Settings → Environment Variables**. Add these for **Production**
+(and Preview if you use it):
+
+| Name | Value | Sensitive? |
+|---|---|---|
+| `NEXT_PUBLIC_FIREBASE_API_KEY` | from `.env.local` | no |
+| `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | `wbpcc-website.firebaseapp.com` | no |
+| `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | `wbpcc-website` | no |
+| `NEXT_PUBLIC_FIREBASE_APP_ID` | from `.env.local` | no |
+| `FIREBASE_SERVICE_ACCOUNT` | open `F:\JuniorProjects\secrets\wbpcc-service-account.json` in Notepad, copy **everything**, paste | **yes — tick Sensitive** |
+| `VERCEL_DEPLOY_HOOK_URL` | see step 13 | **yes — tick Sensitive** |
+
+Never put `FIREBASE_KEY_FILE` on Vercel — that one is only for your computer.
+
+### 13. The "rebuild" link (deploy hook)
+1. Vercel → project → **Settings → Git → Deploy Hooks**.
+2. Name: `content-update`, branch: `main` → **Create Hook**.
+3. Copy the URL it shows → add it as `VERCEL_DEPLOY_HOOK_URL` (step 12). Treat it like a password.
+4. **Redeploy** once (Deployments → ⋯ → Redeploy) so the new variables are used.
+
+### 14. Check it
+Sign in at `https://<your-site>/en/signin` → **Admin** → `sm.wbpcc@gmail.com`. Edit a District
+President in **Console → Leadership & organisation** → Confirm & submit. Vercel → Deployments
+shows a new build starting; ~2 minutes later the change is on `/en/leadership`.
+
+If a build can't reach Firebase it **fails on purpose**, so the previous version stays live —
+it never silently goes back to placeholder content.
 
 ---
 

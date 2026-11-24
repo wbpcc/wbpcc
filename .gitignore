@@ -4,10 +4,13 @@ out/
 .env*
 !.env.local.example
 .cache/
+src/data/live-content.json
 .firebase/
 firebase-debug*.log
 firestore-debug.log
 ui-debug.log
 *service-account*.json
+*adminsdk*.json
+*firebase-adminsdk*
 .vercel
 *.log
