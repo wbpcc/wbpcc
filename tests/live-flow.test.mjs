@@ -4,7 +4,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { signIn, clearSession } from "../src/components/session.js";
-import { saveItem, removeItem } from "../src/lib/cms.js";
+import { saveItem, removeItem, savePage } from "../src/lib/cms.js";
 import { POST } from "../src/app/api/publish/route.js";
 import { loadFirebase } from "../src/components/session.js";
 import { DEMO_USERS } from "../scripts/demo-users.mjs";
@@ -62,6 +62,39 @@ test("admin can load every list the Leadership & organisation screen needs", asy
     const snap = await m.getDocs(m.collection(db, col));
     assert.ok(snap.size > 0, `${col} loads`);
   }
+  await signOut();
+});
+
+test("admin edits the homepage hero and page sections (merged, not replaced)", async () => {
+  await signIn("admin", "admin@wbpcc.org", pw("admin"));
+  const { db } = await loadFirebase();
+  const m = await import("firebase/firestore");
+  await savePage("text", { hero: { title: { en: "BENGAL IS CALLING GUYS!", bn: "", hi: "" } } }, "Home page · hero");
+  await savePage("text", { footer: { address: { en: "New address", bn: "", hi: "" } } }, "Footer");
+  const text = (await m.getDoc(m.doc(db, "pages", "text"))).data();
+  assert.equal(text.hero.title.en, "BENGAL IS CALLING GUYS!");
+  assert.equal(text.footer.address.en, "New address", "second save kept the first");
+  assert.equal(text.status, "published");
+
+  await savePage("home", { numbers: { events: 30, districts: 35 } }, "Home page");
+  const home = (await m.getDoc(m.doc(db, "pages", "home"))).data();
+  assert.equal(home.numbers.events, 30);
+  assert.ok(Array.isArray(home.tickerItems), "ticker kept when only numbers change");
+  await signOut();
+});
+
+test("drafts stay hidden from visitors", async () => {
+  await signIn("admin", "admin@wbpcc.org", pw("admin"));
+  await saveItem("petitions", { id: "draft-pet", title: { en: "Draft" }, stage: "draft" }, { order: 0, label: "x", status: "draft" });
+  await signOut();
+  const { db } = await loadFirebase();
+  const m = await import("firebase/firestore");
+  await assert.rejects(m.getDoc(m.doc(db, "petitions", "draft-pet")), { code: "permission-denied" });
+});
+
+test("contributor cannot edit page sections", async () => {
+  await signIn("contributor", "contributor1@wbpcc.org", pw("contributor"));
+  await assert.rejects(savePage("text", { hero: { title: { en: "x" } } }, "x"), { code: "permission-denied" });
   await signOut();
 });
 

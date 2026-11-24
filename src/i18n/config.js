@@ -4,6 +4,7 @@ import hi from "./hi";
 import pages from "./pages";
 import portal from "./portal";
 import orgText from "./org";
+import { live } from "../data/live";
 
 // English is the default. Order here = order in the language switcher.
 export const locales = ["en", "bn", "hi"];
@@ -14,11 +15,27 @@ export const localeLabels = { en: "EN", bn: "বাং", hi: "हिं" };
 export const localeNames = { en: "English", bn: "বাংলা", hi: "हिन्दी" };
 
 // Main dictionary + the info-page strings from pages.js
-const dictionaries = {
+const base = {
   en: { ...en, ...pages.en, ...portal.en, ...orgText.en },
   bn: { ...bn, ...pages.bn, ...portal.bn, ...orgText.bn },
   hi: { ...hi, ...pages.hi, ...portal.hi, ...orgText.hi },
 };
+
+// Wording an Admin changed in the console (hero headline, footer address,
+// press-kit text …) is stored in the database as pages/text and laid over the
+// dictionaries here, e.g. { hero: { title: { en, bn, hi } } }. Empty = keep default.
+const isTri = (v) => v && typeof v === "object" && ["en", "bn", "hi"].some((k) => typeof v[k] === "string");
+function overlay(dict, over, lang) {
+  if (!over || typeof over !== "object") return dict;
+  const out = { ...dict };
+  for (const [k, v] of Object.entries(over)) {
+    if (isTri(v)) { const s = v[lang] || v.en; if (s) out[k] = s; }
+    else if (v && typeof v === "object" && dict[k] && typeof dict[k] === "object") out[k] = overlay(dict[k], v, lang);
+  }
+  return out;
+}
+const textOverrides = live?.pages?.text;
+const dictionaries = Object.fromEntries(Object.entries(base).map(([l, d]) => [l, overlay(d, textOverrides, l)]));
 
 export function isLocale(value) {
   return locales.includes(value);

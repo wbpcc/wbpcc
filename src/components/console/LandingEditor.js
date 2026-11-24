@@ -1,27 +1,46 @@
 "use client";
 
-import { useState } from "react";
-import en from "@/i18n/en";
-import bn from "@/i18n/bn";
-import hi from "@/i18n/hi";
-import { t } from "@/i18n/config";
-import { tickerItems, events, featured, stats } from "@/data/placeholder";
+import { useEffect, useState } from "react";
+import { t, getDictionary } from "@/i18n/config";
+import { tickerItems, events as evSeed, featured, stats } from "@/data/placeholder";
 import { PageTitle, Panel, LangField, Flash, useFlash, ConfirmPublish } from "./ui";
+import { useLiveDocs, useLiveList, savePage, requestPublish, savedMessage, LIVE } from "@/lib/cms";
 
-// Landing page editor — Admin. Edits the hero,
-// the LIVE ticker, the featured campaign card and the headline numbers.
-const tri = (k) => ({ en: en.hero[k], bn: bn.hero[k], hi: hi.hero[k] });
+// Landing page editor — Admin. Edits the hero text, the LIVE ticker,
+// the featured "Live now" card and the headline numbers.
+//  • Hero wording → pages/text (laid over the language files when the site builds)
+//  • Ticker, featured card, numbers → pages/home
+const HERO_KEYS = ["eyebrow", "title", "titleEm", "sub"];
+const heroFrom = (lang) => getDictionary(lang).hero;
+const seedHero = () => Object.fromEntries(HERO_KEYS.map((k) => [k, { en: heroFrom("en")[k], bn: heroFrom("bn")[k], hi: heroFrom("hi")[k] }]));
+const withIds = (list) => list.map((x, i) => ({ id: `t${i}-${Date.now()}`, ...x }));
 
 export default function LandingEditor() {
-  const [hero, setHero] = useState({ eyebrow: tri("eyebrow"), title: tri("title"), titleEm: tri("titleEm"), sub: tri("sub") });
-  const [ticker, setTicker] = useState(tickerItems.map((x, i) => ({ id: i, ...x })));
+  const [hero, setHero] = useState(seedHero);
+  const [ticker, setTicker] = useState(() => withIds(tickerItems));
   const [feat, setFeat] = useState(featured.eventId);
+  const [when, setWhen] = useState(featured.when || { en: "", bn: "", hi: "" });
   const [nums, setNums] = useState({ events: stats.eventsThisWeek, districts: stats.districts });
+  const [events] = useLiveList("events", evSeed);
+  const [docs, loadState] = useLiveDocs(["text", "home"]);
   const [pl, setPl] = useState("en");
   const [dirty, setDirty] = useState(false);
+  const [busy, setBusy] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [msg, flash] = useFlash();
   const touch = (fn) => (...a) => { fn(...a); setDirty(true); };
+
+  // When the database answers, show what's actually live.
+  useEffect(() => {
+    if (loadState !== "ready") return;
+    const h = docs.text?.hero;
+    if (h) setHero((cur) => Object.fromEntries(HERO_KEYS.map((k) => [k, { ...cur[k], ...(h[k] || {}) }])));
+    const home = docs.home;
+    if (home?.tickerItems) setTicker(withIds(home.tickerItems));
+    if (home?.featured?.eventId) setFeat(home.featured.eventId);
+    if (home?.featured?.when) setWhen(home.featured.when);
+    if (home?.numbers) setNums((n) => ({ ...n, ...home.numbers }));
+  }, [loadState, docs]);
 
   const move = (i, d) => {
     const n = [...ticker]; const j = i + d;
@@ -30,15 +49,33 @@ export default function LandingEditor() {
   };
   const ev = events.find((e) => e.id === feat);
 
+  async function publish() {
+    setConfirming(false);
+    setBusy(true);
+    try {
+      await savePage("text", { hero }, "Home page · hero");
+      await savePage("home", {
+        tickerItems: ticker.map(({ id, ...x }) => x),
+        featured: { ...featured, eventId: feat, when },
+        numbers: { events: Number(nums.events) || 0, districts: Number(nums.districts) || 0 },
+      }, "Home page · ticker, live card & numbers");
+      setDirty(false);
+      flash(savedMessage(await requestPublish(), "Home page saved"));
+    } catch (e) {
+      flash(`⚠️ Not saved: ${e.code === "permission-denied" ? "only an Admin can change this." : e.message}`);
+    }
+    setBusy(false);
+  }
+
   return (
     <>
-      <PageTitle title="Landing page" sub="What every visitor sees first. Changes go live when you press Publish; every version is kept.">
-        <button className="btn btn-ghost" onClick={() => { setDirty(false); flash("Draft saved"); }}>Save draft</button>
-        <button className="btn btn-saffron" disabled={!dirty} onClick={() => setConfirming(true)}>Submit changes</button>
+      <PageTitle title="Landing page" sub="What every visitor sees first. Submit saves it straight away; the public homepage shows it about 2 minutes later.">
+        <button className="btn btn-saffron" disabled={!dirty || busy || (LIVE && loadState !== "ready")} onClick={() => setConfirming(true)}>{busy ? "Saving…" : "Submit changes"}</button>
       </PageTitle>
       <Flash msg={msg} />
-      <ConfirmPublish open={confirming} page="Home page" changes={["Hero text & photo", "LIVE ticker (" + ticker.length + " items)", "Featured campaign", "Headline numbers"]} onCancel={() => setConfirming(false)} onConfirm={() => { setConfirming(false); setDirty(false); flash("Published — the homepage is updated"); }} />
-      <p className="cs-muted" style={{ marginTop: -6 }}>Last published by <code>media@wbpcc.org</code> · 23 Nov 2026, 7:04 PM · <a className="link-arrow" href="/console/audit">History</a></p>
+      {loadState === "loading" && <p className="form-note">⏳ Loading the live homepage from the database…</p>}
+      {loadState === "error" && <p className="cs-warn small">⚠️ Couldn&apos;t load from the database — check your internet and reload before editing.</p>}
+      <ConfirmPublish open={confirming} page="Home page" changes={["Hero text", "LIVE ticker (" + ticker.length + " items)", "“Live now” card", "Headline numbers"]} onCancel={() => setConfirming(false)} onConfirm={publish} />
 
       <div className="cs-two wide-left">
         <div className="cs-stack">
@@ -50,12 +87,14 @@ export default function LandingEditor() {
               <LangField label="Sub-line" value={hero.sub} onChange={touch((v) => setHero({ ...hero, sub: v }))} multiline rows={3} />
               <div className="field">
                 <label>Hero photo</label>
-                <label className="dropzone"><span>🖼️ Upload a photo</span><small>Rally or Congress Bhavan · at least 1600 px wide</small><input type="file" accept="image/*" className="sr-only" onChange={() => setDirty(true)} /></label>
+                {LIVE
+                  ? <p className="form-note">🖼️ Photo uploads come in a later step.</p>
+                  : <label className="dropzone"><span>🖼️ Upload a photo</span><small>Rally or Congress Bhavan · at least 1600 px wide</small><input type="file" accept="image/*" className="sr-only" onChange={() => setDirty(true)} /></label>}
               </div>
             </div>
           </Panel>
 
-          <Panel title="LIVE ticker" actions={<button className="btn btn-ghost btn-sm" onClick={() => { setTicker([...ticker, { id: Date.now(), href: "/", text: { en: "", bn: "", hi: "" } }]); setDirty(true); }}>+ Add item</button>}>
+          <Panel title="LIVE ticker" actions={<button className="btn btn-ghost btn-sm" onClick={() => { setTicker([...ticker, { id: `t-${Date.now()}`, href: "/", text: { en: "", bn: "", hi: "" } }]); setDirty(true); }}>+ Add item</button>}>
             <div className="cs-list">
               {ticker.map((it, i) => (
                 <div key={it.id} className="cs-ticker-item">
@@ -74,19 +113,22 @@ export default function LandingEditor() {
           </Panel>
 
           <div className="cs-two">
-            <Panel title="Featured “Live now” card">
-              <div className="field">
-                <label>Event</label>
-                <select value={feat} onChange={touch((e) => setFeat(e.target.value))}>
-                  {events.map((e) => <option key={e.id} value={e.id}>{t(e.title, "en")}</option>)}
-                </select>
+            <Panel title="“Live now” card">
+              <div className="form">
+                <div className="field">
+                  <label>Event</label>
+                  <select value={feat} onChange={touch((e) => setFeat(e.target.value))}>
+                    {events.map((e) => <option key={e.id} value={e.id}>{t(e.title, "en")}</option>)}
+                  </select>
+                </div>
+                <LangField label="When (shown on the card)" value={when} onChange={touch(setWhen)} />
               </div>
             </Panel>
             <Panel title="Headline numbers">
               <div className="form">
                 <div className="field"><label>Events this week</label><input type="number" value={nums.events} onChange={touch((e) => setNums({ ...nums, events: e.target.value }))} /></div>
                 <div className="field"><label>Districts</label><input type="number" value={nums.districts} onChange={touch((e) => setNums({ ...nums, districts: e.target.value }))} /></div>
-                <p className="form-note">Groups and petition signatures are counted automatically.</p>
+                <p className="form-note">Organisations and petition signatures are counted automatically.</p>
               </div>
             </Panel>
           </div>
@@ -107,7 +149,7 @@ export default function LandingEditor() {
                 <div className="lp-btns"><i>✋ Join</i><i>📍 Events</i><i>✍️ Sign</i></div>
                 {ev && <div className="lp-live"><b>● LIVE NOW</b>{t(ev.title, pl)}</div>}
               </div>
-              <div className="lp-stats"><span><b>{nums.events}</b>events</span><span><b>6</b>groups</span><span><b>{nums.districts}</b>districts</span></div>
+              <div className="lp-stats"><span><b>{nums.events}</b>events</span><span><b>{stats.groups}</b>groups</span><span><b>{nums.districts}</b>districts</span></div>
             </div>
           </Panel>
         </div>

@@ -170,15 +170,20 @@ export const posts = fromLive("posts", [
 ]);
 
 // Every statement ID ever issued — used by "Verify a message".
-export const statementRegistry = fromPage("site", "statementRegistry", [
+// Always includes every statement post, plus older IDs kept in the registry.
+const registryExtra = fromPage("site", "statementRegistry", [{ id: "WBPCC/ST/2026/039", date: "2026-11-02" }]);
+export const statementRegistry = [
   ...posts.filter((p) => p.statementId).map((p) => ({ id: p.statementId, date: p.date })),
-  { id: "WBPCC/ST/2026/039", date: "2026-11-02" },
-]);
+  ...registryExtra.filter((r) => !posts.some((p) => p.statementId === r.id)),
+];
 
+// Headline numbers: "events this week" and "districts" are set by an Admin on
+// Console → Landing page; groups and signatures are counted automatically.
+const numbers = fromPage("home", "numbers", {});
 export const stats = {
-  eventsThisWeek: 12,
+  eventsThisWeek: Number(numbers.events ?? 12),
   groups: groups.length,
-  districts: 23,
+  districts: Number(numbers.districts ?? 23),
   signatures: petitions.reduce((sum, p) => sum + p.signatures, 0),
 };
 

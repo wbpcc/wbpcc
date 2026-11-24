@@ -6,11 +6,16 @@ import { petitions as petSeed, campaigns as campSeed, events, groups, districts 
 
 import { useRole } from "./ConsoleShell";
 import { PageTitle, Panel, Tabs, Status, Drawer, LangField, DistrictPick, Flash, useFlash, fmtDate } from "./ui";
+import { useLiveList, saveItem, requestPublish, savedMessage, LIVE } from "@/lib/cms";
 
 // Start petitions & campaigns directly (Admin).
 // Contributors create theirs under "My submissions" → Review queue.
+// In the database: `stage` = where a petition is (live / closed / …);
+// `status` = published (on the website) or draft (Admins only).
 const tri = (x) => x || { en: "", bn: "", hi: "" };
 const PSTATUS = { live: ["approved", "Live"], closed: ["review", "Closed"], submitted: ["changes", "Submitted to govt"], won: ["approved", "Won 🎉"], draft: ["review", "Draft"] };
+const prepPet = (p) => ({ ...p, stage: p.stage || (p.status === "draft" ? "draft" : "live"), why: p.why || p.desc || tri(), addressedTo: p.addressedTo || tri() });
+const prepCamp = (c) => ({ ...c, desc: c.desc || tri(), events: c.events || [], petitions: c.petitions || [] });
 
 export default function CampaignsPetitions() {
   const { role } = useRole();
@@ -20,13 +25,14 @@ export default function CampaignsPetitions() {
   const canStart = canStartPet || canStartCamp;
   const canEditExisting = lead;
   const [tab, setTab] = useState("petitions");
-  const [pets, setPets] = useState(petSeed.map((p) => ({ ...p, status: "live", why: p.desc })));
-  const [camps, setCamps] = useState(campSeed.map((c) => ({ ...c, desc: tri() })));
-  const [ready, setReady] = useState([]);
+  const [pets, setPets, s1] = useLiveList("petitions", petSeed, prepPet);
+  const [camps, setCamps, s2] = useLiveList("campaigns", campSeed, prepCamp);
+  const loadState = [s1, s2].includes("error") ? "error" : [s1, s2].includes("loading") ? "loading" : "ok";
   const [edit, setEdit] = useState(null); // { type: "petition" | "campaign", item }
+  const [busy, setBusy] = useState(false);
   const [msg, flash] = useFlash();
 
-  const blankPet = (from) => ({ id: `petition-${Date.now()}`, type: from?.ptype || "online", signatures: 0, goal: 5000, startedBy: from ? "member" : "leadership", district: from?.district || "", group: "", status: "live",
+  const blankPet = (from) => ({ id: `petition-${Date.now()}`, type: from?.ptype || "online", signatures: 0, goal: 5000, startedBy: from ? "member" : "leadership", district: from?.district || "", group: "", stage: "live",
     title: { en: from?.title || "", bn: "", hi: "" }, why: { en: from?.why || "", bn: "", hi: "" }, addressedTo: { en: from?.authority || "", bn: "", hi: "" }, fromProposal: from?.id });
   const blankCamp = (from) => ({ id: `campaign-${Date.now()}`, group: "", start: "", end: "", featured: false, events: [], petitions: [],
     title: { en: from?.title || "", bn: "", hi: "" }, goal: { en: from?.why || "", bn: "", hi: "" }, desc: tri(), fromProposal: from?.id });
@@ -34,13 +40,31 @@ export default function CampaignsPetitions() {
   const patch = (p) => setEdit({ ...edit, item: { ...edit.item, ...p } });
   const toggle = (key, id) => patch({ [key]: edit.item[key].includes(id) ? edit.item[key].filter((x) => x !== id) : [...edit.item[key], id] });
 
-  function save(status) {
-    const it = { ...edit.item, status: status || edit.item.status };
-    const [list, setter] = edit.type === "petition" ? [pets, setPets] : [camps, setCamps];
-    setter(list.find((x) => x.id === it.id) ? list.map((x) => (x.id === it.id ? it : x)) : [it, ...list]);
-    if (it.fromProposal) setReady(ready.filter((r) => r.id !== it.fromProposal));
-    setEdit(null);
-    flash(status === "draft" ? "Saved as draft" : "Published — live on the website in a few seconds");
+  async function save(asDraft) {
+    const isPet = edit.type === "petition";
+    const [list, setter] = isPet ? [pets, setPets] : [camps, setCamps];
+    let it = { ...edit.item };
+    if (isPet) {
+      if (asDraft) it.stage = "draft";
+      else if (it.stage === "draft") it.stage = "live";
+    }
+    const draft = isPet ? it.stage === "draft" : !!asDraft;
+    const exists = list.some((x) => x.id === it.id);
+    // New items go to the top of the list.
+    const order = exists ? it.order : Math.min(0, ...list.map((x) => x.order ?? 0)) - 1;
+    const { fromProposal, why, ...data } = it;
+    const toSave = isPet ? { ...data, desc: why } : data;
+    setBusy(true);
+    try {
+      await saveItem(isPet ? "petitions" : "campaigns", toSave, { order, status: draft ? "draft" : "published", label: `${edit.type} “${t(it.title, "en")}”` });
+      it = { ...it, order, status: draft ? "draft" : "published" };
+      setter(exists ? list.map((x) => (x.id === it.id ? it : x)) : [it, ...list]);
+      setEdit(null);
+      flash(draft ? (LIVE ? "Saved as a draft — only Admins can see it" : "Saved as draft (preview only)") : savedMessage(await requestPublish(), "Published"));
+    } catch (e) {
+      flash(`⚠️ Not saved: ${e.code === "permission-denied" ? "only an Admin can change this." : e.message}`);
+    }
+    setBusy(false);
   }
 
   return (
@@ -50,6 +74,8 @@ export default function CampaignsPetitions() {
         <button className="btn btn-saffron" disabled={!canStartPet} title={canStartPet ? "" : "You don't have permission to start petitions"} onClick={() => setEdit({ type: "petition", item: blankPet() })}>✍️ Start a petition</button>
       </PageTitle>
       <Flash msg={msg} />
+      {loadState === "loading" && <p className="form-note">⏳ Loading the latest from the database…</p>}
+      {loadState === "error" && <p className="cs-warn small">⚠️ Couldn&apos;t load from the database — check your internet and reload before editing.</p>}
 
       <Tabs value={tab} onChange={setTab} tabs={[["petitions", "✍️ Petitions", pets.length], ["campaigns", "✊ Campaigns", camps.length]]} />
 
@@ -63,7 +89,7 @@ export default function CampaignsPetitions() {
                   <td><b>{t(p.title, "en")}</b><br /><small className="cs-muted">{p.startedBy === "member" ? "From a contributor" : "Started by the party"}{p.district ? ` · ${t(districts[p.district], "en")}` : ""}</small></td>
                   <td>{p.type === "formal" ? "🏛️ Government" : "🌐 Online"}</td>
                   <td>{p.signatures.toLocaleString("en-IN")} / {Number(p.goal).toLocaleString("en-IN")}</td>
-                  <td><Status kind={PSTATUS[p.status][0]}>{PSTATUS[p.status][1]}</Status></td>
+                  <td><Status kind={(PSTATUS[p.stage] || PSTATUS.live)[0]}>{(PSTATUS[p.stage] || PSTATUS.live)[1]}</Status></td>
                   <td>{canEditExisting ? <button className="btn btn-ghost btn-sm" onClick={() => setEdit({ type: "petition", item: { ...p } })}>Edit</button> : <span className="cs-lock" title="Not in your permissions">🔒</span>}</td>
                 </tr>
               ))}
@@ -79,7 +105,7 @@ export default function CampaignsPetitions() {
                   <td><b>{t(c.title, "en")}</b><br /><small className="cs-muted">{t(c.goal, "en")}</small></td>
                   <td>{c.start ? `${fmtDate(c.start)} – ${c.end ? fmtDate(c.end) : "…"}` : "—"}</td>
                   <td>🗓️ {c.events.length} · ✍️ {c.petitions.length}</td>
-                  <td>{c.featured ? <Status kind="approved">Featured</Status> : "—"}</td>
+                  <td>{c.status === "draft" ? <Status kind="review">Draft</Status> : c.featured ? <Status kind="approved">Featured</Status> : "—"}</td>
                   <td>{canEditExisting ? <button className="btn btn-ghost btn-sm" onClick={() => setEdit({ type: "campaign", item: { ...c } })}>Edit</button> : <span className="cs-lock" title="Not in your permissions">🔒</span>}</td>
                 </tr>
               ))}
@@ -94,8 +120,8 @@ export default function CampaignsPetitions() {
         onClose={() => setEdit(null)}
         footer={edit && (
           <div className="cs-row">
-            <button className="btn btn-ghost btn-sm" onClick={() => save("draft")}>Save draft</button>
-            <button className="btn btn-saffron btn-sm" disabled={!edit.item.title.en} onClick={() => save(edit.type === "petition" && edit.item.status === "draft" ? "live" : undefined)}>Publish to website</button>
+            <button className="btn btn-ghost btn-sm" disabled={busy || loadState !== "ok"} onClick={() => save(true)}>Save draft</button>
+            <button className="btn btn-saffron btn-sm" disabled={busy || loadState !== "ok" || !edit.item.title.en} onClick={() => save(false)}>{busy ? "Saving…" : "Publish to website"}</button>
           </div>
         )}
       >
@@ -113,11 +139,11 @@ export default function CampaignsPetitions() {
             </fieldset>
             <div className="cs-two">
               <div className="field"><label>Signature goal</label><input type="number" min={100} value={edit.item.goal} onChange={(e) => patch({ goal: e.target.value })} /></div>
-              <div className="field"><label>Closes on</label><input type="date" /></div>
+              <div className="field"><label>Closes on</label><input type="date" value={edit.item.closes || ""} onChange={(e) => patch({ closes: e.target.value })} /></div>
             </div>
             <DistrictPick value={edit.item.district} onChange={(v) => patch({ district: v })} />
             <div className="field"><label>Group</label><select value={edit.item.group || ""} onChange={(e) => patch({ group: e.target.value })}><option value="">— None —</option>{groups.map((g) => <option key={g.id} value={g.id}>{g.icon} {t(g.name, "en")}</option>)}</select></div>
-            <div className="field"><label>Status</label><select value={edit.item.status} onChange={(e) => patch({ status: e.target.value })}>{Object.entries(PSTATUS).map(([k, v]) => <option key={k} value={k}>{v[1]}</option>)}</select></div>
+            <div className="field"><label>Status</label><select value={edit.item.stage} onChange={(e) => patch({ stage: e.target.value })}>{Object.entries(PSTATUS).map(([k, v]) => <option key={k} value={k}>{v[1]}</option>)}</select><small className="cs-muted">“Draft” keeps it off the website.</small></div>
           </div>
         )}
         {edit?.type === "campaign" && (
@@ -138,7 +164,7 @@ export default function CampaignsPetitions() {
               <legend>Petitions in this campaign</legend>
               <div className="checks" style={{ marginTop: 6 }}>{pets.map((p) => <label key={p.id}><input type="checkbox" checked={edit.item.petitions.includes(p.id)} onChange={() => toggle("petitions", p.id)} /> {t(p.title, "en")}</label>)}</div>
             </fieldset>
-            <div className="field"><label>Cover photo</label><label className="dropzone"><span>🖼️ Upload a cover</span><small>Wide photo, at least 1600 px</small><input type="file" accept="image/*" className="sr-only" /></label></div>
+            <div className="field"><label>Cover photo</label>{LIVE ? <p className="form-note">🖼️ Photo uploads come in a later step.</p> : <label className="dropzone"><span>🖼️ Upload a cover</span><small>Wide photo, at least 1600 px</small><input type="file" accept="image/*" className="sr-only" /></label>}</div>
             <label className="check"><input type="checkbox" checked={edit.item.featured} onChange={(e) => patch({ featured: e.target.checked })} /> Feature on the landing page</label>
           </div>
         )}

@@ -11,7 +11,7 @@ function fs() {
   return fsPromise;
 }
 
-const META = ["updatedAt", "updatedBy", "createdAt", "order"];
+const META = ["updatedAt", "updatedBy", "createdAt"];
 
 // Firestore Timestamps → ISO strings, so editors work with plain data.
 function plain(v) {
@@ -56,6 +56,36 @@ export function useLiveList(col, seed, prep = (x) => x) {
   return [list, setList, state];
 }
 
+/**
+ * Page sections for an editor: loads pages/{id} for each id given.
+ * Returns [docs, state] — docs is { id: data | null }, state as useLiveList.
+ * In DEMO mode docs stay empty and the editor keeps its built-in values.
+ */
+export function useLiveDocs(ids) {
+  const key = ids.join(",");
+  const [docs, setDocs] = useState({});
+  const [state, setState] = useState(LIVE ? "loading" : "demo");
+  useEffect(() => {
+    if (!LIVE) return;
+    let alive = true;
+    (async () => {
+      try {
+        const { db, m } = await fs();
+        const snaps = await Promise.all(ids.map((id) => m.getDoc(m.doc(db, "pages", id))));
+        if (!alive) return;
+        setDocs(Object.fromEntries(snaps.map((s, i) => [ids[i], s.exists() ? plain(s.data()) : null])));
+        setState("ready");
+      } catch (e) {
+        console.error("Loading page sections failed", e);
+        if (alive) setState("error");
+      }
+    })();
+    return () => { alive = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]);
+  return [docs, state];
+}
+
 async function audit(action, target) {
   const { db, auth, m } = await fs();
   const u = auth.currentUser;
@@ -64,13 +94,16 @@ async function audit(action, target) {
   });
 }
 
-/** Save (add or update) one item of a website list, published. */
-export async function saveItem(col, item, { order, label }) {
+/**
+ * Save (add or update) one item of a website list.
+ * status "published" shows it on the website; "draft" keeps it Admin-only.
+ */
+export async function saveItem(col, item, { order, label, status = "published" }) {
   if (!LIVE) return;
   const { db, auth, m } = await fs();
   const { id, ...rest } = item;
   await m.setDoc(m.doc(db, col, id), {
-    ...clean(rest), status: "published", order,
+    ...clean(rest), status, order: order ?? rest.order ?? 0,
     updatedAt: m.serverTimestamp(), updatedBy: auth.currentUser.email,
   });
   await audit(`Saved ${label}`, `${col}/${id}`);
