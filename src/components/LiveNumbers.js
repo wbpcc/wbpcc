@@ -2,12 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import { fill, formatNumber } from "@/i18n/config";
+import { LIVE } from "@/lib/live";
 
 // ---------------------------------------------------------------------
-// SIMULATED live numbers for the design. In Phase 2 these read real
-// counts from the database (Firestore listeners). Do not launch with
-// the random ticking switched on.
+// Animated numbers. The random "ticking up" is a design-preview effect only:
+// on the live site (LIVE) numbers show their real value and never change
+// by themselves — a party website must not show made-up figures.
 // ---------------------------------------------------------------------
+const SIMULATE = !LIVE;
 
 const reduced = () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -30,7 +32,7 @@ export function CountUp({ value, lang, live = false }) {
         const p = Math.min(1, (now - start) / dur);
         setN(Math.round(value * (1 - Math.pow(1 - p, 3))));
         if (p < 1) raf = requestAnimationFrame(step);
-        else if (live) {
+        else if (live && SIMULATE) {
           const tick = () => { setN((x) => x + 1 + Math.floor(Math.random() * 3)); timer = setTimeout(tick, 4000 + Math.random() * 5000); };
           timer = setTimeout(tick, 4000);
         }
@@ -49,7 +51,7 @@ export function LiveCount({ base, lang, template = "{n}", every = 6000 }) {
   const [n, setN] = useState(base);
   const [bump, setBump] = useState(false);
   useEffect(() => {
-    if (reduced()) return;
+    if (reduced() || !SIMULATE) return;
     let timer;
     const tick = () => {
       setN((x) => x + 1 + Math.floor(Math.random() * 2));
