@@ -159,7 +159,7 @@ export function ConfirmPublish({ open, page, changes = [], onConfirm, onCancel }
         <label className="check"><input type="checkbox" checked={checked} onChange={(e) => setChecked(e.target.checked)} /> I have checked the English, Bangla and Hindi text.</label>
         <div className="cs-row">
           <button className="btn btn-ghost btn-sm" onClick={onCancel}>Go back & edit</button>
-          <button className="btn btn-saffron btn-sm" disabled={!checked} onClick={onConfirm}>Confirm & submit</button>
+          <button className="btn btn-saffron btn-sm" disabled={!checked} onClick={onConfirm} title={checked ? "" : "Tick the box above first"}>{checked ? "Confirm & submit" : "☝️ Tick the box to submit"}</button>
         </div>
       </div>
     </div>

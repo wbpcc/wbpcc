@@ -140,7 +140,7 @@ export default function ContentManager() {
             <div className="cs-two"><div className="field"><label>Contact number</label><input value={edit.item.phone} onChange={(e) => patch({ phone: e.target.value })} /></div><div className="field"><label>Email</label><input type="email" value={edit.item.email} onChange={(e) => patch({ email: e.target.value })} /></div></div>
             <Photo />
             <LangField label="Bio" value={edit.item.bio} onChange={(v) => patch({ bio: v })} multiline />
-            {edit.item.level === "president" && <p className="cs-warn small">Changing the State President also hands over president@ (password + 2-step reset) on the Team screen.</p>}
+            {edit.item.level === "president" && !LIVE && <p className="cs-warn small">Changing the State President also hands over president@ (password + 2-step reset) on the Team screen.</p>}
           </div>
         )}
         {edit?.type === "districts" && (
