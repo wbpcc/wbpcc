@@ -106,7 +106,9 @@ test("contributor cannot change the website directly", async () => {
 
 test("publish: only an Admin may rebuild the site", async () => {
   assert.equal((await publish(null)).status, 401);
-  assert.equal((await publish("not-a-token")).status, 401);
+  const bad = await publish("not-a-token");
+  assert.equal(bad.status, 401);
+  assert.equal((await bad.json()).reason, "bad-token");
 
   await signIn("contributor", "contributor1@wbpcc.org", pw("contributor"));
   assert.equal((await publish(await token())).status, 403);

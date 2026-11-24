@@ -150,7 +150,8 @@ export function savedMessage(res, what = "Saved") {
   if (!LIVE || res?.demo) return `${what} (preview only — nothing is stored)`;
   if (res?.rebuilding) return `${what}. The website updates in about 2 minutes.`;
   if (res?.reason === "no-deploy-hook") return `${what} to the database. Auto-update isn't set up (VERCEL_DEPLOY_HOOK_URL), so the public site shows it after the next deploy.`;
-  return `${what} to the database, but the website update didn't start (${res?.reason || "unknown"}). It will show after the next deploy.`;
+  const why = [res?.reason || "unknown", res?.detail].filter(Boolean).join(": ");
+  return `${what} to the database, but the website update didn't start (${why}). It will show after the next deploy.`;
 }
 
 export { LIVE };
