@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { getDictionary, t, intlLocale } from "@/i18n/config";
-import { findEvent } from "@/data/placeholder";
-import { demoMember, announcements } from "@/data/portal";
+import { getDictionary } from "@/i18n/config";
+import { MemberAnnouncements, MemberUpcoming } from "@/components/MyMember";
 import Icon from "@/components/Icon";
 
 export async function generateMetadata({ params }) {
@@ -9,11 +8,12 @@ export async function generateMetadata({ params }) {
   return { title: getDictionary(lang).portal.title };
 }
 
+// Members-area home: quick links, announcements (members-only, from the
+// database) and upcoming events in the member's own district.
 export default async function PortalDashboard({ params }) {
   const { lang } = await params;
   const d = getDictionary(lang);
   const p = d.portal;
-  const date = (iso) => new Intl.DateTimeFormat(intlLocale[lang], { day: "numeric", month: "short" }).format(new Date(iso));
   const quick = [
     ["/resources", "print", d.resources.title, d.resources.ready + " · " + d.resources.create],
     ["/appointment", "calendar", d.appointment.title, d.appointment.eyebrow],
@@ -38,28 +38,11 @@ export default async function PortalDashboard({ params }) {
       <div className="two-col">
         <div>
           <h2 className="portal-h">{p.announcements}</h2>
-          <div className="announce-list">
-            {announcements.map((a, i) => (
-              <article key={a.id} className="card announce" data-reveal style={{ "--i": i }}>
-                <small><b>{t(a.from, lang)}</b> · {date(a.date)}</small>
-                <p>{t(a.text, lang)}</p>
-              </article>
-            ))}
-          </div>
+          <MemberAnnouncements lang={lang} />
         </div>
         <div>
           <h2 className="portal-h">{p.upcoming}</h2>
-          <div className="announce-list">
-            {demoMember.upcoming.map((id, i) => {
-              const e = findEvent(id);
-              return (
-                <Link key={id} href={`/${lang}/events/${id}`} className="card card-link announce" data-reveal style={{ "--i": i }}>
-                  <b>{t(e.title, lang)}</b>
-                  <small><Icon name="pin" size={14} /> {t(e.place, lang)}</small>
-                </Link>
-              );
-            })}
-          </div>
+          <MemberUpcoming lang={lang} />
         </div>
       </div>
     </div>

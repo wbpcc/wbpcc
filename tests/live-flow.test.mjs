@@ -497,6 +497,23 @@ test("member invite locks after 5 wrong codes; a new code works", async () => {
   assert.equal((await act(again.invite)).ok, true);
 });
 
+// ---------------- Members-area announcements ----------------
+test("announcements: admin posts one; members read them; visitors can't", async () => {
+  const { db } = await loadFirebase();
+  const m = await import("firebase/firestore");
+  await signIn("admin", "admin@wbpcc.org", pw("admin"));
+  await saveItem("resources", { id: "announcement-test", kind: "announcement", date: "2026-11-25", from: { en: "Howrah District Committee" }, text: { en: "Meeting on Sunday at 9 AM." } }, { order: 0, label: "announcement" });
+  await signOut();
+
+  await signIn("member", "9000000001", pw("member"));
+  const snap = await m.getDocs(m.query(m.collection(db, "resources"), m.where("kind", "==", "announcement")));
+  assert.ok(snap.docs.some((d) => d.id === "announcement-test" && d.data().text.en === "Meeting on Sunday at 9 AM."));
+  await assert.rejects(saveItem("resources", { id: "member-post", kind: "announcement", text: { en: "x" } }, { order: 0, label: "x" }), { code: "permission-denied" });
+  await signOut();
+
+  await assert.rejects(m.getDocs(m.query(m.collection(db, "resources"), m.where("kind", "==", "announcement"))), { code: "permission-denied" });
+});
+
 test("publish: only an Admin may rebuild the site", async () => {
   assert.equal((await publish(null)).status, 401);
   const bad = await publish("not-a-token");

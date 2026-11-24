@@ -39,6 +39,7 @@ const GROUPS = [
       { icon: "shield", label: "Official statements", note: "With ID and QR code", href: "/console/statements", live: "/en/newsroom" },
       { icon: "flag", label: "Campaigns & petitions", note: "Start, edit or close", href: "/console/campaigns", live: "/en/campaigns" },
       { icon: "calendar", label: "Events", note: "What's on near you", href: "/console/content?tab=events", live: "/en/events" },
+      { icon: "megaphone", label: "Members' announcements", note: "Shown in the Members area only", href: "/console/content?tab=notices", live: "/en/portal" },
     ],
   },
   {
