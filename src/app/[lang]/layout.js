@@ -7,7 +7,6 @@ import Footer from "@/components/Footer";
 import TranslationNotice from "@/components/TranslationNotice";
 import BottomTabs from "@/components/BottomTabs";
 import RevealObserver from "@/components/RevealObserver";
-import ActivityToasts from "@/components/ActivityToasts";
 
 export const dynamicParams = false;
 
@@ -54,7 +53,6 @@ export default async function LangLayout({ children, params }) {
         <main id="main" tabIndex={-1}>{children}</main>
         <Footer lang={lang} d={d} />
         <BottomTabs lang={lang} d={{ nav: d.nav }} />
-        <ActivityToasts lang={lang} a={d.activity} />
         <RevealObserver />
       </body>
     </html>

@@ -100,20 +100,24 @@ export async function savePage(pageId, data, label) {
  */
 export async function requestPublish() {
   if (!LIVE) return { ok: true, rebuilding: false, demo: true };
+  let res;
   try {
     const token = await idToken();
     const r = await fetch("/api/publish", { method: "POST", headers: { Authorization: `Bearer ${token}` } });
-    return await r.json();
+    res = await r.json();
   } catch {
-    return { ok: false, rebuilding: false };
+    res = { ok: false, rebuilding: false, reason: "unreachable" };
   }
+  if (res.rebuilding) audit("Started website update", "website").catch(() => {});
+  return res;
 }
 
 /** The message an editor shows after saving. */
 export function savedMessage(res, what = "Saved") {
   if (!LIVE || res?.demo) return `${what} (preview only — nothing is stored)`;
   if (res?.rebuilding) return `${what}. The website updates in about 2 minutes.`;
-  return `${what} to the database. The public website shows it after the next deploy.`;
+  if (res?.reason === "no-deploy-hook") return `${what} to the database. Auto-update isn't set up (VERCEL_DEPLOY_HOOK_URL), so the public site shows it after the next deploy.`;
+  return `${what} to the database, but the website update didn't start (${res?.reason || "unknown"}). It will show after the next deploy.`;
 }
 
 export { LIVE };
