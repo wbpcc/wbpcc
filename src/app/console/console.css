@@ -114,6 +114,15 @@
 .cs-dl { display: grid; grid-template-columns: 130px 1fr; gap: 8px 12px; margin: 0; font-size: 15px; }
 .cs-dl dt { color: var(--muted); font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; padding-top: 2px; }
 .cs-dl dd { margin: 0; }
+.cs-invite { display: grid; gap: 8px; padding: 16px 18px; border-radius: 14px; border: 2px dashed var(--saffron); background: #fff8f2; }
+.cs-invite small { font-weight: 700; color: var(--saffron); text-transform: uppercase; letter-spacing: .05em; font-size: 12px; }
+.cs-invite-code { font-family: var(--font-head); font-size: 34px; letter-spacing: .12em; color: var(--navy); }
+.cs-invite p { margin: 0; font-size: 14px; color: var(--muted); }
+.cs-invite code { word-break: break-all; }
+.cs-filter { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: var(--muted); }
+.cs-filter select { font: inherit; font-weight: 600; color: var(--navy); padding: 8px 12px; border-radius: 10px; border: 1.5px solid var(--line); background: #fff; }
+.cs-clip { max-width: 360px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); }
+.cs-message { white-space: pre-wrap; margin: 0; padding: 14px 16px; background: var(--cream); border-radius: 12px; line-height: 1.6; }
 
 /* EN / বাং / हिं field */
 .lang-field textarea, .lang-field input { width: 100%; }

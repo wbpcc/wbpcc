@@ -71,10 +71,15 @@ test("visitor can send the contact form (valid only)", async () => {
   await assertFails(addDoc(collection(visitor(), "inbox"), { ...ok, status: "done" }));
 });
 
-test("visitor can ask for an appointment", async () => {
-  await assertSucceeds(addDoc(collection(visitor(), "appointments"), {
-    name: "Asha", phone: "9000000000", reason: "Local issue", status: "new", createdAt: serverTimestamp(),
-  }));
+test("visitor can ask for an appointment (listed fields only)", async () => {
+  const ok = { name: "Asha", phone: "9000000000", reason: "Local issue", date: "2026-12-01", people: 2, updates: true, status: "new", createdAt: serverTimestamp() };
+  await assertSucceeds(addDoc(collection(visitor(), "appointments"), ok));
+  await assertFails(addDoc(collection(visitor(), "appointments"), { ...ok, aadhaar: "1234 5678 9012" }));
+  const { date, ...noDate } = ok;
+  await assertFails(addDoc(collection(visitor(), "appointments"), noDate));
+  await assertFails(addDoc(collection(visitor(), "appointments"), { ...ok, people: 50 }));
+  await assertFails(addDoc(collection(visitor(), "appointments"), { ...ok, status: "confirmed" }));
+  await assertFails(getDoc(doc(visitor(), "appointments/x")));
 });
 
 test("join form: ₹5, declarations, and no Voter ID field allowed", async () => {
@@ -84,12 +89,20 @@ test("join form: ₹5, declarations, and no Voter ID field allowed", async () =>
   await assertFails(addDoc(collection(visitor(), "applications"), { ...ok, fee: 0 }));
   await assertFails(addDoc(collection(visitor(), "applications"), { ...ok, declarations: false }));
   await assertFails(addDoc(collection(visitor(), "applications"), { ...ok, status: "approved" }));
+  await assertFails(addDoc(collection(visitor(), "applications"), { ...ok, password: "Secret#123" }));
+  await assertFails(addDoc(collection(visitor(), "applications"), { ...ok, aadhaar: "1234 5678 9012" }));
+  await assertSucceeds(addDoc(collection(visitor(), "applications"), { ...ok, block: "Shibpur", ward: "12", group: "youth-congress", whatsapp: "9000000002" }));
+  await assertFails(getDoc(doc(visitor(), "applications/x")));
 });
 
 test("visitor signs a petition but cannot read signatures", async () => {
   const sig = doc(visitor(), "petitions/live-p/signatures/s1");
-  await assertSucceeds(setDoc(sig, { name: "Mita", district: "kolkata", createdAt: serverTimestamp() }));
+  await assertSucceeds(setDoc(sig, { name: "Mita", contact: "9000000000", district: "kolkata", showName: false, createdAt: serverTimestamp() }));
   await assertFails(getDoc(doc(visitor(), "petitions/live-p/signatures/s1")));
+  // No extra fields, no self-"counting", and the public count can't be changed from a browser.
+  await assertFails(setDoc(doc(visitor(), "petitions/live-p/signatures/s2"), { name: "X", contact: "x", district: "kolkata", counted: true, createdAt: serverTimestamp() }));
+  await assertFails(setDoc(doc(visitor(), "petitions/live-p/signatures/s3"), { name: "X", district: "kolkata", createdAt: serverTimestamp() }));
+  await assertFails(updateDoc(doc(visitor(), "posts/live"), { signatures: 99999 }));
 });
 
 // ---------------- Member ----------------
@@ -100,6 +113,13 @@ test("member reads own record and Members-area resources", async () => {
 
 test("member never sees another member", async () => {
   await assertFails(getDoc(doc(member("m1"), "members/m2")));
+});
+
+test("invite codes are server-only — nobody's browser can read or write them", async () => {
+  await assertFails(getDoc(doc(visitor(), "memberInvites/m1")));
+  await assertFails(getDoc(doc(member("m1"), "memberInvites/m1")));
+  await assertFails(getDoc(doc(admin(), "memberInvites/m1")));
+  await assertFails(setDoc(doc(admin(), "memberInvites/m1"), { hash: "x" }));
 });
 
 test("member edits only safe fields of own profile", async () => {

@@ -6,6 +6,7 @@ import { groups } from "@/data/placeholder";
 import { Done, DistrictSelect } from "./Forms";
 import Icon from "./Icon";
 import PasswordInput from "./PasswordInput";
+import { LIVE, loadFirebase } from "./session";
 
 // DEMO — nothing is sent yet. Phase 2: proposals go to the Leadership
 // review queue; ground reports go to the Admin Editors' verification queue.
@@ -90,14 +91,48 @@ export function ReportForm({ lang, s, c }) {
   );
 }
 
+// Change password. LIVE: checks the current password with Firebase, then sets the new one.
+const PW_ERR = {
+  en: { wrong: "Your current password is not right.", weak: "Choose a new password of at least 8 characters.", error: "Couldn't change it. Please try again." },
+  bn: { wrong: "বর্তমান পাসওয়ার্ডটি সঠিক নয়।", weak: "অন্তত ৮ অক্ষরের নতুন পাসওয়ার্ড দিন।", error: "বদলানো যায়নি। আবার চেষ্টা করুন।" },
+  hi: { wrong: "आपका मौजूदा पासवर्ड सही नहीं है।", weak: "कम से कम 8 अक्षरों का नया पासवर्ड चुनें।", error: "बदला नहीं जा सका। फिर कोशिश करें।" },
+};
+
 export function PasswordForm({ s }) {
   const [ok, setOk] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const lang = typeof document !== "undefined" ? document.documentElement.lang : "en";
+  const tx = PW_ERR[lang] || PW_ERR.en;
+
+  async function submit(e) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const current = form.cp.value, next = form.np.value;
+    setErr("");
+    if (!LIVE) { setOk(true); form.reset(); setTimeout(() => setOk(false), 2500); return; }
+    if (next.length < 8) { setErr(tx.weak); return; }
+    setBusy(true);
+    try {
+      const { auth, authMod } = await loadFirebase();
+      const u = auth.currentUser;
+      await authMod.reauthenticateWithCredential(u, authMod.EmailAuthProvider.credential(u.email, current));
+      await authMod.updatePassword(u, next);
+      setOk(true); form.reset(); setTimeout(() => setOk(false), 3000);
+    } catch (e2) {
+      const c = e2?.code || "";
+      setErr(c.includes("wrong-password") || c.includes("invalid-credential") ? tx.wrong : c.includes("weak-password") ? tx.weak : tx.error);
+    }
+    setBusy(false);
+  }
+
   return (
-    <form className="card form" onSubmit={(e) => { e.preventDefault(); setOk(true); e.currentTarget.reset(); setTimeout(() => setOk(false), 2500); }}>
+    <form className="card form" onSubmit={submit}>
       <h2 style={{ fontSize: 20, margin: 0 }}>{s.password}</h2>
-      <div className="field"><label htmlFor="cp">{s.current}</label><PasswordInput id="cp" required autoComplete="current-password" /></div>
-      <div className="field"><label htmlFor="np">{s.newP}</label><PasswordInput id="np" required minLength={8} autoComplete="new-password" /></div>
-      <button className="btn btn-navy" type="submit">{ok ? `✓ ${s.updated}` : s.update}</button>
+      <div className="field"><label htmlFor="cp">{s.current}</label><PasswordInput id="cp" name="cp" required autoComplete="current-password" /></div>
+      <div className="field"><label htmlFor="np">{s.newP}</label><PasswordInput id="np" name="np" required minLength={8} autoComplete="new-password" /></div>
+      {err && <p className="form-note form-err" role="alert"><Icon name="alert" size={16} /> {err}</p>}
+      <button className="btn btn-navy" type="submit" disabled={busy}>{ok ? `✓ ${s.updated}` : busy ? "…" : s.update}</button>
     </form>
   );
 }

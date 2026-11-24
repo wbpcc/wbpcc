@@ -11,7 +11,8 @@ import { useEffect, useState } from "react";
 // useSession() → undefined while loading, null when signed out, otherwise
 //   { role: "member" | "team", level: "member" | "contributor" | "admin", email, uid, name }
 // ---------------------------------------------------------------------
-export const LIVE = process.env.NEXT_PUBLIC_USE_EMULATORS === "1" || !!process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+import { LIVE } from "@/lib/live";
+export { LIVE };
 
 /** Members sign in with a mobile number; Firebase stores it as this email. */
 export const memberEmail = (mobile) => `${String(mobile).replace(/\D/g, "").slice(-10)}@member.wbpcc.org`;

@@ -86,6 +86,174 @@ export function useLiveDocs(ids) {
   return [docs, state];
 }
 
+/**
+ * Newest-first list of a private collection (inbox, appointments, applications…).
+ * Admins only — the rules refuse anyone else. Returns [list, setList, state].
+ */
+export function useAdminList(col, seed = [], max = 300) {
+  const [list, setList] = useState(seed);
+  const [state, setState] = useState(LIVE ? "loading" : "demo");
+  useEffect(() => {
+    if (!LIVE) return;
+    let alive = true;
+    (async () => {
+      try {
+        const { db, m } = await fs();
+        const snap = await m.getDocs(m.query(m.collection(db, col), m.orderBy("createdAt", "desc"), m.limit(max)));
+        if (!alive) return;
+        setList(snap.docs.map((d) => plain({ id: d.id, ...d.data() })));
+        setState("ready");
+      } catch (e) {
+        console.error(`Loading ${col} failed`, e);
+        if (alive) setState("error");
+      }
+    })();
+    return () => { alive = false; };
+  }, [col, max]);
+  return [list, setList, state];
+}
+
+/** Change a few fields of one record (e.g. status) and log who did it. */
+export async function patchItem(col, id, data, label) {
+  if (!LIVE) return;
+  const { db, auth, m } = await fs();
+  await m.updateDoc(m.doc(db, col, id), { ...clean(data), handledBy: auth.currentUser.email, handledAt: m.serverTimestamp() });
+  await audit(label, `${col}/${id}`);
+}
+
+/* ------------------------- Contributor submissions ------------------------- */
+
+/** The signed-in contributor's own submissions, newest first. [list, setList, state] */
+export function useOwnSubmissions(seed = []) {
+  const [list, setList] = useState(seed);
+  const [state, setState] = useState(LIVE ? "loading" : "demo");
+  useEffect(() => {
+    if (!LIVE) return;
+    let alive = true;
+    (async () => {
+      try {
+        const { db, auth, m } = await fs();
+        const uid = auth.currentUser?.uid;
+        if (!uid) throw new Error("not signed in");
+        const snap = await m.getDocs(m.query(m.collection(db, "submissions"), m.where("authorUid", "==", uid), m.orderBy("createdAt", "desc")));
+        if (!alive) return;
+        setList(snap.docs.map((d) => plain({ id: d.id, ...d.data() })));
+        setState("ready");
+      } catch (e) {
+        console.error("Loading submissions failed", e);
+        if (alive) setState("error");
+      }
+    })();
+    return () => { alive = false; };
+  }, []);
+  return [list, setList, state];
+}
+
+function alertSubmitted(id) {
+  fetch("/api/notify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ col: "submissions", id }), keepalive: true }).catch(() => {});
+}
+
+/** Contributor: create a submission as draft or straight for review. Returns its id. */
+export async function createSubmission(data, submit) {
+  if (!LIVE) return `demo-${Date.now()}`;
+  const { db, auth, m } = await fs();
+  const u = auth.currentUser;
+  const ref = await m.addDoc(m.collection(db, "submissions"), {
+    ...clean(data), status: submit ? "pending" : "draft", authorUid: u.uid, authorEmail: u.email,
+    createdAt: m.serverTimestamp(), updatedAt: m.serverTimestamp(),
+    ...(submit ? { submittedAt: m.serverTimestamp() } : {}),
+  });
+  await audit(submit ? "Submitted for review" : "Saved a draft", `submissions/${ref.id}`);
+  if (submit) alertSubmitted(ref.id);
+  return ref.id;
+}
+
+/** Contributor: edit own submission (draft / waiting / sent back), optionally (re)submitting it. */
+export async function updateSubmission(id, data, submit) {
+  if (!LIVE) return;
+  const { db, m } = await fs();
+  const { id: _id, status, authorUid, authorEmail, createdAt, reviewNote, reviewedBy, reviewedAt, publishedId, publishedCol, handledBy, handledAt, notifiedAt, submittedAt, updatedAt, ...fields } = data;
+  await m.updateDoc(m.doc(db, "submissions", id), {
+    ...clean(fields), status: submit ? "pending" : "draft", updatedAt: m.serverTimestamp(),
+    ...(submit ? { submittedAt: m.serverTimestamp() } : {}),
+  });
+  await audit(submit ? "Submitted for review" : "Saved a draft", `submissions/${id}`);
+  if (submit) alertSubmitted(id);
+}
+
+/** Contributor: delete own draft. */
+export async function deleteSubmission(id) {
+  if (!LIVE) return;
+  const { db, m } = await fs();
+  await m.deleteDoc(m.doc(db, "submissions", id));
+  await audit("Deleted a draft", `submissions/${id}`);
+}
+
+/**
+ * Admin: accept a submission — create the real website item (published), then
+ * mark the submission accepted. Returns { col, id } of the new website item.
+ */
+export async function acceptSubmission(sub) {
+  const { publicDocFor } = await import("./submissions");
+  const { col, doc } = publicDocFor(sub);
+  if (!LIVE) return { col, id: doc.id };
+  const order = -Math.floor(Date.now() / 1000); // newest first
+  await saveItem(col, doc, { order, label: `${sub.kind} “${sub.title?.en || doc.id}” (from a contributor)` });
+  await patchItem("submissions", sub.id, { status: "accepted", publishedId: doc.id, publishedCol: col, reviewedAt: new Date().toISOString() }, `Accepted submission → ${col}/${doc.id}`);
+  return { col, id: doc.id };
+}
+
+/** Call one of our Admin-only server routes with the signed-in Admin's token. → { status, ...json } */
+export async function adminApi(path, body) {
+  const token = await idToken();
+  const r = await fetch(path, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify(body || {}),
+  });
+  const j = await r.json().catch(() => ({}));
+  return { status: r.status, ...j };
+}
+
+/** Record any Admin action in the audit log (e.g. "Downloaded signatures"). */
+export async function logAction(action, target) {
+  if (!LIVE) return;
+  try { await audit(action, target); } catch (e) { console.error("audit failed", e); }
+}
+
+/** Record in the audit log that an Admin opened a private record (e.g. a member application). */
+export async function logView(col, id, label) {
+  if (!LIVE) return;
+  try { await audit(`Opened ${label}`, `${col}/${id}`); } catch (e) { console.error("audit failed", e); }
+}
+
+/**
+ * Live count of records matching every [field, value] pair (dashboard numbers).
+ * null while loading. useLiveCount("inbox", ["status", "new"])
+ */
+export function useLiveCount(col, ...pairs) {
+  const [n, setN] = useState(null);
+  const key = JSON.stringify(pairs);
+  useEffect(() => {
+    if (!LIVE || !col) return; // col = null → skip (e.g. not an Admin)
+    let alive = true;
+    (async () => {
+      try {
+        const { db, m } = await fs();
+        const q = m.query(m.collection(db, col), ...pairs.map(([f, v]) => m.where(f, "==", v)));
+        const snap = await m.getCountFromServer(q);
+        if (alive) setN(snap.data().count);
+      } catch (e) {
+        console.error(`Counting ${col} failed`, e);
+        if (alive) setN("–");
+      }
+    })();
+    return () => { alive = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [col, key]);
+  return n;
+}
+
 async function audit(action, target) {
   const { db, auth, m } = await fs();
   const u = auth.currentUser;
@@ -98,14 +266,15 @@ async function audit(action, target) {
  * Save (add or update) one item of a website list.
  * status "published" shows it on the website; "draft" keeps it Admin-only.
  */
-export async function saveItem(col, item, { order, label, status = "published" }) {
+export async function saveItem(col, item, { order, label, status = "published", merge = false }) {
   if (!LIVE) return;
   const { db, auth, m } = await fs();
   const { id, ...rest } = item;
+  // merge: keep fields this save doesn't mention (e.g. a petition's live signature count).
   await m.setDoc(m.doc(db, col, id), {
     ...clean(rest), status, order: order ?? rest.order ?? 0,
     updatedAt: m.serverTimestamp(), updatedBy: auth.currentUser.email,
-  });
+  }, { merge });
   await audit(`Saved ${label}`, `${col}/${id}`);
 }
 

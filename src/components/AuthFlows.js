@@ -190,7 +190,87 @@ export function SignInFlow({ lang, a }) {
     </form>
   );
 }
+// LIVE activation: mobile + invite code + new password, checked by the server
+// (/api/members/activate). Then the member is signed in straight away.
+const ACT = {
+  en: { mobile: "Your mobile number", invalid: "That mobile number and code don't match. Check the message you received and try again.", expired: "This code has expired. Ask the party office for a new one.", locked: "Too many wrong tries. Ask the party office for a new code.", weak: "Choose a password of at least 8 characters.", error: "Something went wrong. Please try again in a minute.", done: "Your login is ready!", open: "Open the Members area", pwHint: "At least 8 characters." },
+  bn: { mobile: "আপনার মোবাইল নম্বর", invalid: "মোবাইল নম্বর ও কোড মিলছে না। পাওয়া বার্তাটি দেখে আবার চেষ্টা করুন।", expired: "এই কোডের মেয়াদ শেষ। দলীয় অফিসের কাছে নতুন কোড চান।", locked: "অনেকবার ভুল হয়েছে। দলীয় অফিসের কাছে নতুন কোড চান।", weak: "অন্তত ৮ অক্ষরের পাসওয়ার্ড দিন।", error: "কিছু একটা সমস্যা হয়েছে। এক মিনিট পরে আবার চেষ্টা করুন।", done: "আপনার লগইন তৈরি!", open: "সদস্য এলাকা খুলুন", pwHint: "অন্তত ৮ অক্ষর।" },
+  hi: { mobile: "आपका मोबाइल नंबर", invalid: "मोबाइल नंबर और कोड मेल नहीं खाते। मिला हुआ संदेश देखकर फिर कोशिश करें।", expired: "इस कोड की अवधि समाप्त हो गई है। पार्टी कार्यालय से नया कोड माँगें।", locked: "बहुत बार गलत कोशिश हुई। पार्टी कार्यालय से नया कोड माँगें।", weak: "कम से कम 8 अक्षरों का पासवर्ड चुनें।", error: "कुछ गड़बड़ हुई। एक मिनट बाद फिर कोशिश करें।", done: "आपका लॉगिन तैयार है!", open: "सदस्य क्षेत्र खोलें", pwHint: "कम से कम 8 अक्षर।" },
+};
+
+function LiveActivate({ lang, v }) {
+  const router = useRouter();
+  const tx = ACT[lang] || ACT.en;
+  const [mobile, setMobile] = useState("");
+  const [code, setCode] = useState("");
+  const [pw, setPw] = useState("");
+  const [pw2, setPw2] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const [done, setDone] = useState(null); // { memberId }
+  const mismatch = pw2 && pw !== pw2;
+
+  async function submit(e) {
+    e.preventDefault();
+    if (mismatch) return;
+    if (pw.length < 8) { setErr(tx.weak); return; }
+    setBusy(true); setErr("");
+    try {
+      const r = await fetch("/api/members/activate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mobile, code, password: pw }) });
+      const j = await r.json().catch(() => ({}));
+      if (!j.ok) { setErr(tx[{ invalid: "invalid", expired: "expired", locked: "locked", "weak-password": "weak" }[j.reason]] || tx.error); setBusy(false); return; }
+      try { await signIn("member", mobile, pw); } catch {}
+      setDone({ memberId: j.memberId });
+    } catch {
+      setErr(tx.error);
+    }
+    setBusy(false);
+  }
+
+  if (done) {
+    return (
+      <div className="card auth-card form">
+        <div className="form-ok" role="status"><div className="tick">✓</div><p>{tx.done}</p></div>
+        {done.memberId && (
+          <div className="member-id-card">
+            <small>{v.yourId}</small>
+            <b>{done.memberId}</b>
+            <span className="tricolour"><span /><span /><span /></span>
+          </div>
+        )}
+        <p className="form-note"><Icon name="lock" size={15} /> {v.idNote}</p>
+        <button className="btn btn-saffron" onClick={() => router.push(`/${lang}/portal`)}>{tx.open}</button>
+      </div>
+    );
+  }
+
+  return (
+    <form className="card auth-card form" onSubmit={submit}>
+      <div className="field"><label htmlFor="am">{tx.mobile}</label><input id="am" type="tel" inputMode="tel" required autoComplete="tel" placeholder="98XXXXXXXX" value={mobile} onChange={(e) => setMobile(e.target.value)} /></div>
+      <div className="field">
+        <label htmlFor="ic">{v.code}</label>
+        <input id="ic" required placeholder="XXXX-XXXX" autoComplete="one-time-code" value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} style={{ textTransform: "uppercase", letterSpacing: ".15em", fontWeight: 700 }} />
+        <small style={{ color: "var(--muted)" }}>{v.codeHint}</small>
+      </div>
+      <div className="field"><label htmlFor="ap">{v.password}</label><PasswordInput id="ap" required minLength={8} value={pw} onChange={(e) => setPw(e.target.value)} autoComplete="new-password" /><small className="hint">{tx.pwHint}</small></div>
+      <div className="field">
+        <label htmlFor="ap2">{v.confirm}</label>
+        <PasswordInput id="ap2" required value={pw2} onChange={(e) => setPw2(e.target.value)} autoComplete="new-password" />
+        {mismatch && <small style={{ color: "var(--red)", fontWeight: 700 }}>{v.mismatch}</small>}
+      </div>
+      <label className="check"><input type="checkbox" required /> {v.pledge}</label>
+      {err && <p className="form-note form-err" role="alert"><Icon name="alert" size={16} /> {err}</p>}
+      <button className="btn btn-saffron" type="submit" disabled={busy || !!mismatch}>{busy ? "…" : v.finish}</button>
+    </form>
+  );
+}
+
 export function ActivateFlow({ lang, v }) {
+  if (LIVE) return <LiveActivate lang={lang} v={v} />;
+  return <DemoActivate lang={lang} v={v} />;
+}
+
+function DemoActivate({ lang, v }) {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [pw, setPw] = useState("");

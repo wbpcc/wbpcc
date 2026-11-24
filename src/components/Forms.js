@@ -1,9 +1,11 @@
 ﻿"use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { t, fill, formatNumber } from "@/i18n/config";
 import { districts, groups } from "@/data/placeholder";
 import Icon from "./Icon";
+import { LIVE } from "@/lib/live";
+import { signPetition, liveSignatureCount, fieldsOf, SEND_ERROR, SENDING } from "@/lib/submit";
 
 // ---------------------------------------------------------------------
 // DEMO FORMS — nothing is sent or saved yet. In Phase 2:
@@ -17,7 +19,7 @@ export function Done({ text, c }) {
     <div className="form-ok" role="status">
       <div className="tick">✓</div>
       <p>{text}</p>
-      <small style={{ color: "var(--muted)" }}>{c.demoNote}</small>
+      {!LIVE && <small style={{ color: "var(--muted)" }}>{c.demoNote}</small>}
     </div>
   );
 }
@@ -34,12 +36,55 @@ export function DistrictSelect({ lang, label, name = "district" }) {
   );
 }
 
-/** Petition: live counter + progress + the sign form (online or formal). */
+/**
+ * Petition: live counter + progress + the sign form (online or formal).
+ * LIVE: the signature is saved (Admins only can read it) and the server adds 1
+ * to the public count. One signature per petition per device (gentle guard).
+ */
+const SIGN_TEXT = {
+  en: { already: "You've already signed this petition on this device. Thank you!", ref: "Reference" },
+  bn: { already: "এই ডিভাইস থেকে আপনি ইতিমধ্যেই এই আবেদনে সই করেছেন। ধন্যবাদ!", ref: "রেফারেন্স" },
+  hi: { already: "आप इस डिवाइस से इस याचिका पर पहले ही हस्ताक्षर कर चुके हैं। धन्यवाद!", ref: "संदर्भ" },
+};
+const signedKey = (id) => `wbpcc-signed-${id}`;
+
 export function PetitionSignBox({ petition, lang, a, p, c }) {
-  const [count, setCount] = useState(petition.signatures);
-  const [done, setDone] = useState(false);
+  const [count, setCount] = useState(petition.signatures || 0);
+  const [done, setDone] = useState(null);
+  const [already, setAlready] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
   const formal = petition.type === "formal";
-  const pct = Math.min(100, Math.round((count / petition.goal) * 100));
+  const st = SIGN_TEXT[lang] || SIGN_TEXT.en;
+  const pct = Math.min(100, Math.round((count / (petition.goal || 1)) * 100));
+
+  useEffect(() => {
+    try { if (localStorage.getItem(signedKey(petition.id))) setAlready(true); } catch {}
+    liveSignatureCount(petition.id).then((n) => { if (n != null) setCount(n); });
+  }, [petition.id]);
+
+  async function sign(e) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    if (form.website?.value) { setDone("SIG-000000"); return; } // spam trap
+    setBusy(true); setErr("");
+    try {
+      const f = fieldsOf(form, ["name", "contact", "district", "address"]);
+      const { ref } = await signPetition(petition.id, {
+        ...f,
+        showName: !formal && !!form.showName?.checked,
+        forGovt: formal,
+        lang,
+      });
+      try { localStorage.setItem(signedKey(petition.id), ref); } catch {}
+      setCount((x) => x + 1);
+      setDone(ref);
+    } catch (e2) {
+      console.error(e2);
+      setErr(SEND_ERROR[lang] || SEND_ERROR.en);
+      setBusy(false);
+    }
+  }
 
   return (
     <div className="card form">
@@ -49,21 +94,25 @@ export function PetitionSignBox({ petition, lang, a, p, c }) {
         <div className="big-progress"><div className="progress"><span style={{ width: `${pct}%` }} /></div></div>
       </div>
       {done ? (
-        <Done text={p.thanks} c={c} />
+        <Done text={`${p.thanks} ${st.ref}: ${done}`} c={c} />
+      ) : already ? (
+        <div className="form-ok" role="status"><div className="tick">✓</div><p>{st.already}</p></div>
       ) : (
-        <form className="form" onSubmit={(e) => { e.preventDefault(); setCount((x) => x + 1); setDone(true); }}>
+        <form className="form" onSubmit={sign}>
           <h2 style={{ fontSize: 22 }}>{p.formTitle}</h2>
           {formal && <p className="form-note">{p.formalNote}</p>}
-          <div className="field"><label htmlFor="name">{p.name}</label><input id="name" required autoComplete="name" /></div>
-          <div className="field"><label htmlFor="contact">{p.contact}</label><input id="contact" required /></div>
+          <div className="field"><label htmlFor="name">{p.name}</label><input id="name" name="name" required autoComplete="name" maxLength={120} /></div>
+          <div className="field"><label htmlFor="contact">{p.contact}</label><input id="contact" name="contact" required maxLength={200} /></div>
           <DistrictSelect lang={lang} label={p.district} />
           {formal && (
-            <div className="field"><label htmlFor="address">{p.address}</label><textarea id="address" required autoComplete="street-address" style={{ minHeight: 80 }} /></div>
+            <div className="field"><label htmlFor="address">{p.address}</label><textarea id="address" name="address" required autoComplete="street-address" maxLength={400} style={{ minHeight: 80 }} /></div>
           )}
-          {!formal && <label className="check"><input type="checkbox" /> {p.showName}</label>}
+          {!formal && <label className="check"><input type="checkbox" name="showName" /> {p.showName}</label>}
           <label className="check"><input type="checkbox" required /> {formal ? p.consentFormal : p.consentOnline}</label>
-          <button className="btn btn-saffron" type="submit">{p.submit}</button>
-          <p className="form-note">{c.demoNote}</p>
+          <div className="hp-field" aria-hidden="true"><label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label></div>
+          {err && <p className="form-note form-err" role="alert"><Icon name="alert" size={16} /> {err}</p>}
+          <button className="btn btn-saffron" type="submit" disabled={busy}>{busy ? (SENDING[lang] || SENDING.en) : p.submit}</button>
+          {!LIVE && <p className="form-note">{c.demoNote}</p>}
         </form>
       )}
     </div>

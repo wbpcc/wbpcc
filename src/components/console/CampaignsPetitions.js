@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { t } from "@/i18n/config";
 import { petitions as petSeed, campaigns as campSeed, events, groups, districts } from "@/data/placeholder";
 
 import { useRole } from "./ConsoleShell";
 import { PageTitle, Panel, Tabs, Status, Drawer, LangField, DistrictPick, Flash, useFlash, fmtDate } from "./ui";
-import { useLiveList, saveItem, requestPublish, savedMessage, LIVE } from "@/lib/cms";
+import { useLiveList, saveItem, requestPublish, savedMessage, useAdminList, logView, logAction, LIVE } from "@/lib/cms";
 import Icon from "../Icon";
 
 // Start petitions & campaigns directly (Admin).
@@ -30,6 +30,7 @@ export default function CampaignsPetitions() {
   const [camps, setCamps, s2] = useLiveList("campaigns", campSeed, prepCamp);
   const loadState = [s1, s2].includes("error") ? "error" : [s1, s2].includes("loading") ? "loading" : "ok";
   const [edit, setEdit] = useState(null); // { type: "petition" | "campaign", item }
+  const [sigsOf, setSigsOf] = useState(null); // petition whose signatures are open
   const [busy, setBusy] = useState(false);
   const [msg, flash] = useFlash();
 
@@ -54,10 +55,16 @@ export default function CampaignsPetitions() {
     // New items go to the top of the list.
     const order = exists ? it.order : Math.min(0, ...list.map((x) => x.order ?? 0)) - 1;
     const { fromProposal, why, ...data } = it;
-    const toSave = isPet ? { ...data, desc: why } : data;
+    let toSave = isPet ? { ...data, desc: why } : data;
+    // Never overwrite a live petition's signature count with the (older) number
+    // this editor loaded — signatures may have arrived since. New petitions start at 0.
+    if (isPet) {
+      const { signatures, ...rest } = toSave;
+      toSave = exists ? rest : { ...rest, signatures: 0 };
+    }
     setBusy(true);
     try {
-      await saveItem(isPet ? "petitions" : "campaigns", toSave, { order, status: draft ? "draft" : "published", label: `${edit.type} “${t(it.title, "en")}”` });
+      await saveItem(isPet ? "petitions" : "campaigns", toSave, { order, status: draft ? "draft" : "published", merge: isPet && exists, label: `${edit.type} “${t(it.title, "en")}”` });
       it = { ...it, order, status: draft ? "draft" : "published" };
       setter(exists ? list.map((x) => (x.id === it.id ? it : x)) : [it, ...list]);
       setEdit(null);
@@ -89,9 +96,14 @@ export default function CampaignsPetitions() {
                 <tr key={p.id}>
                   <td><b>{t(p.title, "en")}</b><br /><small className="cs-muted">{p.startedBy === "member" ? "From a contributor" : "Started by the party"}{p.district ? ` · ${t(districts[p.district], "en")}` : ""}</small></td>
                   <td>{p.type === "formal" ? "Government" : "Online"}</td>
-                  <td>{p.signatures.toLocaleString("en-IN")} / {Number(p.goal).toLocaleString("en-IN")}</td>
+                  <td>{Number(p.signatures || 0).toLocaleString("en-IN")} / {Number(p.goal).toLocaleString("en-IN")}</td>
                   <td><Status kind={(PSTATUS[p.stage] || PSTATUS.live)[0]}>{(PSTATUS[p.stage] || PSTATUS.live)[1]}</Status></td>
-                  <td>{canEditExisting ? <button className="btn btn-ghost btn-sm" onClick={() => setEdit({ type: "petition", item: { ...p } })}>Edit</button> : <span className="cs-lock" title="Not in your permissions"><Icon name="lock" size={15} /></span>}</td>
+                  <td>{canEditExisting ? (
+                    <div className="cs-row" style={{ gap: 6, flexWrap: "nowrap" }}>
+                      <button className="btn btn-ghost btn-sm" onClick={() => setSigsOf(p)}>Signatures</button>
+                      <button className="btn btn-ghost btn-sm" onClick={() => setEdit({ type: "petition", item: { ...p } })}>Edit</button>
+                    </div>
+                  ) : <span className="cs-lock" title="Not in your permissions"><Icon name="lock" size={15} /></span>}</td>
                 </tr>
               ))}
             </tbody>
@@ -170,6 +182,63 @@ export default function CampaignsPetitions() {
           </div>
         )}
       </Drawer>
+      {sigsOf && <SignaturesDrawer petition={sigsOf} onClose={() => setSigsOf(null)} />}
     </>
+  );
+}
+
+/* -------- Signatures of one petition (Admins only) -------- */
+const csvCell = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+
+function SignaturesDrawer({ petition, onClose }) {
+  const path = `petitions/${petition.id}/signatures`;
+  const [sigs, , state] = useAdminList(path, [], 5000);
+  useEffect(() => { logView(path, "all", `signatures of “${t(petition.title, "en")}”`); }, [path, petition.title]);
+  const formal = petition.type === "formal";
+
+  function download() {
+    const head = ["Signed on", "Name", "Contact", "District", ...(formal ? ["Address"] : []), "Show name publicly", "Language", "Reference"];
+    const rows = sigs.map((s) => [
+      s.createdAt ? new Date(s.createdAt).toLocaleString("en-IN") : "", s.name, s.contact,
+      s.district ? t(districts[s.district], "en") || s.district : "", ...(formal ? [s.address || ""] : []),
+      s.showName ? "Yes" : "No", s.lang || "", `SIG-${s.id.slice(0, 6).toUpperCase()}`,
+    ]);
+    const csv = "\uFEFF" + [head, ...rows].map((r) => r.map(csvCell).join(",")).join("\r\n");
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `signatures-${petition.id}-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    logAction(`Downloaded ${sigs.length} signatures (CSV)`, path);
+  }
+
+  return (
+    <Drawer open title={`Signatures — ${t(petition.title, "en")}`} onClose={onClose}
+      footer={<div className="cs-row"><button className="btn btn-ghost btn-sm" onClick={onClose}>Close</button><button className="btn btn-navy btn-sm" disabled={!sigs.length} onClick={download}><Icon name="download" size={16} /> Download (CSV)</button></div>}>
+      <div className="form">
+        <p className="form-note"><Icon name="lock" size={15} /> Only Admins can see this list. Opening and downloading it are recorded in the audit log.{formal ? " This is a government petition — the download includes addresses for submission." : ""}</p>
+        {state === "loading" && <p className="cs-muted">Loading signatures…</p>}
+        {state === "error" && <p className="cs-warn small">Couldn&apos;t load signatures — check your internet and try again.</p>}
+        {!LIVE && <p className="cs-muted">Signatures appear here once the website is connected.</p>}
+        {LIVE && state === "ready" && <p><b>{sigs.length.toLocaleString("en-IN")}</b> signature{sigs.length === 1 ? "" : "s"} saved{petition.signatures > sigs.length ? ` (the public count of ${Number(petition.signatures).toLocaleString("en-IN")} also includes signatures collected before the website)` : ""}.</p>}
+        {sigs.length > 0 && (
+          <table className="cs-table">
+            <thead><tr><th>Signed</th><th>Name</th><th>Contact</th><th>District</th></tr></thead>
+            <tbody>
+              {sigs.slice(0, 200).map((s) => (
+                <tr key={s.id}>
+                  <td>{s.createdAt ? fmtDate(s.createdAt) : "—"}</td>
+                  <td>{s.name}{formal && s.address ? <><br /><small className="cs-muted">{s.address}</small></> : null}</td>
+                  <td>{s.contact}</td>
+                  <td>{s.district ? t(districts[s.district], "en") : "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+        {sigs.length > 200 && <p className="cs-muted">Showing the latest 200 — download the CSV for all {sigs.length.toLocaleString("en-IN")}.</p>}
+      </div>
+    </Drawer>
   );
 }

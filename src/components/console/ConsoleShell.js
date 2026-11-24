@@ -18,7 +18,7 @@ export const useRole = () => useContext(RoleCtx);
 const KEY = "wbpcc-console-role";
 
 // Screens that already save to the database. The rest show a "not connected yet" note.
-const CONNECTED = ["/console/edit", "/console/content", "/console/landing", "/console/pages", "/console/campaigns", "/console/posts"];
+const CONNECTED = ["/console/edit", "/console/content", "/console/landing", "/console/pages", "/console/campaigns", "/console/posts", "/console/inbox", "/console/appointments", "/console/members", "/console/review", "/console/mine"];
 
 function matchNav(pathname) {
   const items = NAV.filter((n) => n.href);
@@ -56,7 +56,7 @@ export default function ConsoleShell({ children }) {
   const role = LIVE ? session.level : demoRole;
   const setRole = (r) => { setRoleState(r); try { localStorage.setItem(KEY, r); } catch {} };
   const me = LIVE ? { ...ROLES[role], email: session.email } : ROLES[role];
-  const connected = CONNECTED.some((h) => pathname === h || pathname.startsWith(h + "/"));
+  const connected = pathname === "/console" || CONNECTED.some((h) => pathname === h || pathname.startsWith(h + "/"));
   const current = matchNav(pathname);
   const allowed = !current || navAllows(current, role);
 
@@ -118,7 +118,7 @@ export default function ConsoleShell({ children }) {
           </header>
           <main className="cs-content">
             {LIVE && allowed && !connected && (
-              <p className="cs-warn small cs-not-yet">This screen isn&apos;t connected to the database yet — changes here are <b>not saved</b>. Connected so far: <Link href="/console/landing">Landing page</Link>, <Link href="/console/pages">Site pages</Link>, <Link href="/console/content">Leadership &amp; organisation</Link>, <Link href="/console/campaigns">Petitions &amp; campaigns</Link>, <Link href="/console/posts">Newsroom posts</Link>.</p>
+              <p className="cs-warn small cs-not-yet">This screen isn&apos;t connected to the database yet — changes here are <b>not saved</b>. Connected so far: <Link href="/console/inbox">Inbox</Link>, <Link href="/console/review">Review queue</Link>,<Link href="/console/appointments">Appointments</Link>, <Link href="/console/members">Members list</Link>, <Link href="/console/landing">Landing page</Link>, <Link href="/console/pages">Site pages</Link>, <Link href="/console/content">Leadership &amp; organisation</Link>, <Link href="/console/campaigns">Petitions &amp; campaigns</Link>, <Link href="/console/posts">Newsroom posts</Link>.</p>
             )}
             {allowed ? children : <NoAccess roleLabel={me.label} />}
           </main>

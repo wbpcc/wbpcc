@@ -93,39 +93,59 @@ service cloud.firestore {
       allow read, update, delete: if isAdmin();
     }
 
+    // Appointment with the State President — open to everyone. Only the listed
+    // fields are accepted (no ID numbers, no files).
     match /appointments/{id} {
-      allow create: if stamped(request.resource.data)
-        && str(request.resource.data.name, 120)
-        && str(request.resource.data.phone, 20)
-        && str(request.resource.data.reason, 3000)
-        && request.resource.data.status == 'new'
-        && request.resource.data.size() <= 20;
+      function d() { return request.resource.data; }
+      allow create: if stamped(d())
+        && d().keys().hasOnly(['name', 'guardian', 'gender', 'dob', 'occupation', 'phone', 'email', 'whatsapp',
+              'address', 'district', 'pin', 'who', 'date', 'time', 'altDate', 'altTime', 'mode', 'people',
+              'duration', 'topic', 'reason', 'more', 'updates', 'lang', 'status', 'createdAt'])
+        && str(d().name, 120)
+        && str(d().phone, 20)
+        && str(d().reason, 3000)
+        && str(d().date, 10)
+        && optStr(d(), 'guardian', 120) && optStr(d(), 'occupation', 120) && optStr(d(), 'email', 200)
+        && optStr(d(), 'whatsapp', 20) && optStr(d(), 'address', 400) && optStr(d(), 'district', 80)
+        && optStr(d(), 'pin', 10) && optStr(d(), 'who', 120) && optStr(d(), 'topic', 80) && optStr(d(), 'more', 3000)
+        && (!('people' in d()) || (d().people is int && d().people >= 1 && d().people <= 10))
+        && (!('updates' in d()) || d().updates is bool)
+        && d().status == 'new';
       allow read, update, delete: if isAdmin();
     }
 
-    // Join form. No Voter ID / Aadhaar is ever stored — the allowed fields are listed.
+    // Join form. No Voter ID / Aadhaar, no password, no files — only the listed fields.
     match /applications/{id} {
-      allow create: if stamped(request.resource.data)
-        && request.resource.data.keys().hasOnly(['name', 'mobile', 'email', 'gender', 'dob', 'district',
-              'assembly', 'address', 'pin', 'occupation', 'lang', 'declarations', 'status',
-              'fee', 'createdAt'])
-        && str(request.resource.data.name, 120)
-        && str(request.resource.data.mobile, 15)
-        && str(request.resource.data.district, 80)
-        && request.resource.data.declarations == true
-        && request.resource.data.status == 'pending_payment'
-        && request.resource.data.fee == 5;
+      function a() { return request.resource.data; }
+      allow create: if stamped(a())
+        && a().keys().hasOnly(['name', 'guardian', 'gender', 'dob', 'occupation', 'workplace', 'group',
+              'mobile', 'mobile2', 'whatsapp', 'email', 'district', 'assembly', 'block', 'ward',
+              'address', 'pin', 'lang', 'declarations', 'status', 'fee', 'createdAt'])
+        && str(a().name, 120)
+        && str(a().mobile, 15)
+        && str(a().district, 80)
+        && optStr(a(), 'guardian', 120) && optStr(a(), 'occupation', 120) && optStr(a(), 'workplace', 160)
+        && optStr(a(), 'group', 60) && optStr(a(), 'mobile2', 15) && optStr(a(), 'whatsapp', 15)
+        && optStr(a(), 'email', 200) && optStr(a(), 'assembly', 120) && optStr(a(), 'block', 120)
+        && optStr(a(), 'ward', 120) && optStr(a(), 'address', 400) && optStr(a(), 'pin', 10)
+        && a().declarations == true
+        && a().status == 'pending_payment'
+        && a().fee == 5;
       allow read, update, delete: if isAdmin();
     }
 
-    // Petition signatures: anyone signs; names/addresses are seen only by Admins.
+    // Petition signatures: anyone signs; names/contacts/addresses are seen only by Admins.
+    // The public count on the petition is raised by the server, never by the browser.
     match /petitions/{pid}/signatures/{sid} {
-      allow create: if stamped(request.resource.data)
-        && request.resource.data.keys().hasOnly(['name', 'district', 'phone', 'address', 'forGovt', 'lang', 'createdAt'])
-        && str(request.resource.data.name, 120)
-        && str(request.resource.data.district, 80)
-        && optStr(request.resource.data, 'address', 400)
-        && optStr(request.resource.data, 'phone', 20);
+      function s() { return request.resource.data; }
+      allow create: if stamped(s())
+        && s().keys().hasOnly(['name', 'contact', 'district', 'address', 'showName', 'forGovt', 'lang', 'createdAt'])
+        && str(s().name, 120)
+        && str(s().contact, 200)
+        && str(s().district, 80)
+        && optStr(s(), 'address', 400)
+        && (!('showName' in s()) || s().showName is bool)
+        && (!('forGovt' in s()) || s().forGovt is bool);
       allow read, update, delete: if isAdmin();
     }
 

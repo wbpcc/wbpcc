@@ -100,6 +100,17 @@ Vercel → your project → **Settings → Environment Variables**. Add these fo
 
 Never put `FIREBASE_KEY_FILE` on Vercel — that one is only for your computer.
 
+**Email alerts for website forms** (optional — forms still save to Console → Inbox without it):
+
+| Name | Value | Type |
+|---|---|---|
+| `RESEND_API_KEY` | from resend.com → API Keys (permission: *Sending access*) | **Secret** |
+| `NOTIFY_EMAIL` | `sm.wbpcc@gmail.com` (this is also the default) | Config |
+
+Create the Resend account **with sm.wbpcc@gmail.com** — on the free plan, alerts can only be
+delivered to the account's own address until a domain is added. Alerts never contain the
+person's name, phone or message; those stay in Console → Inbox (Admins only).
+
 ### 13. The "rebuild" link (deploy hook)
 1. Vercel → project → **Settings → Git → Deploy Hooks**.
 2. Name: `content-update`, branch: `main` → **Create Hook**.

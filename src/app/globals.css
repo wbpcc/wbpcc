@@ -573,6 +573,9 @@ html[lang="bn"] .page-head h1, html[lang="hi"] .page-head h1 { line-height: 1.25
 .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--sky); box-shadow: 0 0 0 4px var(--sky-soft); }
 .field textarea { min-height: 110px; resize: vertical; }
 
+/* Spam trap on public forms — invisible to people (and screen readers), bots fill it */
+.hp-field { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+
 /* Password box with a show / hide eye button */
 .pw-wrap { position: relative; }
 .pw-wrap input { width: 100%; padding-right: 50px; }

@@ -1,7 +1,6 @@
-import { getDictionary, t, intlLocale } from "@/i18n/config";
-import { districts, findGroup } from "@/data/placeholder";
-import { demoMember } from "@/data/portal";
+import { getDictionary } from "@/i18n/config";
 import { PasswordForm } from "@/components/PortalForms";
+import { ProfileFacts } from "@/components/MyMember";
 import Icon from "@/components/Icon";
 
 export async function generateMetadata({ params }) {
@@ -9,30 +8,18 @@ export async function generateMetadata({ params }) {
   return { title: getDictionary(lang).portal.profile.title };
 }
 
+// The signed-in member's own details (only they and Admins can read them).
 export default async function ProfilePage({ params }) {
   const { lang } = await params;
   const d = getDictionary(lang);
   const s = d.portal.profile;
-  const g = findGroup(demoMember.group);
-  const since = new Intl.DateTimeFormat(intlLocale[lang], { day: "numeric", month: "long", year: "numeric" }).format(new Date(demoMember.since));
-  const rows = [
-    ["id", s.memberId, <code key="id">{demoMember.id}</code>],
-    ["pin", s.district, t(districts[demoMember.district], lang)],
-    [g.icon, s.group, t(g.name, lang)],
-    ["star", s.tier, s.tierNew],
-    ["calendar", s.since, since],
-  ];
   return (
     <div className="portal-stack" style={{ maxWidth: 720 }}>
       <div>
         <h1 className="portal-title">{s.title}</h1>
         <p className="portal-lead">{s.lead}</p>
       </div>
-      <div className="card" style={{ display: "grid", gap: 14 }}>
-        {rows.map(([icon, label, value]) => (
-          <div key={label} className="fact"><i><Icon name={icon} /></i><div><b>{label}</b><span>{value}</span></div></div>
-        ))}
-      </div>
+      <ProfileFacts lang={lang} s={{ memberId: s.memberId, district: s.district, group: s.group, tier: s.tier, tierNew: s.tierNew, since: s.since }} />
       <p className="privacy-note"><span aria-hidden="true"><Icon name="lock" /></span><span><b>{s.visibility}.</b> {s.visibilityText}</span></p>
       <PasswordForm s={s} />
     </div>

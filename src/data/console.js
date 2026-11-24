@@ -26,6 +26,7 @@ export const NAV = [
   { href: "/console/mine", icon: "pen", label: "Add article, campaign or petition", roles: ["contributor"] },
   { href: "/console/edit", icon: "pen", label: "Edit a page", roles: PA },
   { group: "Review & publish" },
+  { href: "/console/inbox", icon: "mail", label: "Inbox", roles: PA },
   { href: "/console/review", icon: "check", label: "Review queue", roles: PA },
   { href: "/console/campaigns", icon: "flag", label: "Petitions & campaigns", roles: PA },
   { href: "/console/statements", icon: "shield", label: "Official statements", roles: PA },
