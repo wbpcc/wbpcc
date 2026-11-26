@@ -160,8 +160,8 @@ const en = {
   },
   news: {
     eyebrow: "Newsroom",
-    title: "Verified. Official. Real.",
-    sub: "Official statements come only from the leadership. Ground reports from members are checked before they appear here.",
+    title: "News archive",
+    sub: "Everything we have posted or shared from our channels, newest first. Filter by year and month.",
     official: "Official statement",
     report: "Verified ground report",
     story: "Story",

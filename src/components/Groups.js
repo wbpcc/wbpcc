@@ -2,6 +2,7 @@ import Link from "next/link";
 import { t } from "@/i18n/config";
 import { groups, ORG_CATEGORIES } from "@/data/placeholder";
 import Carousel from "./Carousel";
+import OrgBlocks from "./OrgBlocks";
 
 // Organisation cards — information only: name + one line + "Know more".
 // The contact number lives on the organisation's own page.
@@ -37,7 +38,14 @@ export default function Groups({ lang, d, showHead = true, full = false }) {
             <Link className="link-arrow" href={`/${lang}/groups`}>{o.viewAll} →</Link>
           </div>
         )}
-        {cats.map((cat) => {
+        {full && (
+          <OrgBlocks lang={lang} blocks={cats.map((cat) => ({
+            cat,
+            title: o.cats[cat],
+            cards: groups.filter((g) => g.category === cat).map((gr, i) => <GroupCard key={gr.id} gr={gr} lang={lang} o={o} i={i} />),
+          })).filter((b) => b.cards.length)} />
+        )}
+        {!full && cats.map((cat) => {
           const list = groups.filter((g) => g.category === cat);
           if (!list.length) return null;
           return (

@@ -34,6 +34,7 @@ const P = {
   pen: <path d="M4 20l1-4.5L15.5 5a2.1 2.1 0 0 1 3 3L8 18.5zM13.5 7l3 3" />,
   home: <path d="M4 11 12 4l8 7M6 9.5V20h12V9.5" />,
   layout: <><rect x="3.5" y="4" width="17" height="16" rx="2" /><path d="M3.5 9h17M9.5 9v11" /></>,
+  slides: <><rect x="6.5" y="5" width="11" height="14" rx="1.5" /><path d="M3 7.5v9M21 7.5v9" /></>,
   list: <path d="M8 6.5h12M8 12h12M8 17.5h12M4 6.5h.01M4 12h.01M4 17.5h.01" />,
   menu: <path d="M4 7h16M4 12h16M4 17h16" />,
   logout: <path d="M10 5H5.5v14H10M14 8l4 4-4 4M18 12H9" />,

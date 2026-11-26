@@ -1466,3 +1466,81 @@ fieldset { min-width: 0; }                    /* form sections may shrink (they 
   .portal-nav a, .portal-nav button { flex-direction: column; justify-content: center; gap: 4px; padding: 10px 6px; border-radius: 14px; font-size: 12.5px; line-height: 1.2; text-align: center; white-space: normal; min-height: 64px; }
   .portal-nav button { border-radius: 14px; color: var(--red, #b3261e); }
 }
+
+/* =========================================================
+   News archive
+   ========================================================= */
+.na-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.na-count { font-size: 14px; font-weight: 700; color: var(--muted); }
+.na-pick { position: relative; }
+.na-btn { display: inline-flex; align-items: center; gap: 8px; font: inherit; font-weight: 700; font-size: 14px; padding: 8px 14px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--white); color: var(--navy); cursor: pointer; }
+.na-btn.on { border-color: var(--navy); background: var(--navy); color: #fff; }
+.na-pop { position: absolute; right: 0; top: calc(100% + 8px); z-index: 30; width: min(300px, calc(100vw - 32px)); background: var(--white); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); padding: 14px; display: grid; gap: 8px; animation: fadeUp .2s both; }
+.na-pop p { margin: 0; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.na-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.na-months { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.na-chips button, .na-months button { font: inherit; font-size: 13px; font-weight: 700; padding: 7px 10px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--white); color: var(--navy); cursor: pointer; }
+.na-chips button[aria-pressed="true"], .na-months button[aria-pressed="true"] { background: var(--navy); border-color: var(--navy); color: #fff; }
+.na-months button:disabled { opacity: .35; cursor: default; }
+.na-clear { justify-self: start; font: inherit; font-size: 13px; font-weight: 700; color: var(--saffron); background: none; border: 0; padding: 4px 0; cursor: pointer; }
+.na-empty { color: var(--muted); padding: 24px 0; }
+.na-month h2 { font-size: 15px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--sky); margin: 22px 0 6px; font-family: inherit; }
+.na-month ul { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.na-month li { border-bottom: 1px solid var(--line); }
+.na-row { display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 12px 4px; color: var(--ink); transition: background .2s; }
+.na-row:hover { background: var(--cream); }
+.na-row time { display: grid; justify-items: center; line-height: 1.05; padding: 6px 0; border-radius: 10px; background: var(--cream-2); color: var(--navy); }
+.na-row time b { font-size: 20px; }
+.na-row time small { font-size: 11px; font-weight: 700; text-transform: uppercase; }
+.na-text { display: grid; gap: 2px; min-width: 0; }
+.na-text b { color: var(--navy); font-size: 16px; line-height: 1.3; }
+.na-text span { color: var(--muted); font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.na-text small { font-size: 12.5px; font-weight: 600; color: var(--muted); }
+.na-row > i { color: var(--muted); display: grid; }
+
+/* =========================================================
+   Phones: smaller page headings and tighter forms (Join, Sign in, Contact…)
+   ========================================================= */
+@media (max-width: 640px) {
+  .page-head { padding: 16px 0 18px; }
+  .page-head::after { display: none; }
+  .page-head .crumb { margin-bottom: 2px; font-size: 13px; }
+  .page-head h1 { font-size: clamp(28px, 8.6vw, 36px); margin: 2px 0 6px; }
+  .page-head p.lead { font-size: 15px; line-height: 1.45; }
+  .detail { padding: 16px 0 40px; gap: 20px; }
+  .card.form { padding: 16px 14px; }
+  .long-form { gap: 14px; }
+  .form-section { border: 0; border-top: 1px solid var(--line); border-radius: 0; background: none; padding: 12px 0 0; }
+  .form-section legend { float: left; width: 100%; padding: 0; margin-bottom: 10px; font-size: 15px; }
+  .form-section .form-grid { clear: both; }
+  .form-grid { gap: 10px; }
+  .field { gap: 4px; }
+  .field label { font-size: 13px; }
+  .field input, .field select, .field textarea { padding: 10px 12px; border-radius: 10px; }
+  .field textarea { min-height: 80px; }
+  .checks { gap: 6px; }
+  .checks label { padding: 6px 12px; font-size: 13px; }
+  .steps { gap: 8px; margin-bottom: 18px; }
+  .step { padding: 12px 14px; }
+  .na-row { grid-template-columns: 44px minmax(0, 1fr); gap: 12px; }
+  .na-row > i { display: none; }
+  .na-text b { font-size: 15px; }
+}
+
+/* Organisation page: List / Carousel switch beside each category heading */
+.org-block-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 0 14px; }
+.org-block-head .org-block-title { margin: 0; }
+.view-switch { flex: none; display: inline-flex; padding: 3px; gap: 2px; border: 1.5px solid var(--line); border-radius: 12px; background: var(--white); }
+.view-switch button { display: grid; place-items: center; width: 34px; height: 30px; border: 0; border-radius: 9px; background: none; color: var(--muted); cursor: pointer; transition: background .2s, color .2s; }
+.view-switch button[aria-pressed="true"] { background: var(--navy); color: #fff; }
+.cz-track.org-rail { --cz-w: 82%; }
+@media (min-width: 700px) { .cz-track.org-rail { --cz-w: 300px; } }
+/* List view on phones: compact rows, everything visible at once */
+@media (max-width: 599px) {
+  .org-list { gap: 8px; }
+  .org-list .org-card { padding: 12px 14px; gap: 4px; border-top-width: 0; border-left: 4px solid var(--navy); }
+  .org-list .org-card h3 { font-size: 16px; }
+  .org-list .org-short { font-size: 13.5px; }
+  .org-list .org-more { display: none; }
+  .org-block-title { font-size: 22px; }
+}
