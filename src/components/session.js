@@ -44,7 +44,7 @@ function startLive() {
         const { claims } = await u.getIdTokenResult();
         const level = claims.role;
         if (!["member", "contributor", "admin"].includes(level)) return emit(null); // signed in but no access level
-        emit({ role: level === "member" ? "member" : "team", level, email: u.email, uid: u.uid, name: u.displayName || "" });
+        emit({ role: level === "member" ? "member" : "team", level, email: u.email, uid: u.uid, name: u.displayName || "", shared: !!claims.shared });
       });
     })
     .catch(() => emit(null));

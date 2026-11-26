@@ -64,10 +64,14 @@ export default function MemberVault() {
     "not-approved": "Approve the application first.", "server-not-configured": "The server isn't set up (FIREBASE_SERVICE_ACCOUNT on Vercel).",
   };
 
+  // Shared-login model (the party's choice): approving records the member — no
+  // personal login or invite code. The Admin shares the members' login with them.
+  const SHARED_MEMBER_LOGIN = true;
+
   async function approve(a) {
-    if (!LIVE) {
+    if (!LIVE || SHARED_MEMBER_LOGIN) {
       const memberId = newMemberId(a);
-      update(a, { status: "approved", memberId, verifiedBy: how() }, `Approved membership application (${memberId})`, `Approved — Member ID ${memberId}`);
+      update(a, { status: "approved", memberId, verifiedBy: how() }, `Approved membership application (${memberId})`, `Approved — Member ID ${memberId}. Share the members' login with them.`);
       return;
     }
     if (!window.confirm(`Approve ${a.name} and create their member login?`)) return;
@@ -112,7 +116,7 @@ export default function MemberVault() {
   return (
     <>
       <PageTitle title="Members list" sub="Membership applications from the website. Only Admins can see this list — members never see each other." />
-      <div className="cs-onhold"><span><Icon name="clock" size={24} /></span><div><b>Verification process on hold</b>The party is still deciding exactly how members are verified. For now: check the person (phone call, district office or district committee), then approve or reject here. Creating their member login comes in the next step.</div></div>
+      <div className="cs-onhold"><span><Icon name="clock" size={24} /></span><div><b>How membership works</b>People apply through the Join form (no verification codes). Check the person if you wish — a call, the district office or the district committee — then approve or reject here. Approved members use the shared members&apos; login; share it with them yourself.</div></div>
       <div className="cs-warn"><Icon name="lock" size={15} /> Every application you open is recorded in the audit log with your account and the time.</div>
       <Flash msg={msg} />
       {state === "loading" && <p className="form-note">Loading applications…</p>}
@@ -178,7 +182,7 @@ export default function MemberVault() {
                 <span style={{ fontSize: 14 }}>
                   {LIVE && open.memberUid
                     ? "Member login created. They set their password on the website with an invite code. Lost or expired? Use “New invite code”."
-                    : "Approved."}
+                    : "Approved. Members sign in with the shared members' login — share it with them by phone or WhatsApp."}
                 </span>
                 <span className="tricolour"><span /><span /><span /></span>
               </div>

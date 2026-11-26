@@ -1355,3 +1355,103 @@ html[lang="bn"] .around-head h3, html[lang="hi"] .around-head h3 { text-transfor
 .login-cat:hover { border-color: var(--navy); }
 .login-cat.on { border-color: var(--saffron); background: #fff3ea; box-shadow: 0 0 0 3px rgba(244,115,32,.15); }
 .login-cat:has(input:focus-visible) { outline: 3px solid var(--sky); outline-offset: 2px; }
+
+/* =========================================================================
+   Carousel (components/Carousel.js) — events, news & reels, inspiration,
+   organisations on phones. One card at a time, snap, dots, ‹ › buttons.
+   ========================================================================= */
+.cz { position: relative; min-width: 0; }
+.cz-track {
+  position: relative; display: grid; grid-auto-flow: column; grid-auto-columns: var(--cz-w, 86%);
+  gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
+  padding: 4px 2px 8px; scrollbar-width: none; outline: none;
+}
+.cz-track::-webkit-scrollbar { display: none; }
+.cz-track:focus-visible { outline: 3px solid var(--sky); outline-offset: 4px; border-radius: 12px; }
+.cz-slide { scroll-snap-align: start; min-width: 0; display: grid; }
+.cz-slide > * { min-width: 0; }
+.cz-controls { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 10px; }
+.cz-btn { width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid var(--line); background: var(--white); color: var(--navy); display: grid; place-items: center; font-size: 24px; line-height: 1; padding-bottom: 3px; transition: background .2s, opacity .2s; }
+.cz-btn:hover:not(:disabled) { background: var(--navy); color: var(--white); }
+.cz-btn:disabled { opacity: .35; cursor: default; }
+.cz-dots { display: flex; gap: 6px; align-items: center; }
+.cz-dot { width: 8px; height: 8px; border-radius: 99px; border: 0; padding: 0; background: rgba(21,34,63,.22); transition: width .25s var(--ease), background .25s; }
+.cz-dot[aria-current="true"] { width: 22px; background: var(--saffron); }
+.cz-count { font-weight: 700; font-size: 13px; color: var(--muted); min-width: 56px; text-align: center; font-variant-numeric: tabular-nums; }
+.cz-dark .cz-btn { background: transparent; border-color: rgba(255,255,255,.3); color: #fff; }
+.cz-dark .cz-btn:hover:not(:disabled) { background: rgba(255,255,255,.15); }
+.cz-dark .cz-dot { background: rgba(255,255,255,.3); }
+.cz-dark .cz-count { color: rgba(255,255,255,.75); }
+/* card widths: phones show one card + a peek of the next */
+.cz-track.person-rail { --cz-w: 68%; }
+.cz-track.news-rail { --cz-w: 64%; }
+@media (min-width: 700px) {
+  .cz-track { --cz-w: 280px; }
+  .cz-track.person-rail { --cz-w: 230px; }
+  .cz-track.news-rail { --cz-w: 220px; }
+  .cz-track.ev-rail { --cz-w: 290px; }
+  /* Organisations: a normal grid on wider screens */
+  .cz-grid .cz-track { grid-auto-flow: row; grid-auto-columns: auto; overflow: visible; scroll-snap-type: none; padding: 0; }
+  .cz-grid .cz-controls { display: none; }
+}
+@media (max-width: 699px) {
+  .cz-grid .cz-track.groups-grid { grid-template-columns: none; }
+}
+.rail-head.rail-light { margin: 8px 0 12px; }
+.rail-head.rail-light h3 { font-family: var(--font-body); font-stretch: 100%; font-size: 14px; font-weight: 600; text-transform: none; color: var(--muted); }
+
+/* =========================================================================
+   Phone fit & finish — nothing may be wider than the screen.
+   ========================================================================= */
+html, body { overflow-x: clip; }              /* safety net — phones respect "clip" */
+fieldset { min-width: 0; }                    /* form sections may shrink (they refuse by default) */
+.field input, .field select, .field textarea { min-width: 0; max-width: 100%; }
+.detail > *, .two-col > *, .news-top > *, .happening > *, .split > *, .vision > *, .portal-body > *, .hero .wrap > *, .press-grid > * { min-width: 0; }
+.verify input { min-width: 0; flex: 1 1 150px; }
+.hp-field { position: absolute; left: 0; top: 0; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* "I want to…" — a tidy 2-column grid on phones instead of a sideways strip */
+@media (max-width: 639px) {
+  .chips { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; overflow: visible; }
+  .chip { padding: 12px 14px; justify-content: center; text-align: center; border-radius: 14px; }
+}
+
+@media (max-width: 520px) {
+  /* Header: logo + words + Join + menu must fit a 320–375px screen */
+  .header .wrap { gap: 8px; height: 62px; }
+  .site-top.scrolled .header .wrap { height: 56px; }
+  .brand { gap: 8px; min-width: 0; flex: 1 1 auto; }
+  .brand img, .site-top.scrolled .brand img { width: 38px; height: 38px; }
+  .brand-words { min-width: 0; }
+  .brand-words .bn { font-size: 11.5px; }
+  .brand-words .en { font-size: 11px; letter-spacing: 0; white-space: nowrap; }
+  .header-actions { gap: 6px; flex: none; margin-left: 0; }
+  .btn-join { padding: 8px 13px; font-size: 14px; white-space: nowrap; }
+  .menu-btn { width: 38px; height: 38px; }
+  .utility .wrap { gap: 8px; }
+  .lang a { min-width: 32px; padding: 4px 6px; }
+
+  /* Hero: right-sized for a phone */
+  .hero { padding: 22px 0 30px; }
+  .hero .wrap { gap: 22px; }
+  .hero h1 { font-size: clamp(38px, 11.5vw, 48px); margin: 4px 0 14px; }
+  html[lang="bn"] .hero h1, html[lang="hi"] .hero h1 { font-size: clamp(30px, 9vw, 38px); }
+  .hero-sub { font-size: 16px; margin-bottom: 18px; }
+  .hero-ctas .btn { padding: 13px 10px; font-size: 15px; }
+  .hero-photo { aspect-ratio: 16 / 10; border-radius: 40% 40% 18px 18px / 30% 30% 18px 18px; }
+  .sticker { width: 80px; height: 80px; font-size: 13.5px; padding: 8px; }
+  .hero-script { font-size: 24px; }
+  .live-card { margin: -44px 10px 0; padding: 12px 14px; }
+
+  /* Sections & headings */
+  .section { padding: 44px 0; }
+  .h-section { font-size: clamp(28px, 8.5vw, 34px); }
+  .section-head { margin-bottom: 20px; }
+  .stat { padding: 16px 6px; }
+}
+@media (max-width: 359px) { .brand-words .bn { display: none; } }
+/* Newsroom grid: two columns that are allowed to shrink on phones */
+.news-grid > * { min-width: 0; }
+@media (max-width: 520px) { .news-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+/* Simple stacked layouts written inline (style="display:grid") may always shrink to the screen */
+[style*="display:grid"] > * { min-width: 0; }

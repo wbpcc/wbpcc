@@ -20,7 +20,7 @@ export default async function NewsroomPage({ params }) {
     <>
       <PageHead crumbHref={`/${lang}`} crumbLabel={d.nav.home} eyebrow={n.eyebrow} title={n.title} lead={n.sub} />
       <section className="section" style={{ paddingTop: 28 }}>
-        <div className="wrap" style={{ display: "grid", gap: 28 }}>
+        <div className="wrap" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 28 }}>
           <div style={{ maxWidth: 560 }}>
             <VerifyMessage lang={lang} n={n} known={statementRegistry} />
           </div>

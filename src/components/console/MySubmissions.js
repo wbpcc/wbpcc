@@ -2,11 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { t } from "@/i18n/config";
-import { groups, events } from "@/data/placeholder";
+import { groups, events, posts as pubPosts, petitions as pubPetitions, campaigns as pubCampaigns } from "@/data/placeholder";
 import { submissionQueue } from "@/data/console";
 import { PageTitle, Panel, Status, Drawer, LangField, DistrictPick, Flash, useFlash, fmtDate } from "./ui";
 import { useOwnSubmissions, createSubmission, updateSubmission, deleteSubmission, LIVE } from "@/lib/cms";
-import { UI_TO_KIND, KIND_LABEL, PUBLIC_PATH } from "@/lib/submissions";
+import { UI_TO_KIND, KIND_LABEL, PUBLIC_PATH, submissionFromPublished } from "@/lib/submissions";
+
+// Published items a contributor can ask to edit (as of the last website update).
+const PUBLISHED = {
+  post: pubPosts.filter((p) => p.kind !== "statement"),
+  petition: pubPetitions,
+  campaign: pubCampaigns,
+};
 
 // Contributor workspace: write an article / blog, a petition or a campaign, then
 // "Submit for review". Nothing goes live until an Admin accepts it — until then
@@ -37,7 +44,16 @@ const withDefaults = (s) => ({ ...blank("article"), ...s, title: s.title || tri(
 export default function MySubmissions() {
   const [list, setList, state] = useOwnSubmissions(LIVE ? [] : SAMPLE);
   const [edit, setEdit] = useState(null);
+  const [picking, setPicking] = useState(null); // { kind, id } while choosing an item to edit
   const [busy, setBusy] = useState(false);
+
+  function startEditRequest() {
+    const { kind, id } = picking;
+    const item = PUBLISHED[kind].find((x) => x.id === id);
+    if (!item) return;
+    setPicking(null);
+    setEdit({ ...blank(kind === "post" ? "article" : kind), ...submissionFromPublished(kind, item), id: null, status: "draft" });
+  }
   const [msg, flash] = useFlash();
 
   useEffect(() => {
@@ -87,6 +103,7 @@ export default function MySubmissions() {
   return (
     <>
       <PageTitle title="Add article, campaign or petition" sub="Write it, then submit it for review. You can edit while it's a draft, waiting for review, or sent back with changes. Only you and the Admins can see it until it's published.">
+        <button className="btn btn-ghost" onClick={() => setPicking({ kind: "post", id: "" })}>Request an edit</button>
         <button className="btn btn-ghost" onClick={() => setEdit(blank("article"))}>Add article / news</button>
         <button className="btn btn-ghost" onClick={() => setEdit(blank("campaign"))}>Add campaign</button>
         <button className="btn btn-saffron" onClick={() => setEdit(blank("petition"))}>Add petition</button>
@@ -100,7 +117,7 @@ export default function MySubmissions() {
           {list.map((s) => (
             <article key={s.id} className="cs-card">
               <div className="cs-card-top">
-                <span className="badge-kind">{kindLabel(s.kind)}</span>
+                <span className="badge-kind">{s.editOf ? `Edit request · ${kindLabel(s.kind)}` : kindLabel(s.kind)}</span>
                 <Status kind={(ST[s.status] || ST.draft)[0]}>{(ST[s.status] || ST.draft)[1]}</Status>
               </div>
               <h3>{t(s.title, "en") || "(untitled)"}</h3>
@@ -117,7 +134,7 @@ export default function MySubmissions() {
 
       <Drawer
         open={!!edit}
-        title={edit ? `${edit.id ? "Edit" : "New"} ${kindLabel(edit.kind).toLowerCase()}` : ""}
+        title={edit ? (edit.editOf ? `Edit request — ${kindLabel(edit.kind).toLowerCase()}` : `${edit.id ? "Edit" : "New"} ${kindLabel(edit.kind).toLowerCase()}`) : ""}
         onClose={() => setEdit(null)}
         footer={edit && (
           <div className="cs-row">
@@ -130,6 +147,12 @@ export default function MySubmissions() {
         {edit && (
           <div className="form">
             {edit.status === "changes" && edit.reviewNote && <p className="sub-note"><b>Admin&apos;s note:</b> {edit.reviewNote}</p>}
+            {edit.editOf && (
+              <p className="form-note">
+                You&apos;re suggesting changes to something already on the website. An Admin reviews them; once accepted, the live version is updated.{" "}
+                <a className="link-arrow" href={`/en/${PUBLIC_PATH[edit.kind]}/${edit.editOf.id}`} target="_blank" rel="noopener noreferrer">See the current version ↗</a>
+              </p>
+            )}
             {isPost && (
               <fieldset className="field" style={{ border: 0, padding: 0, margin: 0 }}>
                 <legend>Format</legend>
@@ -173,6 +196,39 @@ export default function MySubmissions() {
             <div className="field"><label>Organisation (optional)</label><select value={edit.group} onChange={(e) => patch({ group: e.target.value })}><option value="">— None —</option>{groups.map((g) => <option key={g.id} value={g.id}>{t(g.name, "en")}</option>)}</select></div>
             {!LIVE && <div className="field"><label>Cover photo (optional)</label><label className="dropzone"><span>Upload</span><small>JPG / PNG</small><input type="file" accept="image/*" className="sr-only" /></label></div>}
             <p className="form-note">Write in English; Bangla and Hindi are optional — the website shows English where they&apos;re empty.</p>
+          </div>
+        )}
+      </Drawer>
+
+      <Drawer
+        open={!!picking}
+        title="Request an edit"
+        onClose={() => setPicking(null)}
+        footer={picking && (
+          <div className="cs-row">
+            <button className="btn btn-ghost btn-sm" onClick={() => setPicking(null)}>Cancel</button>
+            <button className="btn btn-saffron btn-sm" disabled={!picking.id} onClick={startEditRequest}>Edit this</button>
+          </div>
+        )}
+      >
+        {picking && (
+          <div className="form">
+            <p className="form-note">Pick something that&apos;s already on the website. You&apos;ll edit a copy; an Admin reviews it before the live version changes.</p>
+            <div className="field">
+              <label>What do you want to edit?</label>
+              <div className="checks">
+                {[["post", "Article / news"], ["petition", "Petition"], ["campaign", "Campaign"]].map(([k, l]) => (
+                  <label key={k}><input type="radio" checked={picking.kind === k} onChange={() => setPicking({ kind: k, id: "" })} /> {l}</label>
+                ))}
+              </div>
+            </div>
+            <div className="field">
+              <label>Which one?</label>
+              <select value={picking.id} onChange={(e) => setPicking({ ...picking, id: e.target.value })}>
+                <option value="">— Choose —</option>
+                {PUBLISHED[picking.kind].map((x) => <option key={x.id} value={x.id}>{t(x.title, "en")}</option>)}
+              </select>
+            </div>
           </div>
         )}
       </Drawer>

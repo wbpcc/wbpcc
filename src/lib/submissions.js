@@ -21,6 +21,36 @@ export const platformOf = (url = "") =>
   /youtu\.?be/.test(url) ? "youtube" : /instagram\.com/.test(url) ? "instagram"
   : /facebook\.com|fb\.watch/.test(url) ? "facebook" : /(twitter|x)\.com/.test(url) ? "x" : null;
 
+/**
+ * An edit request (submission with editOf: { col, id }) → the fields to change
+ * on that published item. Never touches a petition's signature count.
+ */
+export function editPatchFor(sub) {
+  const { col, id } = sub.editOf || {};
+  if (!col || !id) throw new Error("Not an edit request");
+  const body = tri(sub.body || sub.summary);
+  const title = tri(sub.title);
+  if (sub.kind === "post") {
+    const video = sub.format && sub.format !== "blog" && sub.link ? sub.link : null;
+    return { col, id, patch: { title, excerpt: body, format: sub.format || "blog", videoUrl: video, platform: video ? platformOf(video) : null } };
+  }
+  if (sub.kind === "petition") {
+    return { col, id, patch: { title, desc: body, addressedTo: tri(sub.authority), type: sub.ptype === "formal" ? "formal" : "online", goal: Math.max(100, Number(sub.goal) || 5000) } };
+  }
+  if (sub.kind === "campaign") {
+    return { col, id, patch: { title, goal: body, desc: body, start: sub.start || "", end: sub.end || "", events: sub.events || [] } };
+  }
+  throw new Error(`Unknown submission kind: ${sub.kind}`);
+}
+
+/** A published website item → the fields of an edit-request form, pre-filled. */
+export function submissionFromPublished(kind, item) {
+  const base = { kind, title: tri(item.title), district: item.district || "", group: item.group || "", editOf: { col: PUBLIC_COL[kind], id: item.id } };
+  if (kind === "post") return { ...base, body: tri(item.excerpt), format: item.format || "blog", link: item.videoUrl || "" };
+  if (kind === "petition") return { ...base, body: tri(item.desc), authority: tri(item.addressedTo), ptype: item.type || "online", goal: item.goal || 5000 };
+  return { ...base, body: tri(item.desc || item.goal), start: item.start || "", end: item.end || "", events: item.events || [] };
+}
+
 /** The website item an accepted submission becomes: { col, doc } (doc.id included). */
 export function publicDocFor(sub, today = new Date()) {
   const id = `${slug(sub.title?.en)}-${String(sub.id).slice(0, 4).toLowerCase()}`;

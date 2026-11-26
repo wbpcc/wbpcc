@@ -514,6 +514,38 @@ test("announcements: admin posts one; members read them; visitors can't", async 
   await assert.rejects(m.getDocs(m.query(m.collection(db, "resources"), m.where("kind", "==", "announcement"))), { code: "permission-denied" });
 });
 
+// ---------------- Edit requests on published items ----------------
+test("edit request: contributor suggests changes to a live petition; admin accepts; count and position kept", async () => {
+  const { db } = await loadFirebase();
+  const m = await import("firebase/firestore");
+  const { submissionFromPublished } = await import("../src/lib/submissions.js");
+  const pid = "repair-shibpur-road";
+
+  await signIn("admin", "admin@wbpcc.org", pw("admin"));
+  const before = (await m.getDoc(m.doc(db, "petitions", pid))).data();
+  await signOut();
+
+  await signIn("contributor", "contributor1@wbpcc.org", pw("contributor"));
+  const draft = submissionFromPublished("petition", { id: pid, ...before });
+  assert.deepEqual(draft.editOf, { col: "petitions", id: pid });
+  const subId = await createSubmission({ ...draft, title: { en: "Repair the Shibpur–Santragachi road NOW", bn: "", hi: "" } }, true);
+  await signOut();
+
+  await signIn("admin", "admin@wbpcc.org", pw("admin"));
+  const sub = { id: subId, ...(await m.getDoc(m.doc(db, "submissions", subId))).data() };
+  const res = await acceptSubmission(sub);
+  assert.deepEqual(res, { col: "petitions", id: pid }, "edits the existing petition, no new one");
+  const after = (await m.getDoc(m.doc(db, "petitions", pid))).data();
+  assert.equal(after.title.en, "Repair the Shibpur–Santragachi road NOW");
+  assert.equal(after.signatures, before.signatures, "signature count untouched");
+  assert.equal(after.order, before.order, "list position untouched");
+  assert.equal(after.status, "published");
+  const all = await m.getDocs(m.query(m.collection(db, "petitions"), m.where("fromSubmission", "==", subId)));
+  assert.equal(all.size, 0, "no duplicate created");
+  assert.equal((await m.getDoc(m.doc(db, "submissions", subId))).data().status, "accepted");
+  await signOut();
+});
+
 test("publish: only an Admin may rebuild the site", async () => {
   assert.equal((await publish(null)).status, 401);
   const bad = await publish("not-a-token");

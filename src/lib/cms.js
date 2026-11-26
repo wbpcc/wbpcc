@@ -194,7 +194,15 @@ export async function deleteSubmission(id) {
  * mark the submission accepted. Returns { col, id } of the new website item.
  */
 export async function acceptSubmission(sub) {
-  const { publicDocFor } = await import("./submissions");
+  const { publicDocFor, editPatchFor } = await import("./submissions");
+  // An edit request: change the existing published item instead of creating a new one.
+  if (sub.editOf) {
+    const { col, id, patch } = editPatchFor(sub);
+    if (!LIVE) return { col, id };
+    await saveItem(col, { id, ...patch }, { merge: true, label: `${sub.kind} “${sub.title?.en || id}” (edit from a contributor)` });
+    await patchItem("submissions", sub.id, { status: "accepted", publishedId: id, publishedCol: col, reviewedAt: new Date().toISOString() }, `Accepted edit request → ${col}/${id}`);
+    return { col, id };
+  }
   const { col, doc } = publicDocFor(sub);
   if (!LIVE) return { col, id: doc.id };
   const order = -Math.floor(Date.now() / 1000); // newest first
@@ -270,9 +278,11 @@ export async function saveItem(col, item, { order, label, status = "published", 
   if (!LIVE) return;
   const { db, auth, m } = await fs();
   const { id, ...rest } = item;
-  // merge: keep fields this save doesn't mention (e.g. a petition's live signature count).
+  // merge: keep fields this save doesn't mention (e.g. a petition's live signature
+  // count, or its position in the list when no order is given).
+  const ord = order ?? rest.order;
   await m.setDoc(m.doc(db, col, id), {
-    ...clean(rest), status, order: order ?? rest.order ?? 0,
+    ...clean(rest), status, ...(ord !== undefined || !merge ? { order: ord ?? 0 } : {}),
     updatedAt: m.serverTimestamp(), updatedBy: auth.currentUser.email,
   }, { merge });
   await audit(`Saved ${label}`, `${col}/${id}`);

@@ -58,7 +58,7 @@ export default function NewsroomSection({ lang, d }) {
           </div>
         </div>
 
-        <Rail title={n.latest}>
+        <Rail title={n.latest} className="news-rail">
           {rest.map((p, i) => <PostCard key={p.id} post={p} lang={lang} n={n} i={i} />)}
         </Rail>
       </div>

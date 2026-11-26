@@ -241,9 +241,9 @@ const isAdult = (dob) => {
 // Members list, Admins only) + an email alert. No password is collected here —
 // the member sets it when their membership is approved. No ID numbers, no files.
 const JOIN_TEXT = {
-  en: { pwLater: "You'll set your password when your membership is approved — we'll send you a link.", send: "Send registration", ref: "Reference" },
-  bn: { pwLater: "সদস্যপদ অনুমোদিত হলে আপনি পাসওয়ার্ড তৈরি করবেন — আমরা আপনাকে একটি লিঙ্ক পাঠাব।", send: "নিবন্ধন পাঠান", ref: "রেফারেন্স" },
-  hi: { pwLater: "सदस्यता स्वीकृत होने पर आप अपना पासवर्ड बनाएँगे — हम आपको एक लिंक भेजेंगे।", send: "पंजीकरण भेजें", ref: "संदर्भ" },
+  en: { pwLater: "No password needed here — once you're approved, the party office will share the members' login with you.", send: "Send registration", ref: "Reference" },
+  bn: { pwLater: "এখানে পাসওয়ার্ড লাগবে না — অনুমোদনের পর দলীয় অফিস আপনাকে সদস্যদের লগইন জানিয়ে দেবে।", send: "নিবন্ধন পাঠান", ref: "রেফারেন্স" },
+  hi: { pwLater: "यहाँ पासवर्ड की ज़रूरत नहीं — स्वीकृति के बाद पार्टी कार्यालय आपको सदस्यों का लॉगिन बता देगा।", send: "पंजीकरण भेजें", ref: "संदर्भ" },
 };
 
 export function JoinForm({ lang, j, c }) {

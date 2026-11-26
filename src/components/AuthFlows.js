@@ -48,6 +48,9 @@ const MSG = {
     wait: "साइन इन हो रहा है…",
   },
 };
+// Every category signs in with a login email (shared Member / Contributor logins, personal Admin).
+const LOGIN_EMAIL = { en: "Login email", bn: "লগইন ইমেল", hi: "लॉगिन ईमेल" };
+
 const errKey = (code = "") =>
   code === "auth/too-many-requests" ? "too-many"
   : code === "auth/network-request-failed" ? "network"
@@ -158,9 +161,18 @@ export function SignInFlow({ lang, a }) {
       {step === 1 ? (
         <>
           <div className="field">
-            <label htmlFor="lu">{isMember ? a.memberId : a.teamEmail}</label>
-            <input id="lu" required value={user} onChange={(e) => setUser(e.target.value)} type={isMember ? "text" : "email"} autoComplete="username"
-              placeholder={isMember ? "98XXXXXXXX / WB-XXX-XXX-0000" : "name@wbpcc.org"} />
+            {LIVE ? (
+              <>
+                <label htmlFor="lu">{(LOGIN_EMAIL[lang] || LOGIN_EMAIL.en)}</label>
+                <input id="lu" required value={user} onChange={(e) => setUser(e.target.value)} type="email" autoComplete="username" placeholder="name@gmail.com" />
+              </>
+            ) : (
+              <>
+                <label htmlFor="lu">{isMember ? a.memberId : a.teamEmail}</label>
+                <input id="lu" required value={user} onChange={(e) => setUser(e.target.value)} type={isMember ? "text" : "email"} autoComplete="username"
+                  placeholder={isMember ? "98XXXXXXXX / WB-XXX-XXX-0000" : "name@wbpcc.org"} />
+              </>
+            )}
           </div>
           <div className="field">
             <label htmlFor="lp">{a.password}</label>
@@ -181,7 +193,7 @@ export function SignInFlow({ lang, a }) {
 
       {isMember ? (
         <div className="auth-links">
-          <Link href={`/${lang}/activate`} className="link-arrow">{a.firstTime} →</Link>
+          {!LIVE && <Link href={`/${lang}/activate`} className="link-arrow">{a.firstTime} →</Link>}
           <span>{a.notMember} <Link href={`/${lang}/join`} className="link-arrow">{a.join}</Link></span>
         </div>
       ) : (

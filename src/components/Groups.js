@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { t } from "@/i18n/config";
 import { groups, ORG_CATEGORIES } from "@/data/placeholder";
+import Carousel from "./Carousel";
 
 // Organisation cards — information only: name + one line + "Know more".
 // The contact number lives on the organisation's own page.
@@ -36,14 +37,19 @@ export default function Groups({ lang, d, showHead = true, full = false }) {
             <Link className="link-arrow" href={`/${lang}/groups`}>{o.viewAll} →</Link>
           </div>
         )}
-        {cats.map((cat) => (
-          <div key={cat} className="org-block">
-            {full && <h2 className="org-block-title" data-reveal>{o.cats[cat]}</h2>}
-            <div className={`groups-grid${cat === "frontal" ? " cols-4" : ""}${full ? "" : " org-carousel"}`}>
-              {groups.filter((g) => g.category === cat).map((gr, i) => <GroupCard key={gr.id} gr={gr} lang={lang} o={o} i={i} />)}
+        {cats.map((cat) => {
+          const list = groups.filter((g) => g.category === cat);
+          if (!list.length) return null;
+          return (
+            <div key={cat} className="org-block">
+              {full && <h2 className="org-block-title" data-reveal>{o.cats[cat]}</h2>}
+              {/* Phones: one card at a time (carousel). Wider screens: the usual grid. */}
+              <Carousel label={o.cats[cat]} gridOnDesktop trackClass={`groups-grid${cat === "frontal" ? " cols-4" : ""}`}>
+                {list.map((gr, i) => <GroupCard key={gr.id} gr={gr} lang={lang} o={o} i={i} />)}
+              </Carousel>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </section>
   );

@@ -6,7 +6,7 @@ import { groups } from "@/data/placeholder";
 import { Done, DistrictSelect } from "./Forms";
 import Icon from "./Icon";
 import PasswordInput from "./PasswordInput";
-import { LIVE, loadFirebase } from "./session";
+import { LIVE, loadFirebase, useSession } from "./session";
 
 // DEMO — nothing is sent yet. Phase 2: proposals go to the Leadership
 // review queue; ground reports go to the Admin Editors' verification queue.
@@ -98,7 +98,24 @@ const PW_ERR = {
   hi: { wrong: "आपका मौजूदा पासवर्ड सही नहीं है।", weak: "कम से कम 8 अक्षरों का नया पासवर्ड चुनें।", error: "बदला नहीं जा सका। फिर कोशिश करें।" },
 };
 
+// A shared login (one login for all members) — nobody may change its password
+// from here, or one person could lock everyone else out. The Admin changes it.
+const SHARED_NOTE = {
+  en: "This is the shared members' login, so its password can only be changed by the party office.",
+  bn: "এটি সব সদস্যের জন্য একটি সাধারণ লগইন, তাই এর পাসওয়ার্ড শুধু দলীয় অফিস বদলাতে পারে।",
+  hi: "यह सभी सदस्यों का साझा लॉगिन है, इसलिए इसका पासवर्ड केवल पार्टी कार्यालय बदल सकता है।",
+};
+
 export function PasswordForm({ s }) {
+  const session = useSession();
+  if (LIVE && session?.shared) {
+    const lang = typeof document !== "undefined" ? document.documentElement.lang : "en";
+    return <p className="privacy-note"><span aria-hidden="true"><Icon name="lock" /></span><span>{SHARED_NOTE[lang] || SHARED_NOTE.en}</span></p>;
+  }
+  return <OwnPasswordForm s={s} />;
+}
+
+function OwnPasswordForm({ s }) {
   const [ok, setOk] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");

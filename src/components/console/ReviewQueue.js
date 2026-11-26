@@ -36,12 +36,15 @@ function Card({ s, busy, onAccept, onSend }) {
   return (
     <article className={`cs-card${s.status !== "pending" ? " done" : ""}`}>
       <div className="cs-card-top">
-        <span className="badge-kind">{KIND_LABEL[s.kind] || "Item"}{s.kind === "post" && s.format && s.format !== "blog" ? ` · ${s.format}` : ""}</span>
+        <span className="badge-kind">{s.editOf ? "Edit request · " : ""}{KIND_LABEL[s.kind] || "Item"}{s.kind === "post" && s.format && s.format !== "blog" ? ` · ${s.format}` : ""}</span>
         {s.status === "pending"
           ? <small>{s.submittedAt || s.createdAt ? fmtDate(s.submittedAt || s.createdAt) : ""}</small>
           : <Status kind={(ST[s.status] || ST.pending)[0]}>{(ST[s.status] || ST.pending)[1]}</Status>}
       </div>
       <h3>{t(tri(s.title), "en") || "(untitled)"}</h3>
+      {s.editOf && s.status === "pending" && (
+        <p className="form-note">Suggested changes to an item already on the website — <a className="link-arrow" href={`/en/${PUBLIC_PATH[s.kind]}/${s.editOf.id}`} target="_blank" rel="noopener noreferrer">compare with the current version ↗</a>. Accepting updates the live item.</p>
+      )}
       <p className="cs-message" style={{ marginBottom: 8 }}>{long && !more ? `${body.slice(0, 420)}…` : body}</p>
       {long && <button type="button" className="text-btn" style={{ justifySelf: "start" }} onClick={() => setMore(!more)}>{more ? "Show less" : "Read all"}</button>}
       <div className="cs-meta">
@@ -64,7 +67,7 @@ function Card({ s, busy, onAccept, onSend }) {
         </div>
       ) : (
         <div className="cs-row" style={{ marginTop: 10 }}>
-          <button className="btn btn-saffron btn-sm" disabled={busy} onClick={onAccept}>Accept &amp; publish</button>
+          <button className="btn btn-saffron btn-sm" disabled={busy} onClick={onAccept}>{s.editOf ? "Accept & apply edit" : "Accept & publish"}</button>
           <button className="btn btn-ghost btn-sm" disabled={busy} onClick={() => setMode("changes")}>Ask for changes</button>
           <button className="btn btn-ghost btn-sm" disabled={busy} onClick={() => setMode("rejected")}>Reject</button>
         </div>
@@ -85,7 +88,7 @@ export default function ReviewQueue() {
   const setOne = (id, p) => setItems(items.map((x) => (x.id === id ? { ...x, ...p } : x)));
 
   async function accept(s) {
-    if (!window.confirm(`Publish “${t(tri(s.title), "en")}” on the website?`)) return;
+    if (!window.confirm(s.editOf ? `Apply these changes to the live “${t(tri(s.title), "en")}”?` : `Publish “${t(tri(s.title), "en")}” on the website?`)) return;
     setBusy(true);
     try {
       const { id } = await acceptSubmission(s);
