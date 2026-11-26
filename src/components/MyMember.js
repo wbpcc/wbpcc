@@ -41,7 +41,7 @@ const daysSince = (iso) => (iso ? Math.max(1, Math.floor((Date.now() - Date.pars
 export function MemberIdLine({ lang }) {
   const m = useMyMember();
   if (m === undefined) return <p className="id-line">…</p>;
-  if (!m) return <p className="id-line">—</p>;
+  if (!m || m.shared) return null; // the shared members' login has no personal ID
   const g = m.group ? findGroup(m.group) : null;
   return (
     <p className="id-line">
@@ -52,9 +52,22 @@ export function MemberIdLine({ lang }) {
   );
 }
 
-/** Portal header: "Day N of your first 60". */
+const SHARED_TEXT = {
+  en: "Members' area — for party members only.",
+  bn: "সদস্য এলাকা — শুধু দলের সদস্যদের জন্য।",
+  hi: "सदस्य क्षेत्र — केवल पार्टी सदस्यों के लिए।",
+};
+
+/** Portal header: "Day N of your first 60" (personal logins) or a simple note (shared login). */
 export function MemberTier({ lang, p }) {
   const m = useMyMember();
+  if (m?.shared) {
+    return (
+      <div className="tier">
+        <small><Icon name="lock" size={14} /> {SHARED_TEXT[lang] || SHARED_TEXT.en}</small>
+      </div>
+    );
+  }
   const day = m ? daysSince(m.since) : 1;
   const pct = Math.min(100, Math.round((day / 60) * 100));
   return (
@@ -135,9 +148,16 @@ export function MemberUpcoming({ lang }) {
 }
 
 /** Profile page: Member ID, district, organisation, since. */
+const SHARED_PROFILE = {
+  en: "You're signed in with the shared members' login, used by all party members. Each member's own details are kept privately by the party office.",
+  bn: "আপনি সব দলীয় সদস্যের জন্য একটি সাধারণ লগইন দিয়ে সাইন ইন করেছেন। প্রত্যেক সদস্যের নিজস্ব তথ্য দলীয় অফিস গোপনে রাখে।",
+  hi: "आपने सभी पार्टी सदस्यों के साझा लॉगिन से साइन इन किया है। हर सदस्य की अपनी जानकारी पार्टी कार्यालय गोपनीय रूप से रखता है।",
+};
+
 export function ProfileFacts({ lang, s }) {
   const m = useMyMember();
   if (m === undefined) return <div className="card"><p className="cs-muted">…</p></div>;
+  if (m?.shared) return <div className="card"><p style={{ margin: 0 }}>{SHARED_PROFILE[lang] || SHARED_PROFILE.en}</p></div>;
   const g = m?.group ? findGroup(m.group) : null;
   const since = m?.since ? new Intl.DateTimeFormat(intlLocale[lang], { day: "numeric", month: "long", year: "numeric" }).format(new Date(m.since)) : "—";
   const rows = [

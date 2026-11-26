@@ -39,7 +39,6 @@ export function navItems(lang, d) {
       ],
     },
     { href: L("/contact"), label: d.nav.contact },
-    { href: L("/signin"), label: d.menu.membersArea, accent: true },
   ];
 }
 
@@ -65,7 +64,7 @@ export default function Header({ lang, d }) {
             <Link href={`/${lang}/join`} className="btn btn-saffron btn-join">
               {d.header.join}
             </Link>
-            <MobileMenu items={[{ href: `/${lang}`, label: d.nav.home }, ...items]} joinHref={`/${lang}/join`} d={d} />
+            <MobileMenu items={[{ href: `/${lang}`, label: d.nav.home }, ...items]} joinHref={`/${lang}/join`} lang={lang} d={d} />
           </div>
         </div>
       </header>

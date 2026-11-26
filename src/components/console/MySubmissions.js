@@ -38,6 +38,7 @@ const SAMPLE = submissionQueue.filter((s) => s.by === "contributor1@wbpcc.org").
   title: tri(s.title), body: tri(s.summary), authority: tri(s.authority || ""), reviewNote: s.note, createdAt: s.date,
 }));
 
+const TABS = [["all", "All"], ["pending", "Waiting"], ["changes", "Need changes"], ["accepted", "Published"], ["draft", "Drafts"]];
 const editable = (s) => ["draft", "pending", "changes"].includes(s.status);
 const withDefaults = (s) => ({ ...blank("article"), ...s, title: s.title || tri(), body: s.body || s.summary || tri(), authority: s.authority || tri(), events: s.events || [] });
 
@@ -46,6 +47,7 @@ export default function MySubmissions() {
   const [edit, setEdit] = useState(null);
   const [picking, setPicking] = useState(null); // { kind, id } while choosing an item to edit
   const [busy, setBusy] = useState(false);
+  const [filter, setFilter] = useState("all");
 
   function startEditRequest() {
     const { kind, id } = picking;
@@ -57,8 +59,12 @@ export default function MySubmissions() {
   const [msg, flash] = useFlash();
 
   useEffect(() => {
-    const k = new URLSearchParams(window.location.search).get("new");
+    const q = new URLSearchParams(window.location.search);
+    const k = q.get("new");
+    const st = q.get("status");
+    if (st && TABS.some(([v]) => v === st)) setFilter(st);
     if (k && UI_TO_KIND[k]) setEdit(blank(k));
+    else if (q.get("edit")) setPicking({ kind: "post", id: "" });
   }, []);
 
   const patch = (p) => setEdit({ ...edit, ...p });
@@ -97,24 +103,31 @@ export default function MySubmissions() {
     setBusy(false);
   }
 
+  const shown = filter === "all" ? list : list.filter((x) => x.status === filter);
   const kindLabel = (k) => KIND_LABEL[k] || "Item";
   const isPost = edit?.kind === "post";
 
   return (
     <>
-      <PageTitle title="Add article, campaign or petition" sub="Write it, then submit it for review. You can edit while it's a draft, waiting for review, or sent back with changes. Only you and the Admins can see it until it's published.">
-        <button className="btn btn-ghost" onClick={() => setPicking({ kind: "post", id: "" })}>Request an edit</button>
-        <button className="btn btn-ghost" onClick={() => setEdit(blank("article"))}>Add article / news</button>
-        <button className="btn btn-ghost" onClick={() => setEdit(blank("campaign"))}>Add campaign</button>
-        <button className="btn btn-saffron" onClick={() => setEdit(blank("petition"))}>Add petition</button>
+      <PageTitle title="My submissions" sub="Only you and the Admins can see these until they're published. You can edit while it's a draft, waiting, or sent back.">
+        <button className="btn btn-ghost btn-sm" onClick={() => setPicking({ kind: "post", id: "" })}>Request an edit</button>
+        <button className="btn btn-ghost btn-sm" onClick={() => setEdit(blank("article"))}>+ Article</button>
+        <button className="btn btn-ghost btn-sm" onClick={() => setEdit(blank("campaign"))}>+ Campaign</button>
+        <button className="btn btn-saffron btn-sm" onClick={() => setEdit(blank("petition"))}>+ Petition</button>
       </PageTitle>
       <Flash msg={msg} />
       {state === "loading" && <p className="form-note">Loading your work…</p>}
       {state === "error" && <p className="cs-warn small">Couldn&apos;t load your work — check your internet and reload.</p>}
+      <div className="cs-pills" role="tablist" aria-label="Filter by status">
+        {TABS.map(([v, label]) => {
+          const n = v === "all" ? list.length : list.filter((x) => x.status === v).length;
+          return <button key={v} type="button" role="tab" aria-selected={filter === v} className={filter === v ? "on" : ""} onClick={() => setFilter(v)}>{label} <small>{n}</small></button>;
+        })}
+      </div>
       <Panel>
         <div className="cs-list">
-          {state !== "loading" && list.length === 0 && <p className="cs-muted">Nothing yet — create your first article, petition or campaign.</p>}
-          {list.map((s) => (
+          {state !== "loading" && shown.length === 0 && <p className="cs-muted">{filter === "all" ? "Nothing yet — create your first article, petition or campaign." : "Nothing here."}</p>}
+          {shown.map((s) => (
             <article key={s.id} className="cs-card">
               <div className="cs-card-top">
                 <span className="badge-kind">{s.editOf ? `Edit request · ${kindLabel(s.kind)}` : kindLabel(s.kind)}</span>

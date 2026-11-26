@@ -248,3 +248,55 @@
 .edit-tile b { font-size: 16px; }
 .edit-tile small { color: var(--muted); }
 .edit-tile .go { color: var(--saffron); font-weight: 700; font-size: 13px; }
+
+/* Phones: compact number cards side by side; a little less padding */
+@media (max-width: 640px) {
+  .cs-content { padding: 16px 14px; }
+  .cs-cards { grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 8px; }
+  .cs-stat { padding: 12px 10px; gap: 4px; }
+  .cs-stat b { font-size: 30px; }
+  .cs-stat span { font-size: 12px; line-height: 1.25; }
+  .cs-head h1 { font-size: 30px; }
+}
+
+/* Top bar: who you are + Sign out, always visible */
+.cs-who { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--navy); background: var(--cream-2); padding: 6px 10px; border-radius: 999px; min-width: 0; }
+.cs-signout { display: inline-flex; align-items: center; gap: 6px; font: inherit; font-size: 13px; font-weight: 700; color: var(--navy); background: #fff; border: 1.5px solid var(--line); padding: 6px 12px; border-radius: 999px; cursor: pointer; }
+.cs-signout:hover { border-color: var(--navy); background: var(--navy); color: #fff; }
+.cs-top { flex-wrap: nowrap; }
+/* Slide-in menu on phones: backdrop + close button */
+.cs-side-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.cs-side-close { display: none; width: 36px; height: 36px; border-radius: 10px; border: 0; background: rgba(255,255,255,.12); color: #fff; font-size: 16px; }
+.cs-scrim { display: none; }
+@media (max-width: 960px) {
+  .cs-side-close { display: grid; place-items: center; }
+  .cs-scrim { display: block; position: fixed; inset: 0; z-index: 39; background: rgba(21,34,63,.45); animation: fadeIn .2s both; }
+  .cs-who-email { display: none; }
+  .cs-top { gap: 8px; }
+}
+@media (max-width: 420px) {
+  .cs-live { display: none; }
+}
+
+/* Compact dashboard: option tiles + status strip */
+.cs-tiles { display: grid; gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (min-width: 700px) { .cs-tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.cs-tile { display: grid; justify-items: center; align-content: center; gap: 8px; text-align: center; min-height: 92px; padding: 14px 10px; background: #fff; border: 1px solid var(--line); border-radius: 14px; font-weight: 700; font-size: 14px; color: var(--navy); line-height: 1.25; transition: border-color .2s, transform .2s var(--ease), box-shadow .2s; }
+.cs-tile i { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: var(--cream-2); color: var(--navy); }
+.cs-tile:hover { border-color: var(--saffron); transform: translateY(-2px); box-shadow: var(--shadow); }
+.cs-statusbar { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 14px; }
+.cs-statusbar h2 { margin: 0 0 10px; font-size: 15px; color: var(--navy); }
+.cs-status-grid { display: grid; gap: 8px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (min-width: 700px) { .cs-status-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.cs-status { display: grid; gap: 2px; padding: 10px 12px; border-radius: 12px; background: var(--cream); border: 1px solid transparent; color: var(--navy); transition: border-color .2s; }
+.cs-status b { font-family: var(--font-head); font-stretch: 70%; font-size: 28px; line-height: 1; }
+.cs-status span { font-size: 12.5px; color: var(--muted); font-weight: 600; line-height: 1.25; }
+.cs-status:hover { border-color: var(--navy); }
+.cs-status.is-alert b { color: var(--saffron); }
+
+/* Status pills (My submissions) */
+.cs-pills { display: flex; gap: 6px; flex-wrap: wrap; margin: 0 0 12px; }
+.cs-pills button { font: inherit; font-size: 13px; font-weight: 700; padding: 7px 12px; border-radius: 999px; border: 1.5px solid var(--line); background: #fff; color: var(--navy); cursor: pointer; }
+.cs-pills button small { font-weight: 600; color: var(--muted); margin-left: 2px; }
+.cs-pills button.on { background: var(--navy); border-color: var(--navy); color: #fff; }
+.cs-pills button.on small { color: rgba(255,255,255,.75); }

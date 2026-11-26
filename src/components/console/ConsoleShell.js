@@ -73,11 +73,15 @@ export default function ConsoleShell({ children }) {
   return (
     <RoleCtx.Provider value={{ role, me, setRole }}>
       <div className="cs">
+        {open && <div className="cs-scrim" onClick={() => setOpen(false)} aria-hidden="true" />}
         <aside className={`cs-side${open ? " open" : ""}`}>
-          <Link href="/console" className="cs-brand">
-            <img src="/brand/logo.svg" alt="" width={40} height={40} />
-            <span><b>WBPCC</b><small>Team console</small></span>
-          </Link>
+          <div className="cs-side-top">
+            <Link href="/console" className="cs-brand">
+              <img src="/brand/logo.svg" alt="" width={40} height={40} />
+              <span><b>WBPCC</b><small>Team console</small></span>
+            </Link>
+            <button type="button" className="cs-side-close" onClick={() => setOpen(false)} aria-label="Close menu">✕</button>
+          </div>
           <nav className="cs-nav" aria-label="Console">
             {visible.map((n, i) =>
               n.group ? (
@@ -101,7 +105,10 @@ export default function ConsoleShell({ children }) {
             {LIVE ? (
               <>
                 <span className="cs-live">● Live</span>
-                <span className="cs-me cs-me-live"><Icon name={me.icon} size={15} /> {me.label} · {me.email}</span>
+                <span className="cs-who" title={me.email}><Icon name={me.icon} size={15} /> {me.label}<span className="cs-who-email"> · {me.email}</span></span>
+                <button type="button" className="cs-signout" onClick={async () => { await clearSession(); router.push("/en"); }}>
+                  <Icon name="logout" size={16} /> Sign out
+                </button>
               </>
             ) : (
               <>
